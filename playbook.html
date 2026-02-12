@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1400">
+<title>7v7 Multiplayer Football</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Exo+2:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg-deep:#06080c;--bg-dark:#0b0e14;--bg-panel:#0f1219;--bg-card:#151a23;
+  --bg-hover:#1c222e;--bg-input:#111720;--border:#1e2530;--border-b:#2a3344;
+  --text:#e4e8f0;--text-dim:#7a8494;--text-muted:#444d5e;
+  --neon:#00c8ff;--neon-dim:rgba(0,200,255,.15);--neon-o:#ff6a00;
+  --neon-g:#00ff88;--neon-r:#ff3355;--rad:10px;--rads:6px;
+}
+html,body{height:100%;font-family:'Exo 2',sans-serif;background:var(--bg-deep);color:var(--text);overflow:hidden;user-select:none}
+#app{display:flex;flex-direction:column;height:100vh}
+
+/* BRAND */
+#brandHeader{
+  text-align:center;padding:8px 20px 4px;flex-shrink:0;
+  background:linear-gradient(180deg,#0e1320,#0b0e14);position:relative;overflow:hidden;
+}
+#brandHeader::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent 5%,var(--neon-o) 30%,var(--neon) 50%,var(--neon-o) 70%,transparent 95%)}
+.brand-main{font-family:'Orbitron',sans-serif;font-size:26px;font-weight:900;letter-spacing:6px;line-height:1;background:linear-gradient(90deg,#ff6a00,#ffaa00 25%,#fff 45%,#fff 55%,#00c8ff 75%,#0088ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 20px rgba(0,200,255,.25)) drop-shadow(0 0 40px rgba(255,106,0,.15));position:relative;z-index:1}
+.brand-sub{font-family:'Orbitron',sans-serif;font-size:9px;font-weight:500;letter-spacing:8px;color:var(--text-muted);text-transform:uppercase;margin-top:1px}
+.brand-icon{font-size:20px;vertical-align:middle;margin-right:4px}
+
+/* TAB BAR */
+#tabRow{display:flex;align-items:center;gap:8px;padding:4px 16px;background:var(--bg-panel);border-bottom:1px solid var(--border);flex-shrink:0;position:relative}
+#tabRow::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--neon),transparent);opacity:.3}
+.tab-bar{display:flex;gap:3px;overflow-x:auto;flex:1;scrollbar-width:none}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab{padding:4px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px 6px 0 0;cursor:pointer;font-size:11px;font-weight:700;white-space:nowrap;color:var(--text-dim);transition:all .2s;display:flex;align-items:center;gap:7px;text-transform:uppercase;letter-spacing:1px;position:relative}
+.tab:hover{background:var(--bg-hover);color:var(--text)}
+.tab.active{background:var(--bg-dark);color:var(--neon);border-bottom-color:var(--bg-dark)}
+.tab.active::before{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:var(--neon);border-radius:0 0 2px 2px}
+.tab .xt{font-size:14px;opacity:.3;cursor:pointer;transition:all .15s}
+.tab .xt:hover{opacity:1;color:var(--neon-r)}
+#addPlayBtn{padding:4px 14px;background:linear-gradient(135deg,var(--neon),#0088cc);color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:'Orbitron',sans-serif;font-weight:700;font-size:9px;letter-spacing:2px;transition:all .2s;text-transform:uppercase;box-shadow:0 2px 12px rgba(0,200,255,.25);flex-shrink:0}
+#addPlayBtn:hover{filter:brightness(1.2);transform:translateY(-1px)}
+
+/* INFO ROW */
+#infoRow{display:flex;align-items:center;gap:12px;padding:4px 16px;background:var(--bg-dark);border-bottom:1px solid var(--border);flex-shrink:0}
+#infoRow label{font-family:'Orbitron',sans-serif;font-size:8px;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;font-weight:600}
+.ii{background:var(--bg-input);border:1px solid var(--border);color:var(--text);padding:4px 10px;border-radius:var(--rads);font-family:'Exo 2',sans-serif;font-size:12px;font-weight:600;transition:all .2s}
+.ii:focus{outline:none;border-color:var(--neon);box-shadow:0 0 0 3px var(--neon-dim)}
+#playName{width:170px}#formationName{width:140px}#playType{width:130px;cursor:pointer}
+
+/* MAIN */
+#mainArea{display:flex;flex:1;overflow:hidden}
+#fieldContainer{flex:1;display:flex;align-items:center;justify-content:center;padding:8px;overflow:hidden;position:relative;background:radial-gradient(ellipse at center,#0d1118,#060810)}
+#fieldCanvas{cursor:default;border-radius:6px;box-shadow:0 0 0 1px rgba(255,255,255,.05),0 0 40px rgba(0,200,255,.08),0 8px 32px rgba(0,0,0,.6);position:relative;z-index:1}
+
+/* RIGHT PANEL */
+#rightPanel{width:260px;min-width:260px;background:linear-gradient(180deg,var(--bg-panel),var(--bg-dark));border-left:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.ps{padding:10px 12px;border-bottom:1px solid var(--border)}
+.pt{font-family:'Orbitron',sans-serif;font-size:8px;text-transform:uppercase;letter-spacing:2px;color:var(--text-muted);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.pt .d{width:4px;height:4px;border-radius:50%;background:var(--neon);box-shadow:0 0 6px var(--neon)}
+
+/* TOOL + HOW-TO */
+#currentTool{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:800;letter-spacing:2px;text-align:center;padding:8px;border-radius:var(--rad);transition:all .3s;margin-bottom:8px}
+#currentTool.dm{color:var(--neon-g);background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);text-shadow:0 0 20px rgba(0,255,136,.4)}
+#currentTool.rm{color:var(--neon-o);background:rgba(255,106,0,.06);border:1px solid rgba(255,106,0,.15);text-shadow:0 0 20px rgba(255,106,0,.4)}
+.howto{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rads);padding:8px 10px;font-size:11px;line-height:1.5;color:var(--text-dim)}
+.howto b{color:var(--text);font-weight:700}
+.howto .key{display:inline-block;background:var(--bg-hover);border:1px solid var(--border-b);border-radius:3px;padding:0 5px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--neon);margin:0 1px}
+.howto .step{display:flex;align-items:flex-start;gap:6px;margin-bottom:4px}
+.howto .step:last-child{margin-bottom:0}
+.howto .num{background:var(--neon);color:#000;width:16px;height:16px;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+/* TEMPLATES */
+.ts{width:100%;background:var(--bg-input);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:var(--rads);font-family:'Exo 2',sans-serif;font-size:12px;font-weight:600;cursor:pointer;margin-bottom:5px}
+.ta{display:flex;gap:4px}
+.ta button{flex:1;padding:5px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rads);color:var(--text-dim);cursor:pointer;font-family:'Exo 2',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;transition:all .15s}
+.ta button:hover{border-color:var(--neon);color:var(--neon)}
+
+/* NOTES */
+#notesArea{width:100%;background:var(--bg-input);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:var(--rads);font-family:'JetBrains Mono',monospace;font-size:11px;resize:vertical;min-height:40px;max-height:80px;transition:all .2s}
+#notesArea:focus{outline:none;border-color:var(--neon);box-shadow:0 0 0 3px var(--neon-dim)}
+
+/* LEGEND */
+.legend-wrap{display:flex;gap:10px}
+.legend-col{flex:1}
+.legend-col-title{font-family:'Orbitron',sans-serif;font-size:7px;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;padding-bottom:3px;border-bottom:1px solid var(--border);font-weight:700}
+.legend-col-title.off{color:#ff6666}
+.legend-col-title.def{color:#6688ff}
+.li{display:flex;align-items:center;gap:5px;font-size:10px;padding:2px 2px;font-weight:600}
+.ld{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.ll{color:var(--text-dim)}
+
+/* EXPORT */
+.eg{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.eb{padding:8px 6px;border:none;border-radius:var(--rads);cursor:pointer;font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;transition:all .2s;text-align:center;color:#fff;text-transform:uppercase;position:relative;overflow:hidden}
+.eb::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent)}
+.eb:hover{transform:translateY(-1px);filter:brightness(1.15)}
+.eb.png{background:linear-gradient(135deg,#1a8a3f,#0d6b2e)}
+.eb.pdf{background:linear-gradient(135deg,#c0392b,#8e2020)}
+.eb.clip{background:linear-gradient(135deg,#7b38b8,#5a2888)}
+.eb.share{background:linear-gradient(135deg,#0088cc,#005f8f)}
+
+/* UNDO/REDO */
+.ur{display:flex;gap:4px}
+.ur button{flex:1;padding:6px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rads);color:var(--text-dim);cursor:pointer;font-family:'Exo 2',sans-serif;font-size:11px;font-weight:700;transition:all .15s}
+.ur button:hover:not(:disabled){border-color:var(--neon);color:var(--neon)}
+.ur button:disabled{opacity:.2;cursor:default}
+
+/* TOGGLES */
+.tr{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--text-dim);font-weight:600}
+.tw{width:36px;height:18px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;cursor:pointer;position:relative;transition:all .25s;flex-shrink:0}
+.tw.on{background:rgba(0,200,255,.2);border-color:var(--neon)}
+.tw::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:var(--text-muted);transition:all .25s}
+.tw.on::after{left:20px;background:var(--neon);box-shadow:0 0 6px var(--neon)}
+
+/* BOTTOM BAR */
+#bottomBar{display:flex;align-items:center;gap:14px;padding:4px 16px;background:var(--bg-panel);border-top:1px solid var(--border);font-size:11px;color:var(--text-dim);flex-shrink:0;min-height:28px;position:relative}
+#bottomBar::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--neon),transparent);opacity:.2}
+.mb{padding:2px 10px;border-radius:4px;font-family:'Orbitron',sans-serif;font-weight:700;text-transform:uppercase;font-size:8px;letter-spacing:2px}
+.mb.dr{background:rgba(0,255,136,.1);color:var(--neon-g);border:1px solid rgba(0,255,136,.2)}
+.mb.rt{background:rgba(255,106,0,.1);color:var(--neon-o);border:1px solid rgba(255,106,0,.2)}
+
+/* TOAST */
+.toast{position:fixed;bottom:50px;left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,#151a23,#1c222e);border:1px solid var(--neon);color:var(--text);padding:10px 24px;border-radius:var(--rad);font-size:13px;font-weight:700;opacity:0;transition:all .35s cubic-bezier(.4,0,.2,1);z-index:999;pointer-events:none;box-shadow:0 0 20px rgba(0,200,255,.3),0 8px 32px rgba(0,0,0,.5);letter-spacing:.5px}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* CTX MENU */
+.ctx{position:fixed;background:var(--bg-card);border:1px solid var(--border-b);border-radius:var(--rad);padding:5px 0;z-index:1000;box-shadow:0 12px 40px rgba(0,0,0,.6);min-width:170px}
+.ci{padding:8px 16px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text);transition:all .12s}
+.ci:hover{background:var(--bg-hover);color:var(--neon)}
+.ci.dng:hover{color:var(--neon-r)}
+
+/* ROUTE HINT */
+.route-hint{position:fixed;background:rgba(15,18,25,.92);border:1px solid var(--neon);color:var(--neon);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;font-family:'Orbitron',sans-serif;letter-spacing:1px;pointer-events:none;z-index:500;box-shadow:0 0 12px rgba(0,200,255,.3);display:none;white-space:nowrap}
+
+/* ONBOARDING OVERLAY */
+#onboard{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(6,8,12,.7);backdrop-filter:blur(4px);cursor:pointer;transition:opacity .4s}
+#onboard.gone{opacity:0;pointer-events:none}
+.onboard-card{background:var(--bg-card);border:1px solid var(--border-b);border-radius:16px;padding:30px 40px;text-align:center;max-width:420px;box-shadow:0 0 60px rgba(0,200,255,.1),0 20px 60px rgba(0,0,0,.5)}
+.onboard-card h2{font-family:'Orbitron',sans-serif;font-size:18px;color:var(--neon);margin-bottom:16px;letter-spacing:2px}
+.onboard-card .steps{text-align:left;font-size:13px;line-height:1.8;color:var(--text-dim);margin-bottom:16px}
+.onboard-card .steps .s{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px}
+.onboard-card .steps .n{background:var(--neon);color:#000;width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-family:'Orbitron',sans-serif}
+.onboard-card .steps b{color:var(--text)}
+.onboard-card .steps .k{display:inline-block;background:var(--bg-hover);border:1px solid var(--border-b);border-radius:3px;padding:0 5px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--neon)}
+.onboard-card .dismiss{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--text-muted);letter-spacing:2px;margin-top:4px}
+.onboard-card .dismiss span{color:var(--neon)}
+
+.ps{animation:si .3s ease-out backwards}
+.ps:nth-child(1){animation-delay:.03s}.ps:nth-child(2){animation-delay:.06s}
+.ps:nth-child(3){animation-delay:.09s}.ps:nth-child(4){animation-delay:.12s}
+.ps:nth-child(5){animation-delay:.15s}.ps:nth-child(6){animation-delay:.18s}
+.ps:nth-child(7){animation-delay:.21s}.ps:nth-child(8){animation-delay:.24s}
+@keyframes si{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="brandHeader">
+    <div class="brand-main"><span class="brand-icon">🏈</span>7v7 MULTIPLAYER FOOTBALL</div>
+    <div class="brand-sub">Playbook Creator</div>
+  </div>
+  <div id="tabRow">
+    <div class="tab-bar" id="tabBar"></div>
+    <button id="addPlayBtn" onclick="addPlay()">+ New Play</button>
+  </div>
+  <div id="infoRow">
+    <label>Play</label><input type="text" class="ii" id="playName" placeholder="Untitled Play" oninput="upInfo()">
+    <label>Formation</label><input type="text" class="ii" id="formationName" placeholder="Formation" oninput="upInfo()">
+    <label>Type</label>
+    <select class="ii" id="playType" onchange="upInfo()"><option>Pass</option><option>Run</option><option>Screen</option><option>Play Action</option><option>Blitz</option><option>Coverage</option></select>
+  </div>
+  <div id="mainArea">
+    <div id="fieldContainer">
+      <canvas id="fieldCanvas" width="940" height="640"></canvas>
+      <!-- ONBOARDING OVERLAY -->
+      <div id="onboard" onclick="dismissOnboard()">
+        <div class="onboard-card">
+          <h2>HOW TO USE</h2>
+          <div class="steps">
+            <div class="s"><div class="n">1</div><div><b>Drag players</b> — click and drag any circle to reposition</div></div>
+            <div class="s"><div class="n">2</div><div><b>Draw routes</b> — press <span class="k">R</span> then click a player, click to add turns, <b>double-click to finish</b></div></div>
+            <div class="s"><div class="n">3</div><div><b>Delete</b> — right-click any player to delete route or reset position</div></div>
+            <div class="s"><div class="n">4</div><div><b>Undo</b> — <span class="k">Ctrl+Z</span> undo &nbsp; <span class="k">Ctrl+Y</span> redo &nbsp; <span class="k">Esc</span> cancel</div></div>
+          </div>
+          <div class="dismiss">Click anywhere to <span>START</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="rightPanel">
+      <div class="ps">
+        <div id="currentTool" class="dm">⬡ DRAG MODE</div>
+        <div class="howto" id="howtoBox">
+          <div class="step"><div class="num">1</div><div><b>Drag</b> any player to move them</div></div>
+          <div class="step"><div class="num">2</div><div>Press <span class="key">R</span> to switch to <b>Route Mode</b></div></div>
+          <div class="step"><div class="num">3</div><div>Click a player → click to add turns → <b>double-click to finish</b></div></div>
+          <div class="step"><div class="num">4</div><div>Right-click to delete routes</div></div>
+        </div>
+      </div>
+      <div class="ps">
+        <div class="pt"><span class="d"></span>Formations</div>
+        <select class="ts" id="templateSelect" onchange="applyTmpl()">
+          <option value="">— Select —</option>
+          <optgroup label="Offense"><option value="shotgun_spread">Shotgun Spread</option><option value="trips_right">Trips Right</option><option value="bunch_right">Bunch Right</option></optgroup>
+          <optgroup label="Defense"><option value="cover_2">Cover 2</option><option value="cover_3">Cover 3</option><option value="man_blitz">Man Blitz</option></optgroup>
+        </select>
+        <div class="ta"><button onclick="saveTmpl()">💾 Save</button><button onclick="loadCust()">📂 Load</button></div>
+      </div>
+      <div class="ps">
+        <div class="pt"><span class="d"></span>Options</div>
+        <div class="tr" style="margin-bottom:6px"><div class="tw" id="snapT" onclick="toggleSnap()"></div><span>Grid Snap</span></div>
+        <div class="tr"><div class="tw" id="zoomT" onclick="toggleZoom()"></div><span>Scroll Zoom</span></div>
+      </div>
+      <div class="ps"><div class="pt"><span class="d"></span>Notes</div><textarea id="notesArea" placeholder="Play notes..." oninput="upInfo()"></textarea></div>
+      <div class="ps"><div class="pt"><span class="d"></span>Route Colors</div><div class="legend-wrap" id="legendGrid"></div></div>
+      <div class="ps">
+        <div class="pt"><span class="d"></span>Export</div>
+        <div class="eg">
+          <button class="eb png" onclick="exPNG()">PNG</button><button class="eb pdf" onclick="exPDF()">PDF</button>
+          <button class="eb clip" onclick="exClip()">Copy</button><button class="eb share" onclick="exShare()">Share</button>
+        </div>
+      </div>
+      <div class="ps"><div class="ur"><button id="undoBtn" onclick="undo()" disabled>↩ Undo</button><button id="redoBtn" onclick="redo()" disabled>↪ Redo</button></div></div>
+    </div>
+  </div>
+  <div id="bottomBar">
+    <span class="mb dr" id="modeBadge">DRAG</span>
+    <span id="selInfo">No player selected</span>
+    <span style="opacity:.5;font-style:italic" id="hintText">Drag players to move • Press R to draw routes</span>
+    <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted)" id="coords"></span>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="ctx" id="ctxMenu" style="display:none"></div>
+<div class="route-hint" id="routeHint"></div>
+
+<script>
+/* =========================================================
+   7v7 MULTIPLAYER FOOTBALL — PLAYBOOK CREATOR
+   ========================================================= */
+
+const CW=940,CH=640;
+const MG={t:32,b:32,l:60,r:60};
+const FW=CW-MG.l-MG.r,FH=CH-MG.t-MG.b;
+const YARDS=30,YPX=FW/YARDS;
+const LOS_X=MG.l+FW/2;
+const CY=MG.t+FH/2; // vertical center (between sidelines)
+const PR=15,SN=YPX/2;
+
+/*
+ * PLAYER POSITIONING — realistic 7v7 formation
+ * Field is landscape: Y is sideline-to-sideline.
+ * CY = center of field. WRs are ~8 yards from center (not at sidelines!)
+ * Offense RIGHT of LOS. Defense LEFT.
+ */
+function defOff(){
+  const l=LOS_X,c=CY,y=YPX;
+  return [
+    {id:'QB', label:'QB', color:'#ffffff', x:l+4*y, y:c,        side:'O'},
+    {id:'C',  label:'C',  color:'#999999', x:l+1*y, y:c,        side:'O'},
+    {id:'LG', label:'LG', color:'#cc7700', x:l+1*y, y:c-1.8*y, side:'O'},
+    {id:'RG', label:'RG', color:'#ddaa00', x:l+1*y, y:c+1.8*y, side:'O'},
+    {id:'LWR',label:'LWR',color:'#ffee00', x:l+1*y, y:c-5*y,   side:'O'},
+    {id:'RWR',label:'RWR',color:'#00ddff', x:l+1*y, y:c+5*y,   side:'O'},
+    {id:'RB', label:'RB', color:'#ff44aa', x:l+1.5*y,y:c-3.5*y, side:'O'},
+  ];
+}
+function defDef(){
+  const l=LOS_X,c=CY,y=YPX;
+  return [
+    {id:'MLB',label:'MLB',color:'#ffffff', x:l-2*y,  y:c,       side:'D'},
+    {id:'LT', label:'LT', color:'#bbbbbb', x:l-1*y,  y:c-1.8*y,side:'D'},
+    {id:'RT', label:'RT', color:'#cccccc', x:l-1*y,  y:c+1.8*y,side:'D'},
+    {id:'LCB',label:'LCB',color:'#ff8888', x:l-1.5*y,y:c-5*y,  side:'D'},
+    {id:'RCB',label:'RCB',color:'#88aaff', x:l-1.5*y,y:c+5*y,  side:'D'},
+    {id:'LS', label:'LS', color:'#ffff88', x:l-6*y,  y:c-4*y,  side:'D'},
+    {id:'RS', label:'RS', color:'#88ffff', x:l-6*y,  y:c+4*y,  side:'D'},
+  ];
+}
+
+// STATE
+let plays=[],cpIdx=0,mode='drag',selP=null,dragging=null,dragSt=null;
+let rPts=[],rPrev=null,snapOn=false,zoomOn=false,zLvl=1,pan={x:0,y:0};
+let undoS=[],redoS=[],aFrame=null;
+let clickTimer=null; // debounce single vs double click
+const cv=document.getElementById('fieldCanvas'),cx=cv.getContext('2d');
+
+function mkPlay(n){
+  const pl=[...defOff(),...defDef()].map(p=>({...p,origX:p.x,origY:p.y,route:null}));
+  return{name:n||'Play '+(plays.length+1),formation:'',type:'Pass',notes:'',players:pl};
+}
+function P(){return plays[cpIdx]}
+
+// ===== ONBOARDING =====
+function dismissOnboard(){
+  const el=document.getElementById('onboard');
+  el.classList.add('gone');
+  setTimeout(()=>{el.style.display='none'},500);
+  localStorage.setItem('pb7_seen','1');
+}
+
+// ===== INIT =====
+function init(){
+  // Version check — clear stale saves when positions change
+  const PB_VER='5';
+  if(localStorage.getItem('pb7_ver')!==PB_VER){localStorage.removeItem('pb7');localStorage.setItem('pb7_ver',PB_VER)}
+  if(location.hash.length>1){try{const d=JSON.parse(atob(location.hash.slice(1)));plays=Array.isArray(d)?d:[d]}catch(e){plays=[]}}
+  if(!plays.length){try{const s=localStorage.getItem('pb7');if(s)plays=JSON.parse(s)}catch(e){}}
+  if(!plays.length)plays=[mkPlay()];
+  // Hide onboarding if seen before
+  if(localStorage.getItem('pb7_seen')){
+    const ob=document.getElementById('onboard');ob.style.display='none';
+  }
+  rTabs();swPlay(0);bLegend();draw();
+  cv.addEventListener('mousedown',onMD);cv.addEventListener('mousemove',onMM);
+  cv.addEventListener('mouseup',onMU);cv.addEventListener('dblclick',onDbl);
+  cv.addEventListener('contextmenu',onCtx);cv.addEventListener('wheel',onWh,{passive:false});
+  document.addEventListener('keydown',onKey);
+  document.addEventListener('click',()=>{document.getElementById('ctxMenu').style.display='none'});
+  setInterval(()=>{try{localStorage.setItem('pb7',JSON.stringify(plays))}catch(e){}},3000);
+}
+
+// TABS
+function rTabs(){
+  const bar=document.getElementById('tabBar');bar.innerHTML='';
+  plays.forEach((p,i)=>{
+    const t=document.createElement('div');t.className='tab'+(i===cpIdx?' active':'');
+    const s=document.createElement('span');s.textContent=p.name||'Play '+(i+1);s.onclick=()=>swPlay(i);t.appendChild(s);
+    if(plays.length>1){const x=document.createElement('span');x.className='xt';x.textContent='×';x.onclick=e=>{e.stopPropagation();rmPlay(i)};t.appendChild(x)}
+    t.onclick=()=>swPlay(i);bar.appendChild(t);
+  });
+}
+function swPlay(i){cpIdx=i;const p=P();document.getElementById('playName').value=p.name||'';document.getElementById('formationName').value=p.formation||'';document.getElementById('playType').value=p.type||'Pass';document.getElementById('notesArea').value=p.notes||'';selP=null;rPts=[];rTabs();draw();upStat()}
+function addPlay(){pushU();plays.push(mkPlay());swPlay(plays.length-1)}
+function rmPlay(i){if(plays.length<=1)return;pushU();plays.splice(i,1);if(cpIdx>=plays.length)cpIdx=plays.length-1;swPlay(cpIdx)}
+function upInfo(){const p=P();p.name=document.getElementById('playName').value;p.formation=document.getElementById('formationName').value;p.type=document.getElementById('playType').value;p.notes=document.getElementById('notesArea').value;rTabs()}
+
+// =========================================================
+//  SMART ROUTE CLASSIFICATION
+// =========================================================
+function classifyRoute(player,pts){
+  if(!pts||pts.length<1)return{type:'unknown',label:''};
+  const isO=player.side==='O';
+  const dir=isO?-1:1;
+  const endDx=(pts[pts.length-1].x-player.x)*dir;
+  const endDy=pts[pts.length-1].y-player.y;
+  const dist=Math.hypot(endDx,endDy);
+  const toMid=player.y>CY?-1:1;
+
+  if(dist<YPX*2.5&&pts.length<=1)return{type:'block',label:'BLOCK'};
+  if(pts.length===1){
+    const absDy=Math.abs(endDy);
+    if(absDy<YPX*1.5&&endDx>YPX*4)return{type:'streak',label:'STREAK'};
+    if(absDy>endDx*1.5)return{type:'flat',label:'FLAT'};
+    if(endDy*toMid>0)return{type:'slant',label:'SLANT'};
+    return{type:'streak',label:'GO'};
+  }
+  // Multi-point: last segment vs overall
+  const li=pts.length-1;
+  const lastDx=(pts[li].x-pts[Math.max(0,li-1)].x)*dir;
+  const lastDy=pts[li].y-pts[Math.max(0,li-1)].y;
+  const firstDx=(pts[0].x-player.x)*dir;
+
+  // Comeback: last segment goes BACK toward player significantly
+  if(lastDx<-YPX*1.5){
+    if(Math.abs(lastDy)<YPX*2)return{type:'curl',label:'CURL'};
+    return{type:'comeback',label:'COMEBACK'};
+  }
+  // First segment downfield then cut
+  if(firstDx>YPX*2){
+    const goesOut=(lastDy*toMid<0);
+    if(Math.abs(lastDy)>Math.abs(lastDx)*.8){
+      if(goesOut){
+        if(lastDx>YPX*2)return{type:'corner',label:'CORNER'};
+        return{type:'out',label:'OUT'};
+      }else{
+        if(lastDx>YPX*2)return{type:'post',label:'POST'};
+        return{type:'in',label:'IN / DIG'};
+      }
+    }
+    if(endDx>YPX*6)return{type:'streak',label:'GO'};
+    return{type:'slant',label:'SLANT'};
+  }
+  // Lateral then deep = wheel
+  if(Math.abs(pts[0].y-player.y)>firstDx*1.5&&lastDx>YPX*1.5)return{type:'wheel',label:'WHEEL'};
+  if(Math.abs(endDy)>Math.abs(endDx)*1.5)return{type:'flat',label:'FLAT'};
+  if(endDx>YPX*4)return{type:'streak',label:'GO'};
+  return{type:'custom',label:'ROUTE'};
+}
+
+// =========================================================
+//  DRAWING
+// =========================================================
+function draw(){
+  cx.save();cx.setTransform(1,0,0,1,0,0);cx.clearRect(0,0,CW,CH);
+  cx.translate(pan.x,pan.y);cx.scale(zLvl,zLvl);
+  drawField(cx);drawRoutes(cx);drawRPrev(cx);drawPlayers(cx);
+  cx.restore();
+}
+
+function drawField(x){
+  x.fillStyle='#0a1a10';x.fillRect(0,0,CW,CH);
+  for(let yd=0;yd<YARDS;yd+=5){const x1=MG.l+(yd/YARDS)*FW,w=(5/YARDS)*FW;x.fillStyle=(yd/5)%2===0?'#1e6830':'#1a5c2a';x.fillRect(x1,MG.t,w,FH)}
+  x.fillStyle='rgba(0,0,0,.04)';for(let i=0;i<300;i++){x.fillRect(MG.l+Math.random()*FW,MG.t+Math.random()*FH,1,1)}
+  x.strokeStyle='#fff';x.lineWidth=3;x.shadowColor='rgba(255,255,255,.3)';x.shadowBlur=6;x.strokeRect(MG.l,MG.t,FW,FH);x.shadowBlur=0;
+  for(let yd=0;yd<=YARDS;yd++){const lx=MG.l+(yd/YARDS)*FW;if(yd%5===0){x.strokeStyle='rgba(255,255,255,.5)';x.lineWidth=1.5}else{x.strokeStyle='rgba(255,255,255,.12)';x.lineWidth=.5}x.beginPath();x.moveTo(lx,MG.t);x.lineTo(lx,MG.t+FH);x.stroke()}
+  const h1=MG.t+FH*.33,h2=MG.t+FH*.67;x.strokeStyle='rgba(255,255,255,.3)';x.lineWidth=1.5;
+  for(let yd=1;yd<YARDS;yd++){const lx=MG.l+(yd/YARDS)*FW;x.beginPath();x.moveTo(lx,h1-5);x.lineTo(lx,h1+5);x.stroke();x.beginPath();x.moveTo(lx,h2-5);x.lineTo(lx,h2+5);x.stroke()}
+  x.fillStyle='rgba(255,255,255,.16)';x.font='bold 20px Orbitron,sans-serif';x.textAlign='center';x.textBaseline='middle';
+  for(let i=1;i<=5;i++){const lx=MG.l+(i*5/YARDS)*FW;x.fillText(String(i*5),lx,MG.t+16);x.fillText(String(i*5),lx,CH-MG.b-16)}
+  // LOS
+  x.save();x.setLineDash([10,7]);x.strokeStyle='#00c8ff';x.lineWidth=2.5;x.shadowColor='rgba(0,200,255,.6)';x.shadowBlur=14;
+  x.beginPath();x.moveTo(LOS_X,MG.t);x.lineTo(LOS_X,MG.t+FH);x.stroke();x.shadowBlur=0;x.setLineDash([]);
+  x.fillStyle='rgba(0,200,255,.6)';x.font='bold 10px Orbitron,sans-serif';x.textAlign='center';x.fillText('L O S',LOS_X,MG.t-10);x.restore();
+  // Side labels
+  x.save();x.globalAlpha=.08;x.font='bold 24px Orbitron,sans-serif';x.textAlign='center';x.textBaseline='middle';
+  x.fillStyle='#ff6666';x.fillText('OFFENSE',LOS_X+FW*.25,CY);
+  x.fillStyle='#6688ff';x.fillText('DEFENSE',LOS_X-FW*.25,CY);x.restore();
+}
+
+function drawPlayers(x){
+  const now=Date.now();
+  P().players.forEach(pl=>{
+    const sel=selP&&selP.id===pl.id,isO=pl.side==='O';
+    // Ghost
+    if(dragging&&dragging.id===pl.id&&dragSt){
+      x.globalAlpha=.2;x.beginPath();x.arc(dragSt.x,dragSt.y,PR,0,Math.PI*2);
+      x.strokeStyle=isO?'#ff6666':'#6688ff';x.lineWidth=1.5;x.setLineDash([4,4]);x.stroke();x.setLineDash([]);x.globalAlpha=1;
+    }
+    // Selection pulse
+    if(sel){
+      const pulse=(Math.sin(now/180)+1)/2;
+      x.beginPath();x.arc(pl.x,pl.y,PR+5+pulse*4,0,Math.PI*2);
+      x.strokeStyle='rgba(0,200,255,'+(0.3+pulse*.4)+')';x.lineWidth=2;x.stroke();
+    }
+    // Body
+    const g=x.createRadialGradient(pl.x-3,pl.y-4,2,pl.x,pl.y,PR);
+    if(isO){g.addColorStop(0,'#ff7777');g.addColorStop(.7,'#dd2222');g.addColorStop(1,'#aa1111')}
+    else{g.addColorStop(0,'#7799ff');g.addColorStop(.7,'#2255dd');g.addColorStop(1,'#1133aa')}
+    x.beginPath();x.arc(pl.x,pl.y,PR,0,Math.PI*2);x.fillStyle=g;
+    x.shadowColor=isO?'rgba(255,40,40,.5)':'rgba(40,80,255,.5)';x.shadowBlur=12;x.fill();x.shadowBlur=0;
+    x.strokeStyle=sel?'rgba(0,200,255,.9)':'rgba(255,255,255,.3)';x.lineWidth=sel?2.5:1.5;x.stroke();
+    // Label
+    x.fillStyle='#fff';x.font='bold '+(pl.label.length>2?9:11)+'px "Exo 2",sans-serif';
+    x.textAlign='center';x.textBaseline='middle';x.shadowColor='rgba(0,0,0,.6)';x.shadowBlur=3;
+    x.fillText(pl.label,pl.x,pl.y+.5);x.shadowBlur=0;
+  });
+  if(selP){cancelAnimationFrame(aFrame);aFrame=requestAnimationFrame(draw)}
+}
+
+function drawRoutes(x){P().players.forEach(pl=>{if(pl.route&&pl.route.length)rRoute(x,pl,pl.route,pl.color,pl.id==='QB')})}
+
+function rRoute(x,player,pts,color,dashed){
+  if(!pts.length)return;x.save();
+  const dx=pts[0].x-player.x,dy=pts[0].y-player.y,d=Math.hypot(dx,dy);
+  const ox=d>1?player.x+(dx/d)*PR:player.x,oy=d>1?player.y+(dy/d)*PR:player.y;
+  const all=[{x:ox,y:oy},...pts];
+  const cls=classifyRoute(player,pts);
+  // Block
+  if(cls.type==='block'){
+    x.strokeStyle=color;x.lineWidth=7;x.lineCap='butt';x.shadowColor=color;x.shadowBlur=6;
+    x.beginPath();x.moveTo(ox,oy);x.lineTo(pts[0].x,pts[0].y);x.stroke();
+    const a=Math.atan2(pts[0].y-oy,pts[0].x-ox);x.lineWidth=5;
+    x.beginPath();x.moveTo(pts[0].x-Math.sin(a)*8,pts[0].y+Math.cos(a)*8);
+    x.lineTo(pts[0].x+Math.sin(a)*8,pts[0].y-Math.cos(a)*8);x.stroke();
+    x.restore();return;
+  }
+  x.strokeStyle=color;x.lineWidth=3.5;x.lineCap='round';x.lineJoin='round';
+  x.shadowColor=color;x.shadowBlur=6;if(dashed)x.setLineDash([10,6]);
+  // Smooth curves for curl/wheel/comeback, sharp for cuts
+  x.beginPath();x.moveTo(all[0].x,all[0].y);
+  if(cls.type==='curl'||cls.type==='wheel'||cls.type==='comeback'){
+    if(all.length===2){x.lineTo(all[1].x,all[1].y)}
+    else{for(let i=1;i<all.length-1;i++){const mx=(all[i].x+all[i+1].x)/2,my=(all[i].y+all[i+1].y)/2;x.quadraticCurveTo(all[i].x,all[i].y,mx,my)}x.lineTo(all[all.length-1].x,all[all.length-1].y)}
+  }else{for(let i=1;i<all.length;i++)x.lineTo(all[i].x,all[i].y)}
+  x.stroke();x.shadowBlur=0;
+  // Turn dots for sharp routes
+  if(cls.type!=='curl'&&cls.type!=='wheel'&&cls.type!=='comeback'){
+    for(let i=1;i<all.length-1;i++){x.setLineDash([]);x.beginPath();x.arc(all[i].x,all[i].y,4,0,Math.PI*2);x.fillStyle=color;x.shadowColor=color;x.shadowBlur=4;x.fill();x.shadowBlur=0}
+  }
+  // Arrowhead
+  const last=all[all.length-1],prev=all[all.length-2],ang=Math.atan2(last.y-prev.y,last.x-prev.x);
+  x.setLineDash([]);x.lineWidth=3.5;x.beginPath();
+  x.moveTo(last.x,last.y);x.lineTo(last.x-12*Math.cos(ang-.42),last.y-12*Math.sin(ang-.42));
+  x.moveTo(last.x,last.y);x.lineTo(last.x-12*Math.cos(ang+.42),last.y-12*Math.sin(ang+.42));
+  x.stroke();x.restore();
+}
+
+function drawRPrev(x){
+  if(mode!=='route'||!selP||rPts.length===0)return;
+  rRoute(x,selP,rPts,selP.color+'88',selP.id==='QB');
+  if(rPrev){x.save();x.strokeStyle=selP.color+'55';x.lineWidth=2;x.setLineDash([5,5]);
+    const last=rPts[rPts.length-1];x.beginPath();x.moveTo(last.x,last.y);x.lineTo(rPrev.x,rPrev.y);x.stroke();x.restore()}
+}
+
+// =========================================================
+//  INPUT
+// =========================================================
+function gPos(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*(CW/r.width)/zLvl-pan.x/zLvl,y:(e.clientY-r.top)*(CH/r.height)/zLvl-pan.y/zLvl}}
+function fPl(pos,r){r=r||PR+5;const ps=P().players;for(let i=ps.length-1;i>=0;i--)if(Math.hypot(pos.x-ps[i].x,pos.y-ps[i].y)<=r)return ps[i];return null}
+
+function onMD(e){
+  if(e.button!==0)return;const pos=gPos(e);
+  if(mode==='drag'){
+    const pl=fPl(pos);if(pl){selP=pl;dragging=pl;dragSt={x:pl.x,y:pl.y};cv.style.cursor='grabbing'}else selP=null;
+    upStat();draw();
+  }else if(mode==='route'){
+    // Debounce: delay single click so double-click can cancel it
+    if(clickTimer){clearTimeout(clickTimer);clickTimer=null;return}
+    clickTimer=setTimeout(()=>{
+      clickTimer=null;
+      handleRouteClick(pos,e);
+    },200);
+  }
+}
+
+function handleRouteClick(pos,e){
+  if(!selP){
+    const pl=fPl(pos);
+    if(pl){selP=pl;upStat();draw();toast('Now click on the field to draw '+pl.label+'\'s route')}
+  }else if(rPts.length===0){
+    const pt=snapOn?snap(pos):pos;
+    rPts.push({x:pt.x,y:pt.y});
+    updateRouteHint(e);draw();upStat();
+  }else{
+    const pt=snapOn?snap(pos):pos;
+    rPts.push({x:pt.x,y:pt.y});
+    updateRouteHint(e);draw();
+  }
+}
+
+function onMM(e){
+  const pos=gPos(e);document.getElementById('coords').textContent=Math.round(pos.x)+', '+Math.round(pos.y);
+  if(mode==='drag'&&dragging){const pt=snapOn?snap(pos):pos;dragging.x=pt.x;dragging.y=pt.y;draw()}
+  else if(mode==='route'&&selP&&rPts.length>0){rPrev=pos;draw();updateRouteHint(e)}
+  else{
+    const pl=fPl(pos);
+    if(mode==='route'){
+      cv.style.cursor=pl?'crosshair':'default';
+      // Highlight hoverable players in route mode
+    }else{
+      cv.style.cursor=pl?'grab':'default';
+    }
+  }
+}
+
+function updateRouteHint(e){
+  const hint=document.getElementById('routeHint');
+  if(!selP||rPts.length===0){hint.style.display='none';return}
+  const testPts=rPrev?[...rPts,{x:rPrev.x,y:rPrev.y}]:rPts;
+  const cls=classifyRoute(selP,testPts);
+  if(cls.label){hint.style.display='block';hint.textContent=cls.label;hint.style.left=(e.clientX+15)+'px';hint.style.top=(e.clientY-10)+'px'}
+  else{hint.style.display='none'}
+}
+
+function onMU(e){
+  if(dragging){if(dragSt&&(Math.abs(dragging.x-dragSt.x)>2||Math.abs(dragging.y-dragSt.y)>2))pushU();
+    dragging=null;cv.style.cursor='default';draw()}
+}
+
+function onDbl(e){
+  e.preventDefault();
+  // Cancel pending single-click so we don't double-add a point
+  if(clickTimer){clearTimeout(clickTimer);clickTimer=null}
+  const pos=gPos(e);
+  if(mode==='route'&&selP&&rPts.length>0){
+    // Finish route with a final point at double-click location
+    const pt=snapOn?snap(pos):pos;
+    rPts.push({x:pt.x,y:pt.y});
+    const cls=classifyRoute(selP,rPts);
+    pushU();selP.route=[...rPts];rPts=[];rPrev=null;
+    document.getElementById('routeHint').style.display='none';
+    const pName=selP.label;selP=null;draw();upStat();
+    toast(cls.label?cls.label+' → '+pName:'Route saved');
+  }else if(mode==='route'&&selP&&rPts.length===0){
+    // Double-click to place a single-point route (block/short)
+    const pt=snapOn?snap(pos):pos;
+    rPts=[{x:pt.x,y:pt.y}];
+    const cls=classifyRoute(selP,rPts);
+    pushU();selP.route=[...rPts];rPts=[];rPrev=null;
+    document.getElementById('routeHint').style.display='none';
+    const pName=selP.label;selP=null;draw();upStat();
+    toast(cls.label?cls.label+' → '+pName:'Route saved');
+  }else if(mode==='route'&&!selP){
+    const pl=fPl(pos);
+    if(pl){selP=pl;upStat();draw();toast('Click on the field to draw '+pl.label+'\'s route')}
+  }
+}
+
+function onCtx(e){
+  e.preventDefault();const pos=gPos(e),pl=fPl(pos,PR+10);
+  const m=document.getElementById('ctxMenu');m.innerHTML='';m.style.display='block';
+  m.style.left=e.clientX+'px';m.style.top=e.clientY+'px';
+  if(pl){
+    if(pl.route)addCI('✕ Delete Route',()=>{pushU();pl.route=null;draw();toast('Route deleted')},true);
+    addCI('↺ Reset Position',()=>{pushU();pl.x=pl.origX;pl.y=pl.origY;draw();toast('Reset')});
+    addCI('◎ Select',()=>{selP=pl;upStat();draw()});
+  }else addCI('Cancel',()=>{});
+}
+function addCI(label,fn,dng){const d=document.createElement('div');d.className='ci'+(dng?' dng':'');d.textContent=label;d.onclick=ev=>{ev.stopPropagation();fn();document.getElementById('ctxMenu').style.display='none'};document.getElementById('ctxMenu').appendChild(d)}
+function onWh(e){if(!zoomOn)return;e.preventDefault();zLvl=Math.max(.5,Math.min(3,zLvl*(e.deltaY>0?.95:1.05)));draw()}
+function snap(p){return{x:Math.round(p.x/SN)*SN,y:Math.round(p.y/SN)*SN}}
+
+// KEYBOARD
+function onKey(e){
+  if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;
+  if(e.key==='r'||e.key==='R')togMode();
+  else if(e.key==='Escape'){
+    if(rPts.length>0){rPts=[];rPrev=null;document.getElementById('routeHint').style.display='none';draw();toast('Cancelled')}
+    selP=null;upStat();draw();
+  }
+  else if(e.ctrlKey&&e.key==='z'){e.preventDefault();undo()}
+  else if(e.ctrlKey&&e.key==='y'){e.preventDefault();redo()}
+}
+function togMode(){
+  mode=mode==='drag'?'route':'drag';rPts=[];rPrev=null;
+  document.getElementById('routeHint').style.display='none';
+  if(mode==='drag')selP=null;
+  upStat();draw();
+  if(mode==='route')toast('ROUTE MODE — Click a player, then draw their route');
+  else toast('DRAG MODE — Click & drag players to reposition');
+}
+function upStat(){
+  const b=document.getElementById('modeBadge'),t=document.getElementById('currentTool');
+  const si=document.getElementById('selInfo'),h=document.getElementById('hintText');
+  const hw=document.getElementById('howtoBox');
+  if(mode==='drag'){
+    b.className='mb dr';b.textContent='DRAG';t.className='dm';t.innerHTML='⬡ DRAG MODE';
+    h.textContent='Drag players to move • Press R to draw routes';
+    hw.innerHTML='<div class="step"><div class="num">1</div><div><b>Click & drag</b> any player to move</div></div><div class="step"><div class="num">2</div><div>Press <span class="key">R</span> to switch to <b>Route Mode</b></div></div><div class="step"><div class="num">3</div><div><b>Right-click</b> a player for more options</div></div>';
+  }else{
+    b.className='mb rt';b.textContent='ROUTE';t.className='rm';t.innerHTML='✦ ROUTE MODE';
+    if(!selP){
+      h.textContent='Click a player to start drawing their route';
+      hw.innerHTML='<div class="step"><div class="num">1</div><div><b>Click a player</b> to select them</div></div><div class="step"><div class="num">2</div><div><b>Click on the field</b> to add waypoints</div></div><div class="step"><div class="num">3</div><div><b>Double-click</b> to finish the route</div></div><div class="step"><div class="num">4</div><div>Press <span class="key">Esc</span> to cancel</div></div>';
+    }else if(rPts.length===0){
+      h.textContent='Click on the field to start '+selP.label+'\'s route';
+      hw.innerHTML='<div class="step"><div class="num">→</div><div>Drawing route for <b>'+selP.label+'</b></div></div><div class="step"><div class="num">1</div><div><b>Click</b> to place waypoints</div></div><div class="step"><div class="num">2</div><div><b>Double-click</b> to finish</div></div>';
+    }else{
+      h.textContent='Click to add turns • Double-click to finish • Esc to cancel';
+      hw.innerHTML='<div class="step"><div class="num">✏</div><div>Drawing <b>'+selP.label+'</b>\'s route…</div></div><div class="step"><div class="num">→</div><div><b>Click</b> = add turn/waypoint</div></div><div class="step"><div class="num">⬤</div><div><b>Double-click</b> = finish route</div></div>';
+    }
+  }
+  si.textContent=selP?selP.label+' ('+(selP.side==='O'?'OFF':'DEF')+')':'No selection';
+}
+
+// TEMPLATES
+const TMPLS={
+  shotgun_spread:{name:'Shotgun Spread',m:{RB:{dx:1,dy:-3}}},
+  trips_right:{name:'Trips Right',m:{LWR:{dx:.3,dy:5},RB:{dx:-2,dy:4}}},
+  bunch_right:{name:'Bunch Right',m:{LWR:{dx:.5,dy:7},RB:{dx:-1,dy:3}}},
+  cover_2:{name:'Cover 2',m:{LS:{dx:-2,dy:3},RS:{dx:-2,dy:-3},LCB:{dx:1,dy:0},RCB:{dx:1,dy:0}}},
+  cover_3:{name:'Cover 3',m:{LS:{dx:-3,dy:4},RS:{dx:-3,dy:-4},MLB:{dx:-3,dy:0}}},
+  man_blitz:{name:'Man Blitz',m:{MLB:{dx:.5,dy:0},LT:{dx:.5,dy:0},RT:{dx:.5,dy:0},LS:{dx:4,dy:2},RS:{dx:4,dy:-2}}}
+};
+function applyTmpl(){const v=document.getElementById('templateSelect').value;if(!v)return;const t=TMPLS[v];if(!t){applyCT(v);return}pushU();P().players.forEach(pl=>{pl.x=pl.origX;pl.y=pl.origY});Object.entries(t.m).forEach(([id,m])=>{const pl=P().players.find(p=>p.id===id);if(pl){pl.x=pl.origX+(m.dx||0)*YPX;pl.y=pl.origY+(m.dy||0)*YPX}});document.getElementById('formationName').value=t.name;P().formation=t.name;rTabs();draw();toast(t.name);document.getElementById('templateSelect').value=''}
+function saveTmpl(){const n=prompt('Template name:');if(!n)return;const d={};P().players.forEach(pl=>{d[pl.id]={x:pl.x,y:pl.y}});let c=JSON.parse(localStorage.getItem('pb7t')||'{}');c[n]=d;localStorage.setItem('pb7t',JSON.stringify(c));loadCust();toast('Saved: '+n)}
+function loadCust(){const s=document.getElementById('templateSelect');s.querySelectorAll('.cu').forEach(o=>o.remove());let c=JSON.parse(localStorage.getItem('pb7t')||'{}');const ns=Object.keys(c);if(ns.length){const g=document.createElement('optgroup');g.label='Custom';g.className='cu';ns.forEach(n=>{const o=document.createElement('option');o.value='cu_'+n;o.textContent=n;o.className='cu';g.appendChild(o)});s.appendChild(g)}}
+function applyCT(k){const n=k.replace('cu_','');let c=JSON.parse(localStorage.getItem('pb7t')||'{}');if(!c[n])return;pushU();Object.entries(c[n]).forEach(([id,pos])=>{const pl=P().players.find(p=>p.id===id);if(pl){pl.x=pos.x;pl.y=pos.y}});document.getElementById('formationName').value=n;P().formation=n;draw();toast(n);document.getElementById('templateSelect').value=''}
+
+// LEGEND — Defense left, Offense right
+function bLegend(){
+  const g=document.getElementById('legendGrid');
+  let html='<div class="legend-col"><div class="legend-col-title def">Defense</div>';
+  defDef().forEach(d=>{html+='<div class="li"><div class="ld" style="background:'+d.color+';box-shadow:0 0 4px '+d.color+'"></div><span class="ll">'+d.label+'</span></div>'});
+  html+='</div><div class="legend-col"><div class="legend-col-title off">Offense</div>';
+  defOff().forEach(d=>{html+='<div class="li"><div class="ld" style="background:'+d.color+';box-shadow:0 0 4px '+d.color+'"></div><span class="ll">'+d.label+'</span></div>'});
+  html+='</div>';g.innerHTML=html;
+}
+
+// UNDO/REDO
+function pushU(){undoS.push(JSON.stringify(plays));if(undoS.length>50)undoS.shift();redoS=[];upUB()}
+function undo(){if(!undoS.length)return;redoS.push(JSON.stringify(plays));plays=JSON.parse(undoS.pop());if(cpIdx>=plays.length)cpIdx=plays.length-1;swPlay(cpIdx);upUB()}
+function redo(){if(!redoS.length)return;undoS.push(JSON.stringify(plays));plays=JSON.parse(redoS.pop());if(cpIdx>=plays.length)cpIdx=plays.length-1;swPlay(cpIdx);upUB()}
+function upUB(){document.getElementById('undoBtn').disabled=!undoS.length;document.getElementById('redoBtn').disabled=!redoS.length}
+
+// TOGGLES
+function toggleSnap(){snapOn=!snapOn;document.getElementById('snapT').classList.toggle('on',snapOn)}
+function toggleZoom(){zoomOn=!zoomOn;document.getElementById('zoomT').classList.toggle('on',zoomOn);if(!zoomOn){zLvl=1;pan={x:0,y:0};draw()}}
+
+// EXPORT
+function mkExpCv(){
+  const ec=document.createElement('canvas');ec.width=1280;ec.height=900;const e=ec.getContext('2d');const p=P();
+  const bg=e.createLinearGradient(0,0,0,900);bg.addColorStop(0,'#0c1018');bg.addColorStop(1,'#060810');e.fillStyle=bg;e.fillRect(0,0,1280,900);
+  const lg=e.createLinearGradient(0,0,1280,0);lg.addColorStop(0,'transparent');lg.addColorStop(.2,'#ff6a00');lg.addColorStop(.5,'#ffffff');lg.addColorStop(.8,'#00c8ff');lg.addColorStop(1,'transparent');e.fillStyle=lg;e.fillRect(0,0,1280,3);
+  e.fillStyle='#ffffff';e.font='bold 24px Orbitron,sans-serif';e.textAlign='center';e.fillText('\u{1F3C8} 7v7 MULTIPLAYER FOOTBALL',640,34);
+  e.fillStyle='#555';e.font='500 10px Orbitron,sans-serif';e.fillText('PLAYBOOK CREATOR',640,50);
+  e.fillStyle='#00c8ff';e.font='bold 20px Orbitron,sans-serif';e.textAlign='left';e.fillText(p.name||'Untitled Play',30,78);
+  if(p.formation){e.fillStyle='#7a8494';e.font='16px "Exo 2",sans-serif';e.textAlign='right';e.fillText(p.formation,1250,70)}
+  e.fillStyle='#444d5e';e.font='12px "Exo 2",sans-serif';e.textAlign='right';e.fillText(p.type||'',1250,86);
+  const fc=document.createElement('canvas');fc.width=CW;fc.height=CH;const fx=fc.getContext('2d');
+  drawField(fx);P().players.forEach(pl=>{if(pl.route&&pl.route.length)rRoute(fx,pl,pl.route,pl.color,pl.id==='QB')});
+  P().players.forEach(pl=>{
+    const isO=pl.side==='O';const g=fx.createRadialGradient(pl.x-3,pl.y-4,2,pl.x,pl.y,PR);
+    if(isO){g.addColorStop(0,'#ff7777');g.addColorStop(1,'#aa1111')}else{g.addColorStop(0,'#7799ff');g.addColorStop(1,'#1133aa')}
+    fx.beginPath();fx.arc(pl.x,pl.y,PR,0,Math.PI*2);fx.fillStyle=g;fx.shadowColor=isO?'rgba(255,40,40,.4)':'rgba(40,80,255,.4)';fx.shadowBlur=10;fx.fill();fx.shadowBlur=0;
+    fx.strokeStyle='rgba(255,255,255,.35)';fx.lineWidth=1.5;fx.stroke();fx.fillStyle='#fff';fx.font='bold '+(pl.label.length>2?9:11)+'px sans-serif';fx.textAlign='center';fx.textBaseline='middle';fx.fillText(pl.label,pl.x,pl.y+.5);
+  });
+  e.drawImage(fc,40,96,1200,1200*(CH/CW));
+  if(p.notes){e.fillStyle='#7a8494';e.font='12px "JetBrains Mono",monospace';e.textAlign='left';p.notes.split('\n').slice(0,2).forEach((l,i)=>{e.fillText(l.substring(0,120),30,865+i*16)})}
+  e.fillStyle='#2a3344';e.font='10px Orbitron,sans-serif';e.textAlign='right';e.fillText('7v7 MULTIPLAYER FOOTBALL',1250,885);
+  return ec;
+}
+function exPNG(){const a=document.createElement('a');a.download=(P().name||'play')+'.png';a.href=mkExpCv().toDataURL('image/png');a.click();toast('PNG downloaded')}
+async function exPDF(){const{jsPDF}=window.jspdf;const pdf=new jsPDF({orientation:'landscape',unit:'px',format:[1280,900]});const sv=cpIdx;for(let i=0;i<plays.length;i++){if(i>0)pdf.addPage([1280,900],'landscape');cpIdx=i;pdf.addImage(mkExpCv().toDataURL('image/png'),'PNG',0,0,1280,900)}cpIdx=sv;pdf.save('playbook.pdf');toast('PDF downloaded')}
+async function exClip(){try{const b=await new Promise(r=>mkExpCv().toBlob(r,'image/png'));await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);toast('Copied')}catch(e){toast('Clipboard failed')}}
+function exShare(){try{navigator.clipboard.writeText(location.origin+location.pathname+'#'+btoa(JSON.stringify(plays)));toast('Share link copied')}catch(e){toast('Failed')}}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+
+init();loadCust();
+</script>
+</body>
+</html>
