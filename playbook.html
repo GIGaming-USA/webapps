@@ -317,7 +317,7 @@ const cv=document.getElementById('fieldCanvas'),cx=cv.getContext('2d');
 function mkPlay(n){return{name:n||'Play '+(plays.length+1),formation:'',type:'Pass',notes:'',players:[...defOff(),...defDef()].map(p=>({...p,origX:p.x,origY:p.y,route:null}))}}
 function P(){return plays[cpIdx]}
 function dismissOB(){const el=document.getElementById('onboard');el.classList.add('gone');setTimeout(()=>{el.style.display='none'},500);localStorage.setItem('pb7_seen','1')}
-function init(){const V='8';if(localStorage.getItem('pb7_ver')!==V){localStorage.removeItem('pb7');localStorage.setItem('pb7_ver',V)}
+function init(){const V='9';if(localStorage.getItem('pb7_ver')!==V){localStorage.removeItem('pb7');localStorage.setItem('pb7_ver',V)}
 if(location.hash.length>1){try{plays=JSON.parse(atob(location.hash.slice(1)));if(!Array.isArray(plays))plays=[plays]}catch(e){plays=[]}}
 if(!plays.length){try{const s=localStorage.getItem('pb7');if(s)plays=JSON.parse(s)}catch(e){}}
 if(!plays.length)plays=[mkPlay()];
@@ -359,8 +359,30 @@ function onWh(e){if(!zoomOn)return;e.preventDefault();zLvl=Math.max(.5,Math.min(
 function onKey(e){if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;if(e.key==='r'||e.key==='R')setMode(mode==='drag'?'route':'drag');else if(e.key==='Escape'){drawing=false;drawPlayer=null;rawPts=[];selP=null;draw();upStat()}else if(e.ctrlKey&&e.key==='z'){e.preventDefault();undo()}else if(e.ctrlKey&&e.key==='y'){e.preventDefault();redo()}}
 function setMode(m){mode=m;drawing=false;drawPlayer=null;rawPts=[];selP=null;document.getElementById('dragOpt').className='mode-opt '+(m==='drag'?'active-drag':'drag-opt');document.getElementById('drawOpt').className='mode-opt '+(m==='route'?'active-draw':'draw-opt');upStat();draw()}
 function upStat(){const b=document.getElementById('modeBadge'),h=document.getElementById('hintText'),hw=document.getElementById('howtoBox'),si=document.getElementById('selInfo');if(mode==='drag'){b.className='mb dr';b.textContent='MOVE';h.textContent='Click & drag players to reposition';hw.innerHTML='<div class="step"><div class="num">1</div><div><b>Click & drag</b> any player to move</div></div><div class="step"><div class="num">2</div><div><b>Right-click</b> for options</div></div>'}else{b.className='mb rt';b.textContent='DRAW';h.textContent=drawing?'Drawing... release to finish':'Click & drag FROM a player to draw route';hw.innerHTML='<div class="step"><div class="num">1</div><div><b>Click & drag</b> from a player</div></div><div class="step"><div class="num">2</div><div><b>Draw</b> wherever you want</div></div><div class="step"><div class="num">3</div><div><b>Release</b> to save route</div></div>'}si.textContent=drawPlayer?'Drawing: '+drawPlayer.label:(selP?selP.label:'')}
-const TMPLS={shotgun_spread:{name:'Shotgun Spread',m:{RB:{dx:1,dy:-3}}},trips_right:{name:'Trips Right',m:{LWR:{dx:.3,dy:5},RB:{dx:-2,dy:4}}},bunch_right:{name:'Bunch Right',m:{LWR:{dx:.5,dy:7},RB:{dx:-1,dy:3}}},cover_2:{name:'Cover 2',m:{LS:{dx:-2,dy:3},RS:{dx:-2,dy:-3}}},cover_3:{name:'Cover 3',m:{LS:{dx:-3,dy:4},RS:{dx:-3,dy:-4},MLB:{dx:-3,dy:0}}},man_blitz:{name:'Man Blitz',m:{MLB:{dx:.5,dy:0},LT:{dx:.5,dy:0},RT:{dx:.5,dy:0},LS:{dx:4,dy:2},RS:{dx:4,dy:-2}}}};
-function applyTmpl(){const v=document.getElementById('templateSelect').value;if(!v)return;const t=TMPLS[v];if(!t){applyCT(v);return}pushU();P().players.forEach(pl=>{pl.x=pl.origX;pl.y=pl.origY});Object.entries(t.m).forEach(([id,m])=>{const pl=P().players.find(p=>p.id===id);if(pl){pl.x=pl.origX+(m.dx||0)*YPX;pl.y=pl.origY+(m.dy||0)*YPX}});document.getElementById('formationName').value=t.name;P().formation=t.name;rTabs();draw();toast(t.name);document.getElementById('templateSelect').value=''}
+/* FORMATIONS — absolute positions for all players (offsets from LOS_X and CY in yards) */
+const TMPLS={
+  shotgun_spread:{name:'Shotgun Spread',p:{
+    QB:{x:5,y:0},C:{x:1,y:0},LG:{x:1,y:-1.8},RG:{x:1,y:1.8},LWR:{x:.5,y:-8},RWR:{x:.5,y:8},RB:{x:3,y:2},
+    MLB:{x:-3,y:0},LT:{x:-1,y:-1.8},RT:{x:-1,y:1.8},LCB:{x:-1.5,y:-8},RCB:{x:-1.5,y:8},LS:{x:-8,y:-4},RS:{x:-8,y:4}}},
+  trips_right:{name:'Trips Right',p:{
+    QB:{x:5,y:0},C:{x:1,y:0},LG:{x:1,y:-1.8},RG:{x:1,y:1.8},LWR:{x:.5,y:-8},RWR:{x:.5,y:4},RB:{x:.5,y:6},
+    MLB:{x:-3,y:0},LT:{x:-1,y:-1.8},RT:{x:-1,y:1.8},LCB:{x:-1.5,y:-8},RCB:{x:-1.5,y:5},LS:{x:-8,y:-3},RS:{x:-8,y:5}}},
+  bunch_right:{name:'Bunch Right',p:{
+    QB:{x:5,y:0},C:{x:1,y:0},LG:{x:1,y:-1.8},RG:{x:1,y:1.8},LWR:{x:.5,y:-8},RWR:{x:1.5,y:3.5},RB:{x:2.5,y:5},
+    MLB:{x:-3,y:0},LT:{x:-1,y:-1.8},RT:{x:-1,y:1.8},LCB:{x:-1.5,y:-8},RCB:{x:-2,y:4},LS:{x:-8,y:-3},RS:{x:-8,y:5}}},
+  cover_2:{name:'Cover 2',p:{
+    QB:{x:5,y:0},C:{x:1,y:0},LG:{x:1,y:-1.8},RG:{x:1,y:1.8},LWR:{x:1,y:-5},RWR:{x:1,y:5},RB:{x:1.5,y:-3.5},
+    MLB:{x:-3,y:0},LT:{x:-1,y:-1.8},RT:{x:-1,y:1.8},LCB:{x:-.5,y:-5},RCB:{x:-.5,y:5},LS:{x:-8,y:-5},RS:{x:-8,y:5}}},
+  cover_3:{name:'Cover 3',p:{
+    QB:{x:5,y:0},C:{x:1,y:0},LG:{x:1,y:-1.8},RG:{x:1,y:1.8},LWR:{x:1,y:-5},RWR:{x:1,y:5},RB:{x:1.5,y:-3.5},
+    MLB:{x:-5,y:0},LT:{x:-1,y:-1.8},RT:{x:-1,y:1.8},LCB:{x:-.5,y:-5},RCB:{x:-.5,y:5},LS:{x:-8,y:-6},RS:{x:-8,y:6}}},
+  man_blitz:{name:'Man Blitz',p:{
+    QB:{x:5,y:0},C:{x:1,y:0},LG:{x:1,y:-1.8},RG:{x:1,y:1.8},LWR:{x:1,y:-5},RWR:{x:1,y:5},RB:{x:1.5,y:-3.5},
+    MLB:{x:-1.5,y:0},LT:{x:-.5,y:-1.8},RT:{x:-.5,y:1.8},LCB:{x:-.5,y:-5},RCB:{x:-.5,y:5},LS:{x:-2,y:-3.5},RS:{x:-2,y:3.5}}}
+};
+function applyTmpl(){const v=document.getElementById('templateSelect').value;if(!v)return;const t=TMPLS[v];if(!t){applyCT(v);return}pushU();
+  if(t.p){Object.entries(t.p).forEach(([id,pos])=>{const pl=P().players.find(p=>p.id===id);if(pl){pl.x=LOS_X+pos.x*YPX;pl.y=CY+pos.y*YPX}})}
+  document.getElementById('formationName').value=t.name;P().formation=t.name;rTabs();draw();toast(t.name);document.getElementById('templateSelect').value=''}
 function saveTmpl(){const n=prompt('Template name:');if(!n)return;const d={};P().players.forEach(pl=>{d[pl.id]={x:pl.x,y:pl.y}});let c=JSON.parse(localStorage.getItem('pb7t')||'{}');c[n]=d;localStorage.setItem('pb7t',JSON.stringify(c));loadCust();toast('Saved: '+n)}
 function loadCust(){const s=document.getElementById('templateSelect');s.querySelectorAll('.cu').forEach(o=>o.remove());let c=JSON.parse(localStorage.getItem('pb7t')||'{}');const ns=Object.keys(c);if(ns.length){const g=document.createElement('optgroup');g.label='Custom';g.className='cu';ns.forEach(n=>{const o=document.createElement('option');o.value='cu_'+n;o.textContent=n;o.className='cu';g.appendChild(o)});s.appendChild(g)}}
 function applyCT(k){const n=k.replace('cu_','');let c=JSON.parse(localStorage.getItem('pb7t')||'{}');if(!c[n])return;pushU();Object.entries(c[n]).forEach(([id,pos])=>{const pl=P().players.find(p=>p.id===id);if(pl){pl.x=pos.x;pl.y=pos.y}});document.getElementById('formationName').value=n;P().formation=n;draw();toast(n);document.getElementById('templateSelect').value=''}
