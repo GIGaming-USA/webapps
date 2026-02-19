@@ -95,6 +95,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
 #fslider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px rgba(45,124,255,.5);cursor:pointer;border:2px solid #fff;}
 #fticks{position:absolute;bottom:1px;left:12px;right:12px;display:flex;justify-content:space-between;pointer-events:none;}
 .ftick{font:500 7px/1 var(--mono);color:#141e30;}.ftick.on{color:var(--green);}
+#btn-live.on{background:rgba(29,205,106,.12);border-color:var(--green);color:var(--green);animation:livePulse 2s infinite;}
+@keyframes livePulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 8px rgba(29,205,106,.4)}}
+#live-badge{position:absolute;top:4px;left:4px;z-index:600;font:700 8px/1 var(--mono);color:var(--green);background:rgba(8,12,20,.9);border:1px solid rgba(29,205,106,.3);padding:2px 6px;border-radius:3px;display:none;}
+#live-badge.on{display:block;}
 #status{position:fixed;top:52px;left:50%;transform:translateX(-50%);background:rgba(29,205,106,.06);border:1px solid rgba(29,205,106,.18);color:var(--green);font:500 9px/1 var(--mono);padding:4px 14px;border-radius:5px;z-index:4000;opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap;}
 #audio-toggle{position:fixed;bottom:72px;right:10px;z-index:2001;padding:4px 10px;background:var(--panel);border:1px solid var(--border);border-radius:5px;color:var(--muted);font:500 9px/1 var(--sans);cursor:pointer;transition:all .12s;}
 #audio-toggle:hover{border-color:var(--accent);color:var(--accent);}
@@ -188,13 +192,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
   </div>
   <div id="hdr-right">
     <button class="tbtn on" id="btn-barbs">ARROWS</button><button class="tbtn on" id="btn-contour">CONTOURS</button>
-    <button class="tbtn on" id="btn-grid">GRID</button><div id="fcst-tag">F+000</div>
+    <button class="tbtn on" id="btn-grid">GRID</button><button class="tbtn" id="btn-live">LIVE DATA</button><div id="fcst-tag">F+000</div>
   </div>
 </div>
 <div id="main">
   <div id="map-wrap">
     <div id="map"></div><canvas id="wx-cvs"></canvas><canvas id="wd-cvs"></canvas><canvas id="anim-cvs"></canvas>
-    <div id="click-hint">Tap any point for weather data</div>
+    <div id="live-badge">LIVE GFS</div><div id="click-hint">Tap any point for weather data</div>
     <div id="map-legend"><div class="lg-title" id="lg-title">TEMPERATURE 2m</div><canvas id="lg-bar" height="12"></canvas><div id="lg-labels"></div></div>
     <div id="map-info"><div class="mi-title">Point Data</div><div id="mi-coord">Hover map</div><div id="mi-grid"></div></div>
   </div>
@@ -245,7 +249,7 @@ const PALTS=[0,.12,.25,.4,.52,.64,.74,.84,.9,.96];
 const PALT_KM=[0.11,0.76,1.46,3.01,4.2,5.57,7.18,9.16,10.36,11.78];
 const COMPASS=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
 const CITIES=[[40.71,-74.01,'New York'],[34.05,-118.24,'Los Angeles'],[41.87,-87.62,'Chicago'],[29.76,-95.37,'Houston'],[33.45,-112.07,'Phoenix'],[47.61,-122.33,'Seattle'],[37.77,-122.42,'San Francisco'],[25.77,-80.19,'Miami'],[38.89,-77.03,'Washington DC'],[42.36,-71.06,'Boston'],[39.73,-104.99,'Denver'],[36.17,-86.78,'Nashville'],[44.98,-93.27,'Minneapolis'],[32.79,-96.80,'Dallas']];
-const S={model:'GFS',layer:'temp',fhr:0,playing:false,barbsOn:true,contourOn:true,gridOn:true,seed:42731,pLat:null,pLon:null,vizOpen:false,vcRotate:true,vcSlabs:true,vcWinds:true,vcParts:true,vcTubes:true,vcLabels:true,vcCape:true,vcPrecip:true,vcHodo:true,vcOmega:true,vcFreezing:true,vcClouds:true,audioOn:false};
+const S={model:'GFS',layer:'temp',fhr:0,playing:false,barbsOn:true,contourOn:true,gridOn:true,seed:42731,liveMode:false,liveData:null,liveFetching:false,pLat:null,pLon:null,vizOpen:false,vcRotate:true,vcSlabs:true,vcWinds:true,vcParts:true,vcTubes:true,vcLabels:true,vcCape:true,vcPrecip:true,vcHodo:true,vcOmega:true,vcFreezing:true,vcClouds:true,audioOn:false};
 
 // === AUDIO ENGINE ===
 let audioCtx=null,masterGain=null,windGain=null,rainGain=null;
@@ -285,9 +289,83 @@ function playClickSound(){
   o.start();g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.15);o.stop(audioCtx.currentTime+0.15);
 }
 
+
+// === LIVE DATA: Open-Meteo GFS pressure level sounding ===
+var LIVE_LEVELS=[1000,925,850,700,600,500,400,300,250,200];
+function fetchLiveSounding(lat,lon){
+  if(S.liveFetching)return;
+  S.liveFetching=true;
+  showStatus('Fetching live GFS sounding...');
+  // Build Open-Meteo GFS API URL for pressure levels
+  var pVars=[];
+  LIVE_LEVELS.forEach(function(p){
+    pVars.push('temperature_'+p+'hPa');
+    pVars.push('relative_humidity_'+p+'hPa');
+    pVars.push('wind_speed_'+p+'hPa');
+    pVars.push('wind_direction_'+p+'hPa');
+    pVars.push('geopotential_height_'+p+'hPa');
+  });
+  // Also get surface vars
+  var surfVars='temperature_2m,relative_humidity_2m,surface_pressure,precipitation,cape,wind_speed_10m,wind_direction_10m';
+  var url='https://api.open-meteo.com/v1/gfs?latitude='+lat.toFixed(4)+'&longitude='+lon.toFixed(4)
+    +'&hourly='+surfVars+','+pVars.join(',')
+    +'&forecast_days=7&temperature_unit=fahrenheit&wind_speed_unit=kn&timezone=UTC';
+  
+  fetch(url).then(function(r){return r.json();}).then(function(json){
+    if(!json.hourly||!json.hourly.time){throw new Error('Bad response');}
+    S.liveData={lat:lat,lon:lon,json:json,times:json.hourly.time};
+    S.liveFetching=false;
+    document.getElementById('live-badge').classList.add('on');
+    showStatus('Live GFS data loaded: '+json.hourly.time.length+' hours');
+    // Rebuild 3D with live data
+    if(S.vizOpen)build3D(lat,lon);
+    drawMap();
+  }).catch(function(err){
+    console.error('Live fetch error:',err);
+    S.liveFetching=false;
+    showStatus('Live data unavailable, using simulated data');
+  });
+}
+
+function getLiveIndex(fhr){
+  // Find the hourly index closest to our forecast hour
+  if(!S.liveData||!S.liveData.times)return 0;
+  return Math.min(fhr,S.liveData.times.length-1);
+}
+
+function liveAtP(lat,lon,varName,fhr,p){
+  if(!S.liveData||!S.liveData.json||!S.liveData.json.hourly)return null;
+  var idx=getLiveIndex(fhr);
+  var h=S.liveData.json.hourly;
+  var key=varName+'_'+p+'hPa';
+  if(!h[key])return null;
+  var val=h[key][idx];
+  return(val!==null&&val!==undefined)?val:null;
+}
+
+function liveSurf(lat,lon,varName,fhr){
+  if(!S.liveData||!S.liveData.json||!S.liveData.json.hourly)return null;
+  var idx=getLiveIndex(fhr);
+  var h=S.liveData.json.hourly;
+  if(!h[varName])return null;
+  var val=h[varName][idx];
+  return(val!==null&&val!==undefined)?val:null;
+}
+
 // === WEATHER MATH ===
 function noise(x,y,o){var v=0,a=1,f=1,m=0;for(var i=0;i<o;i++){v+=Math.sin(x*f*2.31+y*f*1.73+S.seed*.01)*Math.cos(y*f*2.17-x*f*1.89)*a+Math.sin(x*f*3.71+y*f*2.53)*Math.cos(x*f*.97+y*f*3.41)*a*.5;m+=a;a*=.5;f*=2.1;}return v/m;}
 function wxSurf(lat,lon,layer,fhr,mdl){
+  // Try live data first
+  if(S.liveMode&&S.liveData){
+    var lv=null;
+    if(layer==='temp')lv=liveSurf(lat,lon,'temperature_2m',fhr);
+    else if(layer==='wind')lv=liveSurf(lat,lon,'wind_speed_10m',fhr);
+    else if(layer==='precip'){lv=liveSurf(lat,lon,'precipitation',fhr);if(lv!==null)lv=lv/25.4;}
+    else if(layer==='pressure')lv=liveSurf(lat,lon,'surface_pressure',fhr);
+    else if(layer==='cape')lv=liveSurf(lat,lon,'cape',fhr);
+    else if(layer==='humidity')lv=liveSurf(lat,lon,'relative_humidity_2m',fhr);
+    if(lv!==null)return lv;
+  }
   var mO=MODEL_OFF[mdl||S.model]||0,t=fhr/240,x=lon/50,y=lat/30;
   if(layer==='temp'){var baseT=138-lat*2.4;var gulf=(lon>-98&&lon<-80&&lat<32)?6:0;var seCoast=(lon>-82&&lon<-75&&lat<36)?5:0;var wCoast=(lon>-125&&lon<-118)?14:0;var mountain=(lon>-112&&lon<-104&&lat>34&&lat<48)?-8:0;var desert=(lon>-116&&lon<-108&&lat<36)?10:0;return Math.max(-10,Math.min(110,baseT+gulf+seCoast+wCoast+mountain+desert+12*noise(x+t*.3,y+mO*.1,4)+4*Math.sin(fhr*.26+lat*.12)));}
   if(layer==='wind'){var b=Math.abs(Math.cos(lat*Math.PI/90))*12+4,j=(lat>40&&lat<55)?38*Math.pow(Math.cos((lat-47.5)*Math.PI/15),2):0;return Math.max(0,b+j+20*Math.abs(noise(x+t*.4+mO*.05,y,3)));}
@@ -299,13 +377,27 @@ function wxSurf(lat,lon,layer,fhr,mdl){
   return 0;
 }
 function wxAtP(lat,lon,layer,fhr,p){
+  // Try live pressure-level data first
+  if(S.liveMode&&S.liveData){
+    var lv=null;
+    if(layer==='temp')lv=liveAtP(lat,lon,'temperature',fhr,p);
+    else if(layer==='wind')lv=liveAtP(lat,lon,'wind_speed',fhr,p);
+    else if(layer==='humidity')lv=liveAtP(lat,lon,'relative_humidity',fhr,p);
+    if(lv!==null)return lv;
+  }
   var v=wxSurf(lat,lon,layer,fhr),lp2=Math.log(1000/p);
   if(layer==='temp'){var tC=(v-32)*5/9,tP=tC-lp2*6.2+2*noise(lon/50+p*.01,lat/30+fhr*.001,2);return tP*9/5+32;}
   if(layer==='wind')return v*(p<300?2.6:p<500?1.9:p<700?1.4:p<850?1.1:1);
   if(layer==='humidity')return Math.max(5,Math.min(100,v*(1-lp2*.25)+5*noise(lon/50,lat/30+p*.001,2)));
   return v;
 }
-function windDir(lat,lon,fhr,p){return((lon+lat*.5+fhr*.3+S.seed*.001+(p||0)*.012)%360+360)%360;}
+function windDir(lat,lon,fhr,p){
+  if(S.liveMode&&S.liveData){
+    if(p){var lv=liveAtP(lat,lon,'wind_direction',fhr,p);if(lv!==null)return lv;}
+    else{var lv2=liveSurf(lat,lon,'wind_direction_10m',fhr);if(lv2!==null)return lv2;}
+  }
+  return((lon+lat*.5+fhr*.3+S.seed*.001+(p||0)*.012)%360+360)%360;
+}
 function cm(t,nm){t=Math.max(0,Math.min(1,t));var s=CMAPS[nm]||CMAPS.temp;for(var i=1;i<s.length;i++){if(t<=s[i][0]){var p=s[i-1],n=s[i],f=(t-p[0])/(n[0]-p[0]);return[Math.round(p[1]+(n[1]-p[1])*f),Math.round(p[2]+(n[2]-p[2])*f),Math.round(p[3]+(n[3]-p[3])*f)];}}var l=s[s.length-1];return[l[1],l[2],l[3]];}
 function cmHex(t,nm){var c=cm(t,nm);return(c[0]<<16|c[1]<<8|c[2]);}
 function nearCity(lat,lon){var best='',bd=999;for(var i=0;i<CITIES.length;i++){var d=Math.hypot(lat-CITIES[i][0],lon-CITIES[i][1]);if(d<bd){bd=d;best=CITIES[i][2];}}return bd<4?best:'';}
@@ -970,7 +1062,12 @@ function buildTicks(){
     var sp=document.createElement('span');sp.className='ftick'+(v===0?' on':'');sp.textContent='F'+String(v).padStart(3,'0');tk.appendChild(sp);});
 }
 function updateTL(){
-  var base=new Date('2026-02-19T00:00:00Z');base.setUTCHours(base.getUTCHours()+S.fhr);
+  var base;
+  if(S.liveMode&&S.liveData&&S.liveData.times&&S.liveData.times[S.fhr]){
+    base=new Date(S.liveData.times[Math.min(S.fhr,S.liveData.times.length-1)]);
+  } else {
+    base=new Date('2026-02-19T00:00:00Z');base.setUTCHours(base.getUTCHours()+S.fhr);
+  }
   var ml=MODELS[S.model];
   var days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -1019,6 +1116,7 @@ map.on('click',function(e){
     S.pLat=lat;S.pLon=lng;drawMap();
     if(now-lastTap<600){
       if(S.audioOn)initAudio();
+      if(S.liveMode)fetchLiveSounding(lat,lng);
       openViz(lat,lng);
     } else {
       showStatus('Tap again to open 3D column');
@@ -1026,6 +1124,7 @@ map.on('click',function(e){
     lastTap=now;
   } else {
     if(S.audioOn)initAudio();
+    if(S.liveMode)fetchLiveSounding(lat,lng);
     openViz(lat,lng);
   }
 });
@@ -1061,6 +1160,23 @@ document.getElementById('audio-toggle').addEventListener('click',function(){
   btn.classList.toggle('on',S.audioOn);btn.textContent=S.audioOn?'Sound On':'Sound Off';
   if(S.audioOn){initAudio();if(S.pLat!==null)updateAudio(wxSurf(S.pLat,S.pLon,'wind',S.fhr),wxSurf(S.pLat,S.pLon,'precip',S.fhr));}
   else if(audioCtx){masterGain.gain.linearRampToValueAtTime(0,audioCtx.currentTime+.3);setTimeout(function(){if(!S.audioOn)masterGain.gain.value=0.15;},400);}
+});
+
+
+document.getElementById('btn-live').addEventListener('click',function(){
+  S.liveMode=!S.liveMode;
+  document.getElementById('btn-live').classList.toggle('on',S.liveMode);
+  document.getElementById('live-badge').classList.toggle('on',S.liveMode&&S.liveData);
+  if(S.liveMode){
+    showStatus('Live mode ON - click a point to fetch real GFS data');
+    if(S.pLat!==null)fetchLiveSounding(S.pLat,S.pLon);
+  } else {
+    showStatus('Live mode OFF - using simulated data');
+    S.liveData=null;
+    document.getElementById('live-badge').classList.remove('on');
+    if(S.vizOpen&&S.pLat!==null)build3D(S.pLat,S.pLon);
+    drawMap();
+  }
 });
 
 window.addEventListener('resize',function(){szCvs();schedRedraw();drawLegend();});
