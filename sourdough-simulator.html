@@ -40,8 +40,8 @@ body{
 
 /* ===== HEADER ===== */
 .hdr{
-  padding:8px 16px calc(8px);
-  padding-top:calc(10px + var(--safe-top));
+  padding:10px 18px calc(10px);
+  padding-top:calc(12px + var(--safe-top));
   background:rgba(8,4,0,.92);
   border-bottom:1px solid var(--border);
   display:flex;align-items:center;justify-content:center;
@@ -49,12 +49,12 @@ body{
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
 }
 .hdr h1{
-  font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:900;letter-spacing:.1em;
+  font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;letter-spacing:.08em;
   background:linear-gradient(135deg,#ffd700,#ff8c00,#ff4500);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   filter:drop-shadow(0 0 12px rgba(255,140,0,.45));
 }
-.hdr-sub{font-family:'Crimson Pro',serif;font-style:italic;color:rgba(253,246,227,.38);font-size:.6rem;letter-spacing:.15em;margin-top:1px;}
+.hdr-sub{font-family:'Crimson Pro',serif;font-style:italic;color:rgba(253,246,227,.45);font-size:.72rem;letter-spacing:.12em;margin-top:2px;}
 
 /* ===== SHELL ===== */
 .shell{
@@ -101,95 +101,127 @@ body > .shell {
 .tb{
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:4px;cursor:pointer;border:none;background:transparent;
-  color:rgba(253,246,227,.35);transition:color .18s;
+  color:rgba(253,246,227,.38);transition:color .18s;
   padding:10px 4px;
-  min-height:54px; /* ensures bar has height even with safe-bot:0 */
+  min-height:54px;
 }
 .tb.act{color:var(--gold);}
-.tb-ic{font-size:1.3rem;line-height:1;display:block;}
-.tb-lb{font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;font-family:'Space Mono',monospace;}
+.tb-ic{font-size:1.4rem;line-height:1;display:block;}
+.tb-lb{font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;font-family:'Space Mono',monospace;}
 .tb.act .tb-ic{filter:drop-shadow(0 0 6px rgba(255,200,0,.5));}
 
 /* ===== SECTION HEADERS ===== */
-.sec{font-family:'Playfair Display',serif;font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:var(--amber);
-  margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid rgba(255,140,0,.18);display:flex;align-items:center;gap:6px;}
-.sec::before{content:'◆';font-size:.4rem;color:var(--ember);}
+.sec{
+  font-family:'Playfair Display',serif;font-size:.7rem;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--amber);
+  margin-bottom:14px;padding-bottom:8px;
+  border-bottom:1px solid rgba(255,140,0,.2);
+  display:flex;align-items:center;gap:8px;
+}
+.sec::before{content:'◆';font-size:.42rem;color:var(--ember);}
+
+/* ===== INGREDIENT SECTION LABEL ===== */
+.ing-group-label{
+  font-family:'Crimson Pro',serif;font-style:italic;
+  font-size:.72rem;color:rgba(253,246,227,.38);
+  margin-bottom:10px;margin-top:4px;letter-spacing:.04em;
+}
+.ing-divider{
+  height:1px;background:rgba(255,140,0,.1);
+  margin:18px 0 14px;
+}
 
 /* ===== STARTER CARDS ===== */
 .sc{
-  background:rgba(255,140,0,.04);border:1px solid rgba(255,140,0,.1);border-radius:10px;
-  padding:16px;margin-bottom:12px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
+  background:rgba(255,140,0,.04);border:1px solid rgba(255,140,0,.1);border-radius:12px;
+  padding:18px 16px;margin-bottom:14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
   -webkit-touch-callout:none;
 }
 .sc::before{
   content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
   background:linear-gradient(180deg,var(--gold),var(--ember));opacity:0;transition:.2s;
-  border-radius:10px 0 0 10px;
+  border-radius:12px 0 0 12px;
 }
-.sc.sel{border-color:var(--amber);background:rgba(255,140,0,.08);box-shadow:0 0 20px rgba(255,140,0,.08);}
+.sc.sel{border-color:var(--amber);background:rgba(255,140,0,.08);box-shadow:0 0 24px rgba(255,140,0,.08);}
 .sc.sel::before{opacity:1;}
 .sc:active{background:rgba(255,140,0,.1);}
-/* culture emoji/flag */
-.sc-flag{font-size:2rem;margin-bottom:8px;display:block;line-height:1;}
-.sc-n{font-family:'Playfair Display',serif;font-weight:700;font-size:.92rem;color:var(--gold);margin-bottom:2px;}
-.sc-o{font-family:'Crimson Pro',serif;font-style:italic;font-size:.72rem;color:rgba(253,246,227,.45);margin-bottom:6px;}
-.sc-t{font-size:.62rem;color:rgba(253,246,227,.35);line-height:1.55;}
-/* active badge */
+.sc-flag{font-size:2.2rem;margin-bottom:10px;display:block;line-height:1;}
+.sc-n{font-family:'Playfair Display',serif;font-weight:700;font-size:1rem;color:var(--gold);margin-bottom:4px;}
+.sc-o{font-family:'Crimson Pro',serif;font-style:italic;font-size:.8rem;color:rgba(253,246,227,.5);margin-bottom:8px;}
+.sc-t{font-size:.72rem;color:rgba(253,246,227,.45);line-height:1.65;}
 .sc-badge{
-  position:absolute;top:14px;right:14px;
-  font-size:.48rem;letter-spacing:.12em;text-transform:uppercase;
+  position:absolute;top:16px;right:16px;
+  font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;
   background:rgba(255,140,0,.2);color:var(--gold);
   border:1px solid rgba(255,140,0,.3);border-radius:10px;
-  padding:3px 8px;opacity:0;transition:.2s;
+  padding:3px 9px;opacity:0;transition:.2s;
 }
 .sc.sel .sc-badge{opacity:1;}
 
 /* ===== INGREDIENT ROWS ===== */
-.ir{margin-bottom:16px;}
-.il{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
-.in{font-size:.65rem;color:var(--cream);}
-.iv{font-size:.72rem;color:var(--gold);font-weight:700;}
-.iu{font-size:.5rem;color:rgba(253,246,227,.35);}
+.ir{margin-bottom:20px;}
+.il{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+.in{font-size:.78rem;color:var(--cream);font-family:'Space Mono',monospace;letter-spacing:.02em;}
+.iv{font-size:.85rem;color:var(--gold);font-weight:700;font-family:'Space Mono',monospace;}
+.iu{font-size:.6rem;color:rgba(253,246,227,.4);}
 
 /* BIG touch-friendly range */
 input[type=range]{
   -webkit-appearance:none;width:100%;height:4px;
   background:linear-gradient(90deg,var(--ember) var(--pct,50%),rgba(255,255,255,.08) var(--pct,50%));
   border-radius:2px;outline:none;cursor:pointer;
-  /* iOS needs explicit height + padding for better hit area */
-  padding:10px 0;background-clip:content-box;
+  padding:12px 0;background-clip:content-box;
 }
 input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none;width:26px;height:26px;border-radius:50%;
+  -webkit-appearance:none;width:28px;height:28px;border-radius:50%;
   background:radial-gradient(circle at 38% 35%,var(--gold),var(--amber));
   box-shadow:0 0 8px rgba(255,200,0,.5),0 2px 6px rgba(0,0,0,.5);
   cursor:pointer;border:2px solid rgba(255,200,0,.3);
 }
-.ut{display:flex;gap:5px;margin-top:5px;}
-.ub{font-size:.52rem;padding:5px 10px;border:1px solid rgba(255,140,0,.22);background:transparent;color:rgba(253,246,227,.4);
-  border-radius:4px;cursor:pointer;transition:all .13s;font-family:'Space Mono',monospace;min-height:36px;}
+.ut{display:flex;gap:6px;margin-top:6px;}
+.ub{
+  font-size:.6rem;padding:6px 12px;border:1px solid rgba(255,140,0,.22);
+  background:transparent;color:rgba(253,246,227,.45);
+  border-radius:5px;cursor:pointer;transition:all .13s;
+  font-family:'Space Mono',monospace;min-height:38px;
+}
 .ub.act{background:rgba(255,140,0,.16);color:var(--gold);border-color:var(--amber);}
 .ub:active{transform:scale(.95);}
 
 /* hydration bar */
-.hm{margin-top:6px;height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;}
+.hm{margin-top:8px;height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;}
 .hf{height:100%;background:linear-gradient(90deg,#3366ff,#00aaff);border-radius:3px;transition:width .4s;box-shadow:0 0 5px rgba(0,150,255,.4);}
-.hl{display:flex;justify-content:space-between;font-size:.5rem;color:rgba(253,246,227,.35);margin-top:3px;}
+.hl{display:flex;justify-content:space-between;font-size:.58rem;color:rgba(253,246,227,.4);margin-top:4px;}
 
 /* prediction */
-.pred{background:rgba(255,140,0,.05);border:1px solid rgba(255,140,0,.1);border-radius:6px;
-  padding:10px 12px;margin-top:10px;font-size:.6rem;color:rgba(253,246,227,.5);line-height:1.7;}
+.pred{
+  background:rgba(255,140,0,.05);border:1px solid rgba(255,140,0,.12);border-radius:8px;
+  padding:12px 14px;margin-top:4px;font-size:.75rem;color:rgba(253,246,227,.65);line-height:1.8;
+}
 .pred strong{color:var(--gold);}
 
-/* bake button left panel */
+/* ingredient groups */
+.ing-group-label{
+  font-family:'Crimson Pro',serif;font-style:italic;
+  font-size:.76rem;color:rgba(253,246,227,.38);
+  margin-bottom:12px;letter-spacing:.03em;
+}
+.ing-divider{height:1px;background:rgba(255,140,0,.1);margin:20px 0 16px;}
+.ing-note{
+  font-size:.62rem;color:rgba(253,246,227,.4);
+  font-family:'Crimson Pro',serif;font-style:italic;
+  margin-top:4px;
+}
+
+/* bake button */
 .bake-btn-big{
-  width:100%;margin-top:14px;padding:16px;
+  width:100%;margin-top:16px;padding:18px;
   background:linear-gradient(135deg,#cc3700,#ff6600,#ff8c00);
-  border:none;border-radius:10px;color:#fff;
-  font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;letter-spacing:.13em;
+  border:none;border-radius:12px;color:#fff;
+  font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;letter-spacing:.12em;
   cursor:pointer;box-shadow:0 4px 18px rgba(255,69,0,.38),inset 0 1px 0 rgba(255,255,255,.18);
   transition:all .18s;text-transform:uppercase;position:relative;overflow:hidden;
-  min-height:54px;
+  min-height:56px;
 }
 .bake-btn-big::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.1),transparent);pointer-events:none;}
 .bake-btn-big:active{transform:scale(.97);}
@@ -198,9 +230,9 @@ input[type=range]::-webkit-slider-thumb{
 
 /* ===== RECIPE CARDS ===== */
 .rc{
-  background:rgba(255,140,0,.03);border:1px solid rgba(255,140,0,.09);border-radius:10px;
-  padding:14px;margin-bottom:10px;cursor:pointer;transition:all .16s;
-  display:flex;gap:12px;align-items:flex-start;
+  background:rgba(255,140,0,.03);border:1px solid rgba(255,140,0,.1);border-radius:12px;
+  padding:16px;margin-bottom:12px;cursor:pointer;transition:all .16s;
+  display:flex;gap:14px;align-items:flex-start;
   position:relative;overflow:hidden;
 }
 .rc::before{
@@ -210,27 +242,48 @@ input[type=range]::-webkit-slider-thumb{
 }
 .rc:hover::before,.rc:active::before{opacity:1;}
 .rc:active{background:rgba(255,140,0,.08);transform:scale(.985);}
-.re{font-size:1.6rem;line-height:1;flex-shrink:0;margin-top:2px;}
+.re{font-size:1.9rem;line-height:1;flex-shrink:0;margin-top:2px;}
 .rc-body{flex:1;min-width:0;}
-.rn{font-family:'Playfair Display',serif;font-size:.88rem;font-weight:700;color:var(--gold);margin-bottom:3px;letter-spacing:.02em;}
+.rn{
+  font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;
+  color:var(--gold);margin-bottom:4px;letter-spacing:.02em;line-height:1.2;
+}
+.rc-chef{
+  font-family:'Crimson Pro',serif;font-style:italic;
+  font-size:.78rem;color:rgba(255,200,100,.65);
+  margin-bottom:5px;letter-spacing:.01em;
+}
+.rc-uses{
+  font-size:.73rem;color:rgba(253,246,227,.82);
+  line-height:1.55;margin-bottom:7px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
 .rd{
-  font-family:'Crimson Pro',serif;font-style:italic;font-size:.72rem;
-  color:rgba(253,246,227,.42);line-height:1.52;
-  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  font-family:'Crimson Pro',serif;font-style:italic;font-size:.76rem;
+  color:rgba(253,246,227,.45);line-height:1.58;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
 }
-.rc-meta{display:flex;align-items:center;gap:6px;margin-top:7px;}
-.diff{display:inline-block;font-size:.46rem;padding:3px 7px;border-radius:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;}
-.easy{background:rgba(80,200,80,.12);color:#80c080;border:1px solid rgba(80,200,80,.16);}
-.medium{background:rgba(255,165,0,.12);color:#ffa050;border:1px solid rgba(255,165,0,.16);}
-.hard{background:rgba(255,60,60,.12);color:#ff7050;border:1px solid rgba(255,60,60,.2);}
-/* hydration pill */
+.rip-uses{
+  font-size:.7rem;color:rgba(253,246,227,.75);
+  line-height:1.62;margin-bottom:12px;
+  padding:9px 10px;border-radius:7px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);
+}
+.rc-meta{display:flex;align-items:center;gap:7px;margin-top:10px;flex-wrap:wrap;}
+.diff{
+  display:inline-block;font-size:.54rem;padding:4px 9px;
+  border-radius:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;
+}
+.easy{background:rgba(80,200,80,.12);color:#90d090;border:1px solid rgba(80,200,80,.2);}
+.medium{background:rgba(255,165,0,.12);color:#ffb060;border:1px solid rgba(255,165,0,.2);}
+.hard{background:rgba(255,60,60,.12);color:#ff8068;border:1px solid rgba(255,60,60,.22);}
 .rc-hyd{
-  font-size:.46rem;padding:3px 7px;border-radius:10px;letter-spacing:.08em;
-  background:rgba(100,180,255,.08);color:rgba(140,200,255,.7);
-  border:1px solid rgba(100,180,255,.14);
+  font-size:.54rem;padding:4px 9px;border-radius:10px;letter-spacing:.06em;
+  background:rgba(100,180,255,.08);color:rgba(160,210,255,.78);
+  border:1px solid rgba(100,180,255,.16);
 }
-/* star badge for Michelin-level */
-.rc-star{font-size:.64rem;opacity:.55;margin-left:auto;}
+.rc-star{font-size:.78rem;opacity:.65;margin-left:auto;}
 
 /* ===== OVEN TAB ===== */
 .oven-pane{
@@ -365,15 +418,15 @@ input[type=range]::-webkit-slider-thumb{
   min-height:0;
 }
 .dg{text-align:center;}
-.dl{font-size:.5rem;letter-spacing:.18em;color:rgba(253,246,227,.35);text-transform:uppercase;margin-bottom:4px;}
-.dv{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--ember);text-shadow:0 0 12px rgba(255,69,0,.52);margin-top:4px;}
-.ds{font-size:.44rem;color:rgba(253,246,227,.28);letter-spacing:.1em;}
+.dl{font-size:.62rem;letter-spacing:.16em;color:rgba(253,246,227,.45);text-transform:uppercase;margin-bottom:4px;}
+.dv{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--ember);text-shadow:0 0 12px rgba(255,69,0,.52);margin-top:4px;}
+.ds{font-size:.52rem;color:rgba(253,246,227,.32);letter-spacing:.08em;}
 .dial-svg{cursor:grab;display:block;margin:0 auto;user-select:none;touch-action:none;}
 .dial-svg:active{cursor:grabbing;}
 .bpw{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
 .bpb{width:100%;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
 .bpf{height:100%;width:0%;background:linear-gradient(90deg,var(--ember),var(--gold));box-shadow:0 0 7px var(--amber);transition:width .5s linear;}
-.bst{font-size:.52rem;color:var(--amber);letter-spacing:.13em;text-transform:uppercase;height:14px;}
+.bst{font-size:.6rem;color:var(--amber);letter-spacing:.1em;text-transform:uppercase;height:16px;}
 .bake-c{
   padding:11px 20px;background:linear-gradient(135deg,#cc3700,#ff6600,#ff8c00);
   border:none;border-radius:8px;color:#fff;
@@ -385,112 +438,94 @@ input[type=range]::-webkit-slider-thumb{
 .bake-c.baking{animation:pfr .8s ease-in-out infinite;cursor:not-allowed;}
 
 /* ===== RECIPE SIDE POPUP ===== */
-/* Floating panel that overlays the oven from the right side */
 .rip{
   position:absolute;
   top:12px;right:12px;
-  width:min(220px, calc(100% - 24px));
+  width:min(240px, calc(100% - 24px));
   max-height:calc(100% - 24px);
-  background:rgba(8,3,0,.94);
-  border:1px solid rgba(255,140,0,.28);
-  border-radius:12px;
-  box-shadow:0 8px 40px rgba(0,0,0,.7), 0 0 0 1px rgba(255,140,0,.06);
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:rgba(8,3,0,.95);
+  border:1px solid rgba(255,140,0,.3);
+  border-radius:14px;
+  box-shadow:0 8px 40px rgba(0,0,0,.75), 0 0 0 1px rgba(255,140,0,.07);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   overflow:hidden;
   z-index:10;
-  /* hidden state */
   opacity:0;
   transform:translateX(calc(100% + 20px));
   pointer-events:none;
   transition:opacity .3s, transform .35s cubic-bezier(.34,1.3,.64,1);
 }
-.rip.open{
-  opacity:1;
-  transform:translateX(0);
-  pointer-events:all;
-}
+.rip.open{opacity:1;transform:translateX(0);pointer-events:all;}
 .rip-scroll{
-  overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
   max-height:calc(100vh - 200px);
-  padding:14px 14px 14px;
+  padding:16px;
 }
-
-/* header row */
 .rip-head{
-  display:flex;align-items:flex-start;gap:8px;
-  margin-bottom:12px;
-  padding-bottom:10px;
-  border-bottom:1px solid rgba(255,140,0,.12);
+  display:flex;align-items:flex-start;gap:10px;
+  margin-bottom:14px;padding-bottom:12px;
+  border-bottom:1px solid rgba(255,140,0,.14);
 }
-.rip-emoji{font-size:1.5rem;line-height:1;flex-shrink:0;margin-top:1px;}
+.rip-emoji{font-size:1.7rem;line-height:1;flex-shrink:0;margin-top:2px;}
 .rip-titles{flex:1;min-width:0;}
 .rip-name{
-  font-family:'Playfair Display',serif;font-size:.82rem;font-weight:700;
-  color:var(--gold);letter-spacing:.02em;line-height:1.2;display:block;
+  font-family:'Playfair Display',serif;font-size:.92rem;font-weight:700;
+  color:var(--gold);letter-spacing:.02em;line-height:1.25;display:block;
+}
+.rip-chef{
+  font-family:'Crimson Pro',serif;font-style:italic;
+  font-size:.7rem;color:rgba(255,200,100,.65);display:block;margin-top:3px;line-height:1.4;
 }
 .rip-culture{
   font-family:'Crimson Pro',serif;font-style:italic;
-  font-size:.62rem;color:rgba(253,246,227,.38);display:block;margin-top:2px;
+  font-size:.65rem;color:rgba(253,246,227,.34);display:block;margin-top:2px;
 }
 .rip-close{
   flex-shrink:0;
-  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
-  border-radius:6px;color:rgba(253,246,227,.4);
-  font-size:.7rem;width:26px;height:26px;cursor:pointer;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  border-radius:7px;color:rgba(253,246,227,.5);
+  font-size:.8rem;width:28px;height:28px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
-  transition:all .15s;margin-top:-2px;
+  transition:all .15s;
 }
 .rip-close:active{background:rgba(255,60,60,.2);color:#ff8080;}
-
-/* section label */
 .rip-sec{
-  font-size:.48rem;letter-spacing:.22em;text-transform:uppercase;
-  color:var(--amber);margin-bottom:7px;
-  display:flex;align-items:center;gap:5px;
+  font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--amber);margin-bottom:8px;
+  display:flex;align-items:center;gap:6px;
 }
-.rip-sec::after{content:'';flex:1;height:1px;background:rgba(255,140,0,.12);}
-
+.rip-sec::after{content:'';flex:1;height:1px;background:rgba(255,140,0,.14);}
 .rip-ing-row{
   display:flex;justify-content:space-between;align-items:baseline;
-  padding:4px 0;
-  border-bottom:1px solid rgba(255,255,255,.04);
+  padding:5px 0;
+  border-bottom:1px solid rgba(255,255,255,.05);
 }
 .rip-ing-row:last-child{border-bottom:none;}
-.rip-ing-row.rip-ing-hi .rip-ing-name{color:var(--amber);opacity:.75;}
+.rip-ing-row.rip-ing-hi .rip-ing-name{color:var(--amber);opacity:.85;}
 .rip-ing-row.rip-ing-hi .rip-ing-val{color:var(--gold);}
-.rip-ing-name{font-size:.62rem;color:rgba(253,246,227,.55);}
-.rip-ing-val{
-  font-size:.7rem;font-weight:700;color:var(--cream);
-  font-family:'Space Mono',monospace;
-}
-.rip-ing-unit{font-size:.5rem;color:rgba(253,246,227,.35);margin-left:2px;}
+.rip-ing-name{font-size:.68rem;color:rgba(253,246,227,.6);}
+.rip-ing-val{font-size:.76rem;font-weight:700;color:var(--cream);font-family:'Space Mono',monospace;}
+.rip-ing-unit{font-size:.56rem;color:rgba(253,246,227,.4);margin-left:2px;}
 
 /* equipment cards */
-.rip-eq-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+.rip-eq-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
 .rip-eq{
-  background:rgba(255,140,0,.05);
-  border:1px solid rgba(255,140,0,.1);
-  border-radius:7px;
-  padding:7px 9px;
-  display:flex;align-items:flex-start;gap:8px;
+  background:rgba(255,140,0,.05);border:1px solid rgba(255,140,0,.12);
+  border-radius:9px;padding:9px 10px;display:flex;align-items:flex-start;gap:9px;
 }
-.rip-eq-ic{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+.rip-eq-ic{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
 .rip-eq-body{}
-.rip-eq-name{
-  font-size:.64rem;font-weight:700;color:var(--cream);display:block;margin-bottom:1px;
-}
+.rip-eq-name{font-size:.72rem;font-weight:700;color:var(--cream);display:block;margin-bottom:3px;}
 .rip-eq-desc{
   font-family:'Crimson Pro',serif;font-style:italic;
-  font-size:.6rem;color:rgba(253,246,227,.35);line-height:1.4;
+  font-size:.68rem;color:rgba(253,246,227,.45);line-height:1.5;
 }
-/* required badge */
 .rip-eq-req{
-  display:inline-block;font-size:.42rem;padding:2px 5px;border-radius:4px;
-  letter-spacing:.08em;text-transform:uppercase;margin-left:5px;vertical-align:middle;
+  display:inline-block;font-size:.48rem;padding:2px 6px;border-radius:5px;
+  letter-spacing:.07em;text-transform:uppercase;margin-left:6px;vertical-align:middle;
 }
-.req-yes{background:rgba(255,69,0,.18);color:#ff9060;border:1px solid rgba(255,69,0,.25);}
-.req-nice{background:rgba(255,200,0,.1);color:#c8a840;border:1px solid rgba(255,200,0,.15);}
+.req-yes{background:rgba(255,69,0,.18);color:#ff9870;border:1px solid rgba(255,69,0,.28);}
+.req-nice{background:rgba(255,200,0,.1);color:#d4b444;border:1px solid rgba(255,200,0,.18);}
 
 /* ===== RESULT MODAL ===== */
 .ro{
@@ -507,24 +542,24 @@ input[type=range]::-webkit-slider-thumb{
 .ro.show{opacity:1;pointer-events:all;}
 .rc2{
   background:linear-gradient(135deg,#1b0e04,#110800);
-  border:1px solid rgba(255,140,0,.26);border-radius:16px;
-  padding:24px 20px;width:100%;max-width:380px;text-align:center;
+  border:1px solid rgba(255,140,0,.28);border-radius:18px;
+  padding:28px 22px;width:100%;max-width:380px;text-align:center;
   box-shadow:0 30px 80px rgba(0,0,0,.9),0 0 40px rgba(255,100,0,.07);
   transform:scale(.85);transition:transform .4s cubic-bezier(.34,1.56,.64,1);
 }
 .ro.show .rc2{transform:scale(1);}
-.rv{width:180px;height:100px;margin:0 auto 14px;}
-.rt2{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold);margin-bottom:5px;filter:drop-shadow(0 0 10px rgba(255,200,0,.36));}
-.rs2{font-family:'Crimson Pro',serif;font-style:italic;color:rgba(253,246,227,.42);font-size:.8rem;margin-bottom:12px;}
-.rdsc{font-size:.68rem;color:rgba(253,246,227,.65);line-height:1.78;border-top:1px solid rgba(255,140,0,.12);border-bottom:1px solid rgba(255,140,0,.12);padding:11px 0;margin-bottom:12px;}
-.rst{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:16px;}
-.sb{background:rgba(255,140,0,.05);border:1px solid rgba(255,140,0,.1);border-radius:6px;padding:8px 4px;}
-.sv{font-size:.92rem;color:var(--gold);font-weight:700;}.sl{font-size:.5rem;color:rgba(253,246,227,.32);letter-spacing:.07em;margin-top:1px;}
+.rv{width:180px;height:100px;margin:0 auto 16px;}
+.rt2{font-family:'Playfair Display',serif;font-size:1.45rem;color:var(--gold);margin-bottom:6px;filter:drop-shadow(0 0 10px rgba(255,200,0,.36));}
+.rs2{font-family:'Crimson Pro',serif;font-style:italic;color:rgba(253,246,227,.5);font-size:.88rem;margin-bottom:14px;}
+.rdsc{font-size:.75rem;color:rgba(253,246,227,.7);line-height:1.85;border-top:1px solid rgba(255,140,0,.14);border-bottom:1px solid rgba(255,140,0,.14);padding:13px 0;margin-bottom:14px;}
+.rst{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px;}
+.sb{background:rgba(255,140,0,.05);border:1px solid rgba(255,140,0,.12);border-radius:8px;padding:10px 4px;}
+.sv{font-size:1rem;color:var(--gold);font-weight:700;}.sl{font-size:.56rem;color:rgba(253,246,227,.38);letter-spacing:.06em;margin-top:2px;}
 .rcl{
-  background:linear-gradient(135deg,#cc3700,#ff6600);border:none;border-radius:8px;
-  color:#fff;font-family:'Space Mono',monospace;font-size:.65rem;
-  padding:13px 28px;cursor:pointer;letter-spacing:.09em;transition:all .18s;
-  min-height:48px;width:100%;
+  background:linear-gradient(135deg,#cc3700,#ff6600);border:none;border-radius:10px;
+  color:#fff;font-family:'Space Mono',monospace;font-size:.7rem;
+  padding:15px 28px;cursor:pointer;letter-spacing:.09em;transition:all .18s;
+  min-height:52px;width:100%;
 }
 .rcl:active{transform:scale(.97);}
 </style>
@@ -614,12 +649,14 @@ input[type=range]::-webkit-slider-thumb{
               <span class="rip-emoji" id="rip-emoji">🍞</span>
               <div class="rip-titles">
                 <span class="rip-name" id="rip-name">—</span>
+                <span class="rip-chef" id="rip-chef"></span>
                 <span class="rip-culture" id="rip-culture">—</span>
               </div>
               <button class="rip-close" onclick="clearRecipe()">✕</button>
             </div>
 
             <div class="rip-sec">Ingredients</div>
+            <div id="rip-uses" class="rip-uses" style="display:none"></div>
             <div id="rip-ings"></div>
 
             <div style="margin-top:12px;">
@@ -684,7 +721,9 @@ input[type=range]::-webkit-slider-thumb{
 
     <!-- TAB: INGREDIENTS -->
     <div class="tab-pane" id="tab-ings">
-      <div class="sec">Ingredients</div>
+      <div class="sec">Mix</div>
+
+      <div class="ing-group-label">— Base dough —</div>
 
       <div class="ir">
         <div class="il"><span class="in">🌾 Bread Flour</span><span class="iv" id="flour-val">400 <span class="iu">g</span></span></div>
@@ -704,30 +743,54 @@ input[type=range]::-webkit-slider-thumb{
         <div class="ut"><button class="ub act" onclick="setU('salt','g',this)">g</button><button class="ub" onclick="setU('salt','tsp',this)">tsp</button></div>
       </div>
       <div class="ir">
-        <div class="il"><span class="in">🥄 Starter Amount</span><span class="iv" id="starter-amt-val">100 <span class="iu">g</span></span></div>
+        <div class="il"><span class="in">🥄 Levain</span><span class="iv" id="starter-amt-val">100 <span class="iu">g</span></span></div>
         <input type="range" id="starter-amt" min="10" max="300" value="100" oninput="upI('starter-amt',this)">
         <div class="ut"><button class="ub act" onclick="setU('starter-amt','g',this)">g</button><button class="ub" onclick="setU('starter-amt','cup',this)">cups</button></div>
       </div>
+
+      <div class="ing-divider"></div>
+      <div class="ing-group-label">— Fats &amp; sugars —</div>
+
       <div class="ir">
         <div class="il"><span class="in">🫒 Olive Oil</span><span class="iv" id="oil-val">0 <span class="iu">g</span></span></div>
-        <input type="range" id="oil" min="0" max="80" value="0" oninput="upI('oil',this)">
+        <input type="range" id="oil" min="0" max="100" value="0" oninput="upI('oil',this)">
         <div class="ut"><button class="ub act" onclick="setU('oil','g',this)">g</button><button class="ub" onclick="setU('oil','tbsp',this)">tbsp</button></div>
       </div>
       <div class="ir">
         <div class="il"><span class="in">🍯 Honey / Malt</span><span class="iv" id="honey-val">0 <span class="iu">g</span></span></div>
-        <input type="range" id="honey" min="0" max="60" value="0" oninput="upI('honey',this)">
+        <input type="range" id="honey" min="0" max="80" value="0" oninput="upI('honey',this)">
         <div class="ut"><button class="ub act" onclick="setU('honey','g',this)">g</button><button class="ub" onclick="setU('honey','tbsp',this)">tbsp</button></div>
       </div>
 
-      <div class="pred"><strong>Shape:</strong> <span id="shape-p">Classic Boule</span><br><strong>Crumb:</strong> <span id="crumb-p">Open, chewy</span></div>
+      <div class="ing-divider"></div>
+      <div class="ing-group-label">— Enrichment (brioche, panettone, challah) —</div>
+
+      <div class="ir">
+        <div class="il"><span class="in">🥚 Eggs</span><span class="iv" id="eggs-val">0 <span class="iu">g</span></span></div>
+        <input type="range" id="eggs" min="0" max="250" value="0" oninput="upI('eggs',this)">
+        <div class="ut"><button class="ub act" onclick="setU('eggs','g',this)">g</button><button class="ub" onclick="setU('eggs','eggs',this)">eggs</button></div>
+        <div class="ing-note" id="eggs-note" style="display:none">≈ <span id="eggs-count">0</span> large eggs</div>
+      </div>
+      <div class="ir">
+        <div class="il"><span class="in">🧈 Butter</span><span class="iv" id="butter-val">0 <span class="iu">g</span></span></div>
+        <input type="range" id="butter" min="0" max="300" value="0" oninput="upI('butter',this)">
+        <div class="ut"><button class="ub act" onclick="setU('butter','g',this)">g</button><button class="ub" onclick="setU('butter','tbsp',this)">tbsp</button></div>
+      </div>
+      <div class="ir">
+        <div class="il"><span class="in">🥛 Milk</span><span class="iv" id="milk-val">0 <span class="iu">g</span></span></div>
+        <input type="range" id="milk" min="0" max="300" value="0" oninput="upI('milk',this)">
+        <div class="ut"><button class="ub act" onclick="setU('milk','g',this)">g</button><button class="ub" onclick="setU('milk','ml',this)">ml</button></div>
+      </div>
+
+      <div class="pred"><strong>Shape:</strong> <span id="shape-p">Artisan Boule</span><br><strong>Crumb:</strong> <span id="crumb-p">Open, chewy</span></div>
       <button class="bake-btn-big" id="bbl" onclick="goOvenAndBake()">🔥 FIRE THE OVEN</button>
-      <div style="height:20px"></div>
+      <div style="height:24px"></div>
     </div>
 
     <!-- TAB: CULTURE -->
     <div class="tab-pane" id="tab-culture">
       <div class="sec">Active Culture</div>
-      <p style="font-family:'Crimson Pro',serif;font-style:italic;font-size:.78rem;color:rgba(253,246,227,.38);margin-bottom:16px;line-height:1.6;">
+      <p style="font-family:'Crimson Pro',serif;font-style:italic;font-size:.85rem;color:rgba(253,246,227,.5);margin-bottom:18px;line-height:1.7;">
         Two legendary cultures from Ed Wood's International Sourdough. Tap to select.
       </p>
       <div id="starters-list"></div>
@@ -784,60 +847,157 @@ const STARTERS=[
 const RECIPES=[
 
   // ════════════════════════════════════
-  // BREADS
+  // THE CLASSIC — first loaf, always
   // ════════════════════════════════════
 
-  {emoji:'🍞', name:'San Francisco Country Boule', diff:'hard',
-   desc:'78% hydration · 90% bread flour + 10% T85 whole wheat · 20% levain · 36-hr cold retard at 38°F. Extended autolyse 45 min. Coil-fold 4× every 30 min. Ear scores 120°. Shattering mahogany crust, translucent open crumb. Inspiration: Tartine, Acme Bread.',
-   preset:{flour:450, water:351, salt:10, 'starter-amt':90, oil:0, honey:0, temp:500, 'bake-time':46, starter:'sf', type:'boule'}},
+  {emoji:'🍞', name:'Classic Rustic Sourdough', diff:'medium', chef:'Every baker who ever lived',
+   uses:'Eat fresh with butter · toast · dip in soup · the sandwich loaf that tastes like bread should taste',
+   desc:'75% hydration · 100% bread flour · 20% levain · The loaf. Stretch-and-fold 4× over 2 hrs. Shape. Overnight cold proof at 38°F. Bake covered 20 min then uncovered 24 min. Good ear, open crumb, hollow knock at the bottom.',
+   preset:{flour:450, water:338, salt:9, 'starter-amt':90, oil:0, honey:0, temp:475, 'bake-time':44, starter:'sf', type:'boule'}},
 
-  {emoji:'🥖', name:'Sourdough Baguette de Tradition', diff:'hard',
-   desc:'72% hydration · 100% T65 French flour · 25% levain · 48-hr cold retard. Bassinage technique — hold back 5% water, incorporate after gluten window. Bake on stone with 14 min of injected steam. Five grigne cuts at 30°. Translucent crumb cells, crust shatters like porcelain.',
+  // ════════════════════════════════════
+  // SOURDOUGH BREADS — SF Culture
+  // ════════════════════════════════════
+
+  {emoji:'🍞', name:'San Francisco Country Boule', diff:'hard', chef:'Chad Robertson · Tartine Bakery, SF',
+   uses:'The showpiece loaf · thick slices with good butter · cheese boards · gifts · eat at the table not over the sink',
+   desc:'78% hydration · 90% bread flour + 10% T85 whole wheat · 20% levain · 36-hr cold retard at 38°F. Autolyse 45 min. Coil-fold 4× every 30 min. Score at 120°. Shattering mahogany crust, translucent open crumb.',
+   preset:{flour:450, water:351, salt:9, 'starter-amt':90, oil:0, honey:0, temp:500, 'bake-time':46, starter:'sf', type:'boule'}},
+
+  {emoji:'🥖', name:'Pain de Campagne', diff:'medium', chef:'Lionel Poilâne · Boulangerie Poilâne, Paris',
+   uses:'Every meal for a week · stays fresh 5 days · excellent with hard cheese, charcuterie, and salted butter · the French family loaf',
+   desc:'76% hydration · 80% T65 bread flour + 20% whole rye · 22% levain · 12-hr ambient bulk at 65°F. Scored with a cross. Baked in a wood-fired stone oven. Mildly sour, nutty rye notes, extraordinary keeping quality.',
+   preset:{flour:400, water:304, salt:9, 'starter-amt':88, oil:0, honey:0, temp:480, 'bake-time':52, starter:'sf', type:'campagne'}},
+
+  {emoji:'🥖', name:'Sourdough Baguette de Tradition', diff:'hard', chef:'Éric Kayser · Maison Kayser, Paris',
+   uses:'Tear off chunks at dinner · baguette sandwiches (jambon-beurre) · dip in olive oil · the bread that defines a meal',
+   desc:'72% hydration · 100% T65 French flour · 25% levain · 48-hr cold retard. Bassinage — hold back 5% water, add after gluten development. Five grigne cuts at 30°. Translucent crumb cells, porcelain crust.',
    preset:{flour:500, water:360, salt:10, 'starter-amt':125, oil:0, honey:0, temp:490, 'bake-time':26, starter:'sf', type:'baguette'}},
 
-  {emoji:'🫓', name:'Ischia Ciabatta Vera', diff:'hard',
-   desc:'91% hydration · Tipo 00 Caputo Nuvola · 15% levain · No kneading. Build dough in bassino, stretch-and-fold 6× over 4 hrs. Single cold proof 18 hrs. Divide with oiled bench scraper — never degas. Bake on 550°F stone with steam. Crust shatters. Crumb: irregular 2–3 cm cells.',
+  {emoji:'🍞', name:'Sourdough Pullman Loaf', diff:'medium', chef:'Peter Reinhart · Johnson & Wales University',
+   uses:'The best toast of your life · sandwiches · French toast · croutons · anything that needs sliced bread that actually tastes like something',
+   desc:'68% hydration · 100% bread flour · 18% levain · 6% olive oil, 4% honey. Lidded Pullman pan creates square crumb. Tight, pillowy, pillowy structure. Stays fresh 5 days — the acid slows staling.',
+   preset:{flour:500, water:340, salt:10, 'starter-amt':90, oil:30, honey:20, temp:390, 'bake-time':40, starter:'sf', type:'pullman'}},
+
+  {emoji:'🫓', name:'Sourdough English Muffins', diff:'medium', chef:'Nancy Silverton · La Brea Bakery, Los Angeles',
+   uses:'Eggs benedict · smear with butter and jam · toasted with avocado · the nooks catch everything · a weekend breakfast staple',
+   desc:'75% hydration · bread flour · 20% levain · 6% honey. Griddle-baked on dry cast iron 6 min per side. Cold-proof overnight. Famous nooks-and-crannies from the SF bubble structure. Split with a fork — never cut.',
+   preset:{flour:400, water:300, salt:8, 'starter-amt':80, oil:0, honey:24, temp:380, 'bake-time':14, starter:'sf', type:'muffin'}},
+
+  {emoji:'🥨', name:'Sourdough Soft Pretzels', diff:'medium', chef:'Peter Scheer · The Publican, Chicago',
+   uses:'Beer snack · serve with whole-grain mustard or cheese sauce · parties · game day · a better pretzel than any ballpark has ever seen',
+   desc:'58% hydration · bread flour · 15% levain · 5% olive oil. Dipped in 4% baked-baking-soda bath before baking. Deep mahogany lacquer, chewy interior. Finish with coarse pretzel salt.',
+   preset:{flour:500, water:290, salt:8, 'starter-amt':75, oil:25, honey:0, temp:450, 'bake-time':18, starter:'sf', type:'pretzel'}},
+
+  // ════════════════════════════════════
+  // BREADS — Ischia Culture
+  // ════════════════════════════════════
+
+  {emoji:'🫓', name:'Ischia Ciabatta Vera', diff:'hard', chef:'Gabriele Bonci · Pizzarium, Rome',
+   uses:'Dipped in olive oil · bruschetta base · panino with mortadella · split and filled with anything · the slipper-shaped bread that soaks up everything',
+   desc:'91% hydration · Tipo 00 Caputo Nuvola · 15% levain · 4% olive oil. No kneading. Stretch-and-fold 6× over 4 hrs. 18-hr cold proof. Divide with oiled scraper — never degas. Steam-bake on 550°F stone. Irregular 2–3 cm crumb cells.',
    preset:{flour:500, water:455, salt:10, 'starter-amt':75, oil:20, honey:0, temp:480, 'bake-time':32, starter:'ischia', type:'ciabatta'}},
+
+  {emoji:'🫓', name:'Pane di Altamura DOP', diff:'hard', chef:'Traditional · Antico Forno Fiore, Altamura',
+   uses:'Eat with olio nuovo and salt · pasta al forno · southern Italian antipasto · keep it a week and it only gets better',
+   desc:'65% hydration · 100% semola rimacinata di grano duro (re-milled durum wheat) · 20% levain. The only bread with EU DOP status. Double-scored X. Dense amber crumb, nutty, golden crust. Keeps 2 weeks.',
+   preset:{flour:500, water:325, salt:11, 'starter-amt':100, oil:0, honey:0, temp:470, 'bake-time':55, starter:'ischia', type:'altamura'}},
+
+  {emoji:'🫓', name:'Schiacciata Toscana', diff:'easy', chef:'Marco Stagi · Buca Mario, Florence',
+   uses:'Street snack · aperitivo with wine · tear and share before dinner · wrap around prosciutto and figs · the Florentine version of a flatbread',
+   desc:"60% hydration · Tipo 00 flour · 14% levain · 12% DOP Tuscan extra-virgin olive oil. Rolled thin, coarse salt and rosemary pressed in. Stone-floor baked. Shatters at the pull.",
+   preset:{flour:500, water:300, salt:9, 'starter-amt':70, oil:60, honey:0, temp:460, 'bake-time':20, starter:'ischia', type:'schiacciata'}},
 
   // ════════════════════════════════════
   // FOCACCIA
   // ════════════════════════════════════
 
-  {emoji:'🫓', name:'Focaccia di Recco col Formaggio', diff:'medium',
-   desc:'85% hydration · Tipo 00 flour · 26% levain · DOP Ligurian extra-virgin olive oil. Three-stage oil fold during bulk. Stretch to 3 mm on oiled tray — thin enough to read text through. Fill with stracchino or crescenza. Blistered top, crisp-lacquered base.',
+  {emoji:'🫓', name:'Focaccia Genovese', diff:'medium', chef:'Sergio Rossi · Antico Forno Revello, Camogli',
+   uses:'Breakfast dipped in caffelatte · tear apart at the table before pasta · olive oil and sea salt · sandwich bread · the Ligurian morning ritual',
+   desc:"80% hydration · Tipo 00 flour · 24% levain · 13% DOP Taggiasca olive oil. Dimpled with full hand. Oil floods every dimple. Baked in blue steel pan. 2 cm tall, pillowy interior, lacquered base.",
+   preset:{flour:500, water:400, salt:11, 'starter-amt':120, oil:65, honey:0, temp:440, 'bake-time':25, starter:'ischia', type:'focaccia'}},
+
+  {emoji:'🫓', name:'Focaccia di Recco col Formaggio', diff:'medium', chef:'Manuelina Restaurant · Recco, Liguria (est. 1885)',
+   uses:'Cut into squares, serve immediately · wine pairing with Vermentino · the cheese melts inside and blisters on top · eaten hot, not warm',
+   desc:'Two sheets of Tipo 00 dough at 85% hydration · 26% levain · 14% DOP Ligurian olive oil. Bottom sheet stretched to 3 mm. Filled with stracchino or crescenza. Top sheet draped and sealed. Bake at 500°F, 18 min.',
    preset:{flour:500, water:425, salt:11, 'starter-amt':130, oil:72, honey:0, temp:500, 'bake-time':18, starter:'ischia', type:'focaccia'}},
 
   // ════════════════════════════════════
   // PIZZA
   // ════════════════════════════════════
 
-  {emoji:'🍕', name:'Vera Pizza Napoletana DOC', diff:'hard',
-   desc:'62% hydration · Caputo Pizzeria 00 · 5% levain · 48-hr cold ferment at 39°F. Salt at 3% of flour — dissolved before adding levain. Ball at 280 g. Stretch by hand only — no rolling pin. Bake 850°F floor, 60–90 sec. Leopard-spotted cornizione, char-kissed floor. AVPN standard.',
-   preset:{flour:500, water:310, salt:15, 'starter-amt':25, oil:0, honey:0, temp:550, 'bake-time':10, starter:'ischia', type:'neopizza'}},
+  {emoji:'🍕', name:'Vera Pizza Napoletana DOC', diff:'hard', chef:'Enzo Coccia · La Notizia, Naples',
+   uses:'The only pizza · topped with San Marzano DOP, fior di latte, fresh basil · eaten immediately · never reheated · fold in four (a libretto) and eat walking',
+   desc:'62% hydration · Caputo Pizzeria 00 · 5% levain · 3% salt. 48-hr cold ferment at 39°F. Balls at 280 g. Hand-stretched only. Bake 850°F floor 60–90 sec. Leopard-spotted cornicione, char-kissed base. AVPN certified.',
+   preset:{flour:1000, water:620, salt:30, 'starter-amt':50, oil:0, honey:0, temp:550, 'bake-time':10, starter:'ischia', type:'neopizza'}},
 
-  {emoji:'🍕', name:'New York Coal-Oven Pie', diff:'medium',
-   desc:'65% hydration · King Arthur Sir Lancelot high-gluten · 7% levain · 72-hr cold ferment, 3 stretch-and-folds. 18" hand-tossed. Bake on 1" baking steel preheated 1 hr. Dock crust edge. Foldable slice, leopard-spotted bottom, NY tang from SF culture. Finish under broiler 90 sec.',
+  {emoji:'🍕', name:'New York Coal-Oven Pie', diff:'medium', chef:'Patsy Grimaldi · Grimaldi\'s, Brooklyn',
+   uses:'Friday night pizza · the foldable slice · pepperoni and fresh mozzarella · feed a crowd · never cut with scissors, always a wheel',
+   desc:'65% hydration · King Arthur Sir Lancelot high-gluten flour · 7% levain · 3.6% olive oil · 2% honey. 72-hr cold ferment. 18" hand-tossed. Bake on ½" baking steel 1 hr preheated. Finish under broiler 90 sec.',
    preset:{flour:500, water:325, salt:12, 'starter-amt':35, oil:18, honey:10, temp:550, 'bake-time':14, starter:'sf', type:'nypizza'}},
 
-  {emoji:'🍕', name:'Roman Pizza al Taglio', diff:'medium',
-   desc:'80% hydration · Type 1 stone-ground flour + 20% semolina rimacinata · 16% levain · Extra-virgin olive oil at 8%. Bake in oiled blue-steel tray. Crisp parchment-thin base, cloud-like interior. Sliced with scissors to order. As served at Bonci Pizzarium, Rome.',
+  {emoji:'🍕', name:'Roman Pizza al Taglio', diff:'medium', chef:'Gabriele Bonci · Pizzarium Bonci, Rome',
+   uses:'Cut with scissors and sell by weight · lunch on the go · top with potato and rosemary, or zucchini blossoms · the Roman street food',
+   desc:'80% hydration · Type 1 stone-ground flour + 20% semolina rimacinata · 16% levain · 8% extra-virgin olive oil. Bake in oiled blue-steel tray. Crisp base, cloud interior.',
    preset:{flour:450, water:360, salt:11, 'starter-amt':72, oil:36, honey:0, temp:460, 'bake-time':25, starter:'ischia', type:'taglio'}},
 
-  {emoji:'🍕', name:'Detroit Red Top', diff:'medium',
-   desc:'75% hydration · Bread flour + 5% semolina · 18% levain · Olive oil 9%. Wisconsin brick cheese pressed wall-to-wall — caramelises against blue-steel sides. Ladle sauce on top after bake. Lacey, crispy cheese skirt. Pillowy open interior. As perfected at Buddy\'s, Detroit.',
+  {emoji:'🍕', name:'Detroit Red Top', diff:'medium', chef:'Shawn Randazzo · Buddy\'s Pizza, Detroit',
+   uses:'The square pizza · feed 4–6 people · pepperoni, brick cheese, sauce on top · a party · a snowstorm · any occasion that calls for the best pan pizza ever made',
+   desc:"75% hydration · bread flour + 5% semolina · 18% levain · 9% olive oil. Wisconsin brick cheese edge-to-edge fries against the steel into lacy skirts. Sauce ladled on top after bake. Buddy's method, 1946.",
    preset:{flour:500, water:375, salt:11, 'starter-amt':90, oil:45, honey:0, temp:480, 'bake-time':22, starter:'ischia', type:'detroit'}},
+
+  {emoji:'🍕', name:'Piadina Romagnola', diff:'easy', chef:'Traditional · Casina del Bosco, Rimini',
+   uses:'Filled with squacquerone and prosciutto · served with a salad · fold and eat like a taco · quick lunch · the flatbread that replaced sandwiches in Romagna',
+   desc:'50% hydration · Tipo 00 flour · 10% levain · 8% olive oil. Rolled to 3 mm. Griddle-baked on terracotta or cast iron 2 min per side. Flexible, slightly charred.',
+   preset:{flour:500, water:250, salt:10, 'starter-amt':50, oil:40, honey:0, temp:450, 'bake-time':12, starter:'ischia', type:'piadina'}},
 
   // ════════════════════════════════════
   // SPECIALTY
   // ════════════════════════════════════
 
-  {emoji:'🥯', name:'Montréal Sourdough Bagel', diff:'hard',
-   desc:'53% hydration · Unbleached bread flour · 16% levain · 6% honey · Hand-rolled thin (not thick like NY). Cold-proof 12 hrs. Boil in honey water 45 sec per side. Bake on maple planks in wood-fired oven. Dense, chewy, slightly sweet. Sesame or poppy. St-Viateur method.',
+  {emoji:'🥯', name:'Montréal Sourdough Bagel', diff:'hard', chef:'Myer Lewkowicz · St-Viateur Bagel, Montréal (est. 1957)',
+   uses:'Smoked salmon and cream cheese · toasted with butter · a Sunday morning · better than any NY bagel and Montréalers will tell you so',
+   desc:'53% hydration · unbleached bread flour · 16% levain · 6% honey. Hand-rolled thin. Cold-proof 12 hrs. Boil in honey water 45 sec per side. Bake on maple planks. Dense, chewy, slightly sweet. Sesame or poppy.',
    preset:{flour:500, water:265, salt:10, 'starter-amt':80, oil:0, honey:30, temp:500, 'bake-time':22, starter:'sf', type:'bagel'}},
 
-  {emoji:'🧆', name:'Grissini Stirati Torinesi', diff:'easy',
-   desc:'44% hydration · Tipo 00 flour · 12.5% levain · DOP extra-virgin olive oil 9%. Hand-stretched to 60 cm, paper-thin — never rolled. Ancient Turinese court bread, dating to 1679. Bake dry at low heat. Shatters into ivory shards at the table. Served at Ristorante Del Cambio, Turin.',
+  {emoji:'🧆', name:'Grissini Stirati Torinesi', diff:'easy', chef:'Traditional · Ristorante Del Cambio, Turin (est. 1757)',
+   uses:'On the table before dinner with antipasto · wrapped in prosciutto crudo · alongside cheese · nibble with Barolo · the breadstick that replaced all other breadsticks',
+   desc:'44% hydration · Tipo 00 flour · 12.5% levain · 9% DOP extra-virgin olive oil. Hand-stretched to 60 cm — never rolled. Bake at 420°F until bone dry. Shatters into ivory shards.',
    preset:{flour:400, water:176, salt:8, 'starter-amt':50, oil:36, honey:0, temp:420, 'bake-time':20, starter:'ischia', type:'grissini'}},
+
+  {emoji:'🫓', name:'Sourdough Crackers', diff:'easy', chef:'Josey Baker · The Mill, San Francisco',
+   uses:'Cheese boards · hummus and dips · snacking straight from the pan · soup · what to do with leftover discard that makes everyone ask for the recipe',
+   desc:'45% hydration · 70% bread flour + 30% whole wheat · 50% levain discard · 10% olive oil. Rolled to 1–2 mm, docked, baked dry. SF culture at peak tang.',
+   preset:{flour:300, water:135, salt:7, 'starter-amt':150, oil:30, honey:0, temp:375, 'bake-time':22, starter:'sf', type:'cracker'}},
+
+  // ════════════════════════════════════
+  // ENRICHED DOUGHS
+  // ════════════════════════════════════
+
+  {emoji:'🥐', name:'Sourdough Brioche', diff:'hard', chef:'Joël Robuchon · Jamin, Paris',
+   uses:'French toast · brioche buns for wagyu burgers · eat a thick slice plain with nothing on it · bread-and-butter pudding · the bread that makes everything else taste worse by comparison',
+   desc:'Bread flour · 20% levain · water 12%, eggs 30%, butter 40%, honey 8%, salt 2%. Mix flour/levain/water/eggs to windowpane. Rest 30 min cold. Add cold butter in 20 pieces over 20 min. Cold-proof overnight. Pull at 190°F internal.',
+   preset:{flour:500, water:60, salt:10, 'starter-amt':100, oil:0, honey:40, eggs:150, butter:200, milk:50, temp:375, 'bake-time':28, starter:'sf', type:'brioche'}},
+
+  {emoji:'🍞', name:'Sourdough Challah', diff:'medium', chef:'Uri Scheft · Lehamim Bakery, Tel Aviv',
+   uses:'Shabbat dinner · French toast on Saturday morning · tear off pieces around the table · honey on Rosh Hashanah · the most beautiful bread you will ever bake',
+   desc:'Bread flour · 18% levain · water 20%, eggs 25%, olive oil 12%, honey 10%, salt 1.8%. Six-strand braid. Double egg wash. Cold-proof 8 hrs. Golden bronze lacquer, pillowy crumb.',
+   preset:{flour:500, water:100, salt:9, 'starter-amt':90, oil:60, honey:50, eggs:125, butter:0, milk:0, temp:375, 'bake-time':32, starter:'sf', type:'challah'}},
+
+  {emoji:'🎂', name:'Panettone Milanese', diff:'hard', chef:'Roy Shvartzapel · From Roy, San Francisco',
+   uses:'Christmas morning · sliced thick with mascarpone · panettone French toast · gifted in a tall box · paired with a glass of Moscato d\'Asti · a project you start 3 days before Christmas',
+   desc:'Manitoba 00 flour · 30% lievito madre (stiff levain) · eggs 40%, butter 45%, honey 5%, sugar 20%, salt 1.6%, milk 10%. Three-stage build over 36 hrs. Hung upside-down after baking. Pull at 201°F internal.',
+   preset:{flour:500, water:0, salt:8, 'starter-amt':150, oil:0, honey:25, eggs:200, butter:225, milk:50, temp:340, 'bake-time':50, starter:'ischia', type:'panettone'}},
+
+  {emoji:'⭐', name:'Pandoro di Verona', diff:'hard', chef:'Domenico Melegatti · Pasticceria Melegatti, Verona (est. 1894)',
+   uses:'Christmas Eve dessert · dusted in vanilla sugar at the table · sliced horizontal into star-shaped rings · served with zabaione · the Veronese answer to panettone',
+   desc:'Soft wheat 00 flour · 25% lievito madre · eggs 50%, butter 50%, sugar 22%, honey 4%, vanilla, salt 1.4%, milk 6%. Five dough builds. Star mould. Hang upside-down 2 hrs. Pull at 200°F.',
+   preset:{flour:500, water:0, salt:7, 'starter-amt':125, oil:0, honey:20, eggs:250, butter:250, milk:30, temp:340, 'bake-time':55, starter:'ischia', type:'pandoro'}},
+
+  {emoji:'🥐', name:'Sourdough Croissant Dough', diff:'hard', chef:'Cédric Grolet · Le Meurice, Paris',
+   uses:'Plain croissants · pain au chocolat · almond croissants · kouign-amann · any laminated pastry · the dough you make Saturday morning to bake Sunday morning',
+   desc:'T45 French flour · 15% levain · water 24%, milk 16%, eggs 10%, dry butter (84% fat) 45%, sugar 8%, salt 2%. 27 layers via 3 double folds. 30 min cold rest between each fold. Butter block at 14°C.',
+   preset:{flour:500, water:120, salt:10, 'starter-amt':75, oil:0, honey:40, eggs:50, butter:225, milk:80, temp:390, 'bake-time':22, starter:'sf', type:'croissant'}},
 
 ];
 
@@ -845,10 +1005,11 @@ const RECIPES=[
 // STATE
 // =======================================
 let S={
-  flour:400,water:300,salt:9,'starter-amt':100,oil:0,honey:0,
-  temp:450,'bake-time':45,selectedStarter:'sf',recipeType:null,
+  flour:400, water:300, salt:9, 'starter-amt':100,
+  oil:0, honey:0, eggs:0, butter:0, milk:0,
+  temp:450,'bake-time':45, selectedStarter:'sf', recipeType:null,
   activeRecipeIdx:null,
-  units:{flour:'g',water:'g',salt:'g','starter-amt':'g',oil:'g',honey:'g'},
+  units:{flour:'g',water:'g',salt:'g','starter-amt':'g',oil:'g',honey:'g',eggs:'g',butter:'g',milk:'g'},
   baking:false,
 };
 let smIv=null,emIv=null;
@@ -934,11 +1095,12 @@ function renderRecipes(){
         <span class="re">${r.emoji}</span>
         <div class="rc-body">
           <div class="rn">${r.name}</div>
+          ${r.chef ? `<div class="rc-chef">👨‍🍳 ${r.chef}</div>` : ''}
+          ${r.uses ? `<div class="rc-uses">🍽 ${r.uses}</div>` : ''}
           <div class="rd">${r.desc}</div>
           <div class="rc-meta">
             <span class="diff ${r.diff}">${r.diff}</span>
             <span class="rc-hyd">${hyd}% hydration</span>
-            <span class="rc-star">⭐</span>
           </div>
         </div>
       </div>`;
@@ -1092,8 +1254,19 @@ function updDisp(id){
   else if(u==='ml')d=g.toFixed(0)+' <span class="iu">ml</span>';
   else if(u==='tsp')d=(g/4.8).toFixed(1)+' <span class="iu">tsp</span>';
   else if(u==='tbsp')d=(g/14.4).toFixed(1)+' <span class="iu">tbsp</span>';
+  else if(u==='eggs')d=(g/50).toFixed(1)+' <span class="iu">eggs</span>';
   else d=g+' <span class="iu">g</span>';
   el.innerHTML=d;
+  // egg count hint
+  if(id==='eggs'){
+    const note=document.getElementById('eggs-note');
+    const cnt=document.getElementById('eggs-count');
+    if(note&&cnt){
+      const n=Math.round(g/50*10)/10;
+      note.style.display=g>0?'block':'none';
+      cnt.textContent=n;
+    }
+  }
 }
 function setU(id,u,btn){
   S.units[id]=u;
@@ -1105,7 +1278,7 @@ function updateHyd(){
   document.getElementById('hf').style.width=Math.min(100,Math.max(0,(p-40)*2.5))+'%';
 }
 function updateAll(){
-  ['flour','water','salt','starter-amt','oil','honey'].forEach(id=>{
+  ['flour','water','salt','starter-amt','oil','honey','eggs','butter','milk'].forEach(id=>{
     const el=document.getElementById(id);if(el)updSlider(el);updDisp(id);
   });
   updateHyd();updatePreds();
@@ -1122,9 +1295,18 @@ function applyP(idx){
   const p=RECIPES[idx].preset;
   S.recipeType=null;
   S.activeRecipeIdx=idx;
+  // Reset all sliders first, then apply preset values
+  const allFields=['flour','water','salt','starter-amt','oil','honey','eggs','butter','milk'];
+  allFields.forEach(k=>{
+    const defaultVal=k==='flour'?400:k==='water'?300:k==='salt'?9:k==='starter-amt'?100:0;
+    S[k]=defaultVal;
+    const el=document.getElementById(k);
+    if(el){el.value=defaultVal;updSlider(el);}
+  });
   Object.keys(p).forEach(k=>{
     if(k==='starter'){pickStar(p[k]);return;}
     if(k==='type'){S.recipeType=p[k];return;}
+    if(k==='temp'||k==='bake-time')return;
     S[k]=p[k];
     const el=document.getElementById(k);
     if(el){el.value=p[k];updSlider(el);}
@@ -1133,7 +1315,6 @@ function applyP(idx){
   setDialDirect('time',p['bake-time']);
   updateAll();
   showRecipePanel(idx);
-  // Switch to oven tab after brief delay so user sees preset applied
   setTimeout(()=>switchTab('oven'),400);
 }
 
@@ -1149,6 +1330,14 @@ const EQUIPMENT={
     {ic:'🫙', name:'Cambro 6-qt Container',         req:'nice', desc:'Straight-sided container lets you track dough rise visually. Mark start height with a rubber band.'},
   ],
 
+  campagne:[
+    {ic:'🧺', name:'Oval Banneton (900 g)',         req:'yes', desc:'Oval banneton for the miche shape. Rice flour dusted. Poilâne\'s miche is round; an oval banneton also works beautifully.'},
+    {ic:'🫕', name:'Dutch Oven or Combo Cooker',    req:'yes', desc:'5.5 qt+ for a large miche. Combo cooker (Lodge) lets you load the loaf from the shallow side for less risk.'},
+    {ic:'🪃', name:'Lame',                         req:'yes', desc:'Score a cross or the letter of your bakery. Single deep score or decorative wheat stalk.'},
+    {ic:'🌡️', name:'Probe Thermometer',            req:'yes', desc:'Campagne with rye needs to reach 210°F — rye starches gelatinize at a higher temp than wheat.'},
+    {ic:'⚖️', name:'Kitchen Scale',               req:'yes', desc:'Rye absorbs water differently by brand. Weigh everything; adjust water by feel if dough is too wet.'},
+  ],
+
   baguette:[
     {ic:'🧵', name:'Linen Couche',                 req:'yes', desc:'Stiff baker\'s linen holds baguette shape during final 45-min proof without sticking. Dust heavily with bench flour.'},
     {ic:'🪨', name:'Baking Stone (1" thick)',       req:'yes', desc:'½" steel or 1" cordierite stone preheated 1 hr minimum. Thermal mass drives bottom crust and explosive spring.'},
@@ -1156,6 +1345,26 @@ const EQUIPMENT={
     {ic:'🪃', name:'Straight Razor Lame',          req:'yes', desc:'Flat lame at 30° for 5 parallel cuts on each baguette. Cut in one swift motion — hesitation tears dough.'},
     {ic:'🥖', name:'Baguette Transfer Peel',       req:'yes', desc:'Thin wooden peel to roll baguettes off the couche directly onto stone without deflating.'},
     {ic:'🌡️', name:'Infrared Thermometer',        req:'nice', desc:'Verify stone surface is 500°F+. Surface temp drops ~30°F per minute with the door open.'},
+  ],
+
+  pullman:[
+    {ic:'🍞', name:'Pullman Loaf Pan with Lid',    req:'yes', desc:'4×4×9" lidded pan. The lid creates the perfectly square crumb. Butter or oil the inside corners especially.'},
+    {ic:'🌡️', name:'Probe Thermometer',            req:'yes', desc:'Pull at 200°F internal. A lidded loaf is hard to judge visually — the thermometer is non-negotiable.'},
+    {ic:'⚖️', name:'Kitchen Scale',               req:'yes', desc:'Pullman dough scaled exactly to the pan volume. Overfill = lid blows off. Underfill = not square.'},
+  ],
+
+  muffin:[
+    {ic:'🍳', name:'Cast Iron Griddle or Skillet',  req:'yes', desc:'Heavy cast iron holds even heat for the 6-min-per-side griddle bake. Nonstick pans give poor crust colour.'},
+    {ic:'🔲', name:'Ring Molds (3.5")',             req:'nice', desc:'Keep English muffins circular on the griddle. Substitute: tuna cans with both ends removed.'},
+    {ic:'🧴', name:'Bench Scraper',                req:'yes', desc:'Portion the slack dough cleanly into equal rounds. No tearing.'},
+    {ic:'🍴', name:'Fork (not knife)',             req:'yes', desc:'Split with a fork along the equator to preserve the nooks and crannies. A knife compresses them flat.'},
+  ],
+
+  pretzel:[
+    {ic:'🧪', name:'Baked Baking Soda (lye sub)',  req:'yes', desc:'Bake baking soda at 250°F for 1 hr = sodium carbonate. Creates the lye-bath effect safely at home. 4% solution.'},
+    {ic:'🫕', name:'Wide Pot for Lye Bath',        req:'yes', desc:'Simmer 4% baked baking soda solution. Dip each pretzel 30 sec. Alkaline bath = mahogany crust and chew.'},
+    {ic:'🍳', name:'Baking Sheet with Parchment',  req:'yes', desc:'Parchment essential — lye solution destroys bare metal pans over time. Replace parchment each bake.'},
+    {ic:'🧂', name:'Pretzel Salt (coarse)',        req:'yes', desc:'Apply immediately after lye bath, before baking. Finer salt dissolves into crust — you need the crystal crunch.'},
   ],
 
   ciabatta:[
@@ -1166,11 +1375,25 @@ const EQUIPMENT={
     {ic:'🍞', name:'Bread Boards (flip boards)',   req:'nice', desc:'Flip-board method transfers slack pieces from linen to peel without losing gas — essential at 91% hydration.'},
   ],
 
+  altamura:[
+    {ic:'🌾', name:'Semola Rimacinata di Grano Duro', req:'yes', desc:'Re-milled durum wheat semolina — not regular semolina, not all-purpose. This IS the recipe. Substitute = different bread.'},
+    {ic:'🧺', name:'Oval Banneton',                req:'yes', desc:'Shape into the traditional cappello del prete (priest\'s hat) — rounded top, flat base. Proof seam-up.'},
+    {ic:'🫕', name:'Dutch Oven or Deck Oven',      req:'yes', desc:'High thermal mass replicates the wood-fired stone floor of Altamura\'s traditional ovens.'},
+    {ic:'🪃', name:'Lame',                         req:'yes', desc:'Two intersecting cuts forming a cross — the DOP specification includes the scoring pattern.'},
+    {ic:'🌡️', name:'Probe Thermometer',            req:'yes', desc:'Dense durum loaf needs 210°F internal. Bake time often exceeds 55 min — pull by temp, not time.'},
+  ],
+
   focaccia:[
     {ic:'🟫', name:'Blue Steel Sheet Pan (18×13")', req:'yes', desc:'Blue steel seasons like cast iron and conducts heat for a lacquered, crispy base. Avoid non-stick — it steams.'},
     {ic:'🫒', name:'DOP Liguria Extra-Virgin Oil',  req:'yes', desc:'The oil is not garnish — it\'s structural. Pool 40 g in the pan before dough, 30 g on top before dimpling.'},
-    {ic:'🌡️', name:'Oven Thermometer',            req:'yes', desc:'Focaccia di Recco bakes at 500°F. Domestic ovens undershoot by 25–50°F. Verify with a hanging thermometer.'},
+    {ic:'🌡️', name:'Oven Thermometer',            req:'yes', desc:'Focaccia bakes at 440–500°F. Domestic ovens undershoot by 25–50°F. Verify with a hanging thermometer.'},
     {ic:'🫙', name:'Plastic Wrap + Spray Bottle', req:'nice', desc:'Keep surface misted during ambient proof. Any skin formation means uneven dimpling and tearing.'},
+  ],
+
+  schiacciata:[
+    {ic:'🟫', name:'Sheet Pan or Pizza Stone',     req:'yes', desc:'Bake directly on a hot stone for the crispest base, or in a lightly oiled sheet pan for easier handling.'},
+    {ic:'🫒', name:'Good Olive Oil (generous)',    req:'yes', desc:'Drench the dough before baking — 30 g on top minimum. Schiacciata is not subtle with oil.'},
+    {ic:'🧂', name:'Fleur de Sel + Fresh Rosemary', req:'yes', desc:'Finish immediately before baking. Press rosemary into the scored dough so it fuses, not just sits on top.'},
   ],
 
   neopizza:[
@@ -1202,6 +1425,12 @@ const EQUIPMENT={
     {ic:'🌡️', name:'Oven Thermometer',            req:'nice', desc:'Bake at 480°F. Verify — an uneven oven causes one corner to burn while the other is raw.'},
   ],
 
+  piadina:[
+    {ic:'🍳', name:'Testo (Terracotta Griddle)',   req:'yes', desc:'Traditional Romagnola testo — flat terracotta disc. A heavy cast iron skillet is the accepted substitute.'},
+    {ic:'🥁', name:'Rolling Pin',                 req:'yes', desc:'Roll to 2–3 mm. Unlike pizza, piadina is rolled flat — thicker means doughy, thinner means crispy.'},
+    {ic:'🧴', name:'Bench Scraper',               req:'nice', desc:'Portion 100 g rounds before rolling. Consistent thickness = consistent cook time on the griddle.'},
+  ],
+
   bagel:[
     {ic:'🫕', name:'Large Stainless Stockpot',    req:'yes', desc:'8 qt minimum. Water with 1 tbsp barley malt syrup + 1 tsp baking soda. Rolling boil. 45 sec per side — timing defines chew.'},
     {ic:'🪵', name:'Maple Wood Planks',            req:'yes', desc:'Authentic Montréal bagels bake directly on wood planks in 450°F+ oven. Planks impart subtle smokiness and even heat.'},
@@ -1213,6 +1442,52 @@ const EQUIPMENT={
     {ic:'🍳', name:'Multiple Baking Sheets',       req:'yes', desc:'At least 3 sheets. Grissini bake in shifts — rotating sheets every 5 min ensures even crunch across all 30+ sticks.'},
     {ic:'🫒', name:'DOP Extra-Virgin Olive Oil',   req:'yes', desc:'Rolled in oil before hand-stretching. The oil coats each stick for an even, lacquered, shattering crust.'},
     {ic:'📏', name:'Bench Ruler',                  req:'nice', desc:'Target 60 cm per stick. Hand-stretch in one smooth pull from the centre outward — never roll with a pin.'},
+  ],
+
+  cracker:[
+    {ic:'🥁', name:'Rolling Pin',                 req:'yes', desc:'Roll to 1–2 mm. Thicker = soft cracker. Thinner = crisp but fragile. Aim for even thickness throughout.'},
+    {ic:'🍳', name:'Baking Sheets (flat)',         req:'yes', desc:'Flat sheets, no rimmed edge, so air circulates under the crackers. Parchment paper essential.'},
+    {ic:'🔱', name:'Docker / Fork',               req:'yes', desc:'Dock every cm² to prevent bubbling. An undocked cracker will puff and shatter unevenly.'},
+    {ic:'🫒', name:'Good Olive Oil',               req:'yes', desc:'Brush on top before baking. The oil creates the lacquered, golden sheen and adds flavour.'},
+  ],
+
+  brioche:[
+    {ic:'🍞', name:'Stand Mixer (dough hook)',    req:'yes', desc:'Essential. Brioche dough must be beaten until it passes the windowpane test before butter is added. A hand-mixer will overheat; a KitchenAid 6-qt is the standard.'},
+    {ic:'🧈', name:'Cold Butter (cubed)',          req:'yes', desc:'Butter must be cold — 14°C (57°F). Warm butter breaks the emulsion and makes greasy brioche. Cut into 1 cm cubes, refrigerate until needed.'},
+    {ic:'🌡️', name:'Probe Thermometer',            req:'yes', desc:'Final dough temp must not exceed 26°C (79°F). Overheated dough = broken emulsion = greasy crumb. Measure frequently during butter addition.'},
+    {ic:'🧺', name:'Pullman Pan or Brioche Moulds', req:'yes', desc:'Fluted individual brioche à tête moulds or a 9×5" Pullman pan. Butter every ridge and corner; brioche sticks readily.'},
+    {ic:'❄️', name:'Refrigerator Proof',           req:'yes', desc:'After shaping, cold-proof overnight at 4°C. Slow fermentation develops flavour without over-proofing the fragile enriched dough.'},
+  ],
+
+  challah:[
+    {ic:'⚖️', name:'Precision Scale',             req:'yes', desc:'Six equal strands = even braid = even bake. Each strand should weigh exactly the same. Uneven strands create uneven rise.'},
+    {ic:'🥚', name:'Egg Wash Brush',              req:'yes', desc:'Pastry brush for the double egg-wash. First coat goes on before the final proof. Second coat goes on immediately before baking. Two coats = deep lacquer.'},
+    {ic:'🍳', name:'Parchment-lined Sheet Pan',   req:'yes', desc:'Challah expands dramatically. Use a full half-sheet pan and leave 4" clearance. No rim prevents airflow under the loaf.'},
+    {ic:'🌡️', name:'Probe Thermometer',            req:'yes', desc:'Pull at 190°F internal. Challah looks done before it is — the internal honeycomb needs to set fully.'},
+  ],
+
+  panettone:[
+    {ic:'🍋', name:'Panettone Paper Moulds (1 kg)', req:'yes', desc:'Specific tall cylindrical paper moulds. The mould IS the baking vessel — they go directly into the oven and hold the rise. Do not substitute.'},
+    {ic:'🔧', name:'Two Long Skewers or Rods',    req:'yes', desc:'After baking, pierce the base of each panettone with two skewers and hang upside-down over a pot. Gravity prevents the delicate crumb from collapsing. Hang for at least 3 hours.'},
+    {ic:'⚙️', name:'Heavy-duty Stand Mixer',      req:'yes', desc:'A standard KitchenAid may burn out on panettone — the dough is incredibly stiff and rich. Use a Kenwood Major or Ankarsrum. Mix in stages; rest the motor.'},
+    {ic:'🌡️', name:'Probe Thermometer',            req:'yes', desc:'Bake to 94°C (201°F) internal. Panettone at lower temps will collapse. At higher temps the crumb dries. This recipe tolerates no guesswork.'},
+    {ic:'🥛', name:'Lievito Madre (stiff starter)', req:'yes', desc:'Panettone requires a stiff 50% hydration starter refreshed 3 times in 12 hours before mixing. A regular liquid levain will not provide enough acid to support the dough structure.'},
+  ],
+
+  pandoro:[
+    {ic:'⭐', name:'Pandoro Star Mould (750 g)',   req:'yes', desc:'8-pointed star-shaped deep aluminium mould. Butter it generously with clarified butter, dust with flour. The shape IS the product — no substitute.'},
+    {ic:'🔧', name:'Two Long Skewers',            req:'yes', desc:'Same inversion trick as panettone. Pierce the base and hang upside-down for 2 hours immediately after baking to preserve the feathery crumb structure.'},
+    {ic:'⚙️', name:'Heavy Stand Mixer',           req:'yes', desc:'5 dough builds over 24 hours, each incorporating more butter and eggs. The dough becomes extremely extensible — only a powerful machine maintains consistency.'},
+    {ic:'🌡️', name:'Probe Thermometer',            req:'yes', desc:'Target 93°C (200°F) internal. Pandoro is paler than panettone — the crust should be golden, not brown. Oven thermometer essential.'},
+    {ic:'🍬', name:'Vanilla Sugar',               req:'yes', desc:'Traditional pandoro is dusted heavily with vanilla icing sugar after cutting. The dust cloud is part of the experience — use a shaker with fine vanilla sugar.'},
+  ],
+
+  croissant:[
+    {ic:'🧈', name:'Beurre de Tourage (Dry Butter)', req:'yes', desc:'84% fat French butter (Isigny or Lescure). Standard butter is too moist and tears the layers. Must be cold but pliable — 14°C (57°F). Pounded into a square beurrage before enclosing.'},
+    {ic:'🥁', name:'French Rolling Pin (tapered)', req:'yes', desc:'Long tapered rolling pin gives control over butter distribution. Pressure applied from center outward. Never use a barrel pin — you cannot feel the butter breaking.'},
+    {ic:'📐', name:'Ruler + Bench Scraper',        req:'yes', desc:'Dimensions matter: détrempe 20×20cm, beurrage 17×17cm. Rolled to exactly 60×20 after each fold. Inconsistent dimensions = uneven layers = collapsing croissants.'},
+    {ic:'❄️', name:'Refrigerator',                req:'yes', desc:'30 minutes minimum rest between every fold. Dough must return to 4°C. If butter breaks through the dough, the lamination is ruined — rest more.'},
+    {ic:'🥚', name:'Egg Wash',                    req:'yes', desc:'Egg yolk + cream. Applied with a brush in a single direction along the croissant. Two coats — before proof and before bake. Never get egg on the cut edges; it seals the layers shut.'},
   ],
 
 };
@@ -1229,20 +1504,27 @@ function showRecipePanel(idx){
   const starName = star ? star.name : '—';
   document.getElementById('rip-emoji').textContent=r.emoji;
   document.getElementById('rip-name').textContent=r.name;
-  document.getElementById('rip-culture').textContent=starName;
+  document.getElementById('rip-chef').textContent=r.chef ? '👨‍🍳 ' + r.chef : '';
+  document.getElementById('rip-culture').textContent=starName+' culture';
+  const ripUses=document.getElementById('rip-uses');
+  if(r.uses){ripUses.textContent='🍽 '+r.uses;ripUses.style.display='block';}
+  else{ripUses.style.display='none';}
 
   // Ingredients — calculate totals and hydration
   const totalFlour = p.flour + p['starter-amt'] * 0.5; // rough baker's % base
   const hyd = Math.round(p.water / p.flour * 100);
-  const totalDough = p.flour + p.water + p.salt + p['starter-amt'] + (p.oil||0) + (p.honey||0);
+  const totalDough = p.flour + p.water + p.salt + p['starter-amt'] + (p.oil||0) + (p.honey||0) + (p.eggs||0) + (p.butter||0) + (p.milk||0);
 
   const ings=[
     {label:'Bread Flour',  v:p.flour,            unit:'g',  highlight:false},
     {label:'Water',        v:p.water,             unit:'g',  highlight:false},
     {label:'Sea Salt',     v:p.salt,              unit:'g',  highlight:false},
     {label:'Levain',       v:p['starter-amt'],    unit:'g',  highlight:false},
-    p.oil   > 0 ? {label:'Olive Oil',   v:p.oil,   unit:'g', highlight:false} : null,
-    p.honey > 0 ? {label:'Honey',       v:p.honey, unit:'g', highlight:false} : null,
+    p.oil    > 0 ? {label:'Olive Oil',  v:p.oil,    unit:'g', highlight:false} : null,
+    p.honey  > 0 ? {label:'Honey',      v:p.honey,  unit:'g', highlight:false} : null,
+    p.eggs   > 0 ? {label:'Eggs',       v:p.eggs,   unit:'g', highlight:false} : null,
+    p.butter > 0 ? {label:'Butter',     v:p.butter, unit:'g', highlight:false} : null,
+    p.milk   > 0 ? {label:'Milk',       v:p.milk,   unit:'g', highlight:false} : null,
     {label:'Hydration',    v:hyd,                 unit:'%',  highlight:true},
     {label:'Total Dough',  v:totalDough,           unit:'g',  highlight:true},
     {label:'Bake Temp',    v:p.temp,              unit:'°F', highlight:true},
@@ -1282,24 +1564,35 @@ function clearRecipe(){
 // PREDICTIONS
 // =======================================
 function updatePreds(){
-  const h=S.water/S.flour,hasOil=S.oil>15,hasHoney=S.honey>8;
-  const hiT=S.temp>490,shortT=S['bake-time']<=15;
+  const h=S.water/S.flour, hasOil=S.oil>15, hasHoney=S.honey>8;
+  const hasEggs=S.eggs>30, hasButter=S.butter>40, hasMilk=S.milk>30;
+  const hiT=S.temp>490, shortT=S['bake-time']<=15;
   if(S.recipeType){
-    const L={boule:'Artisan Boule',campagne:'Pain de Campagne',ciabatta:'Ciabatta',focaccia:'Focaccia',
-      hoagie:'Hoagie Rolls',nypizza:'NY Pizza',neopizza:'Neapolitan Pizza',detroit:'Detroit Pan Pizza',
-      taglio:'Pizza al Taglio',bagel:'Sourdough Bagels',baguette:'Sourdough Baguette',grissini:'Grissini'};
+    const L={
+      boule:'Artisan Boule', campagne:'Pain de Campagne', ciabatta:'Ciabatta',
+      focaccia:'Focaccia', baguette:'Sourdough Baguette', nypizza:'NY Pizza',
+      neopizza:'Neapolitan Pizza', detroit:'Detroit Pan Pizza', taglio:'Pizza al Taglio',
+      bagel:'Sourdough Bagels', grissini:'Grissini', pullman:'Pullman Loaf',
+      muffin:'English Muffins', pretzel:'Soft Pretzels', altamura:'Pane di Altamura',
+      schiacciata:'Schiacciata', piadina:'Piadina', cracker:'Sourdough Crackers',
+      brioche:'Sourdough Brioche', panettone:'Panettone', challah:'Sourdough Challah',
+      pandoro:'Pandoro', croissant:'Croissant Dough',
+    };
     document.getElementById('shape-p').textContent=L[S.recipeType]||S.recipeType;
     document.getElementById('crumb-p').textContent='Preset active — adjust freely';
     return;
   }
   let shape,crumb;
-  if(hiT&&shortT){shape='Pizza / Flatbread';crumb='Thin, blistered, charred';}
+  if(hasEggs&&hasButter&&hasMilk){shape='Enriched Dough';crumb='Pillowy, golden, tender crumb';}
+  else if(hasEggs&&hasButter){shape='Brioche-style';crumb='Rich, buttery, fine crumb';}
+  else if(hasButter&&hasMilk){shape='Enriched Loaf';crumb='Soft, tight, velvety';}
+  else if(hiT&&shortT){shape='Pizza / Flatbread';crumb='Thin, blistered, charred';}
   else if(hasOil&&h>=0.85){shape='Focaccia';crumb='Open, airy, oil-pooled';}
   else if(h>=0.87){shape='Ciabatta';crumb='Massive holes, thin crust';}
   else if(h>=0.75){shape='Artisan Boule';crumb='Open, chewy, blistered';}
   else if(h>=0.65){shape='Batard / Baguette';crumb='Medium-open, tender';}
-  else if(hasOil&&hasHoney){shape='Soft Rolls / Hoagie';crumb='Tender, slightly sweet';}
-  else if(h<0.55){shape='Bagels / Dense Roll';crumb='Tight, chewy, dense';}
+  else if(hasOil&&hasHoney){shape='Soft Roll';crumb='Tender, slightly sweet';}
+  else if(h<0.55){shape='Bagel / Dense Roll';crumb='Tight, chewy, dense';}
   else{shape='Country Loaf';crumb='Medium crumb structure';}
   document.getElementById('shape-p').textContent=shape;
   document.getElementById('crumb-p').textContent=crumb;
