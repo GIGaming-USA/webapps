@@ -361,64 +361,112 @@ input[type=range]::-webkit-slider-thumb{
 .bake-c:active{transform:scale(.96);}
 .bake-c.baking{animation:pfr .8s ease-in-out infinite;cursor:not-allowed;}
 
-/* ===== RECIPE INFO PANEL (above dial panel) ===== */
+/* ===== RECIPE SIDE POPUP ===== */
+/* Floating panel that overlays the oven from the right side */
 .rip{
-  width:100%;flex-shrink:0;
-  background:rgba(10,5,0,.85);
-  border-top:1px solid rgba(255,140,0,.1);
+  position:absolute;
+  top:12px;right:12px;
+  width:min(220px, calc(100% - 24px));
+  max-height:calc(100% - 24px);
+  background:rgba(8,3,0,.94);
+  border:1px solid rgba(255,140,0,.28);
+  border-radius:12px;
+  box-shadow:0 8px 40px rgba(0,0,0,.7), 0 0 0 1px rgba(255,140,0,.06);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   overflow:hidden;
-  max-height:0;
-  transition:max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s;
+  z-index:10;
+  /* hidden state */
   opacity:0;
+  transform:translateX(calc(100% + 20px));
+  pointer-events:none;
+  transition:opacity .3s, transform .35s cubic-bezier(.34,1.3,.64,1);
 }
-.rip.open{max-height:160px;opacity:1;}
-.rip-inner{
-  padding:10px 16px 10px;
-  display:flex;gap:12px;align-items:flex-start;
+.rip.open{
+  opacity:1;
+  transform:translateX(0);
+  pointer-events:all;
 }
-/* recipe name + emoji header */
+.rip-scroll{
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  max-height:calc(100vh - 200px);
+  padding:14px 14px 14px;
+}
+
+/* header row */
 .rip-head{
-  display:flex;align-items:center;gap:8px;
-  margin-bottom:8px;
+  display:flex;align-items:flex-start;gap:8px;
+  margin-bottom:12px;
+  padding-bottom:10px;
+  border-bottom:1px solid rgba(255,140,0,.12);
 }
-.rip-emoji{font-size:1.2rem;line-height:1;flex-shrink:0;}
+.rip-emoji{font-size:1.5rem;line-height:1;flex-shrink:0;margin-top:1px;}
+.rip-titles{flex:1;min-width:0;}
 .rip-name{
   font-family:'Playfair Display',serif;font-size:.82rem;font-weight:700;
-  color:var(--gold);letter-spacing:.04em;
+  color:var(--gold);letter-spacing:.02em;line-height:1.2;display:block;
 }
 .rip-culture{
   font-family:'Crimson Pro',serif;font-style:italic;
-  font-size:.65rem;color:rgba(253,246,227,.4);margin-left:auto;flex-shrink:0;
+  font-size:.62rem;color:rgba(253,246,227,.38);display:block;margin-top:2px;
 }
-/* ingredient pills row */
-.rip-ings{
-  display:flex;flex-wrap:wrap;gap:5px;
+.rip-close{
+  flex-shrink:0;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:6px;color:rgba(253,246,227,.4);
+  font-size:.7rem;width:26px;height:26px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;margin-top:-2px;
 }
-.rip-pill{
-  background:rgba(255,140,0,.07);
-  border:1px solid rgba(255,140,0,.14);
-  border-radius:5px;
-  padding:4px 7px;
-  display:flex;flex-direction:column;align-items:center;
-  min-width:44px;
+.rip-close:active{background:rgba(255,60,60,.2);color:#ff8080;}
+
+/* section label */
+.rip-sec{
+  font-size:.48rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--amber);margin-bottom:7px;
+  display:flex;align-items:center;gap:5px;
 }
-.rip-pv{
-  font-size:.72rem;font-weight:700;color:var(--cream);line-height:1.1;
+.rip-sec::after{content:'';flex:1;height:1px;background:rgba(255,140,0,.12);}
+
+/* ingredient rows */
+.rip-ing-row{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:4px 0;
+  border-bottom:1px solid rgba(255,255,255,.04);
 }
-.rip-pk{
-  font-size:.44rem;color:rgba(253,246,227,.35);letter-spacing:.06em;
-  text-transform:uppercase;margin-top:1px;
-}
-/* clear recipe button */
-.rip-clear{
-  flex-shrink:0;align-self:center;margin-left:auto;
-  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
-  border-radius:6px;color:rgba(253,246,227,.3);
-  font-size:.55rem;padding:5px 9px;cursor:pointer;
+.rip-ing-row:last-child{border-bottom:none;}
+.rip-ing-name{font-size:.62rem;color:rgba(253,246,227,.65);}
+.rip-ing-val{
+  font-size:.7rem;font-weight:700;color:var(--cream);
   font-family:'Space Mono',monospace;
-  transition:all .15s;min-height:32px;
 }
-.rip-clear:active{background:rgba(255,60,60,.15);border-color:rgba(255,60,60,.3);color:#ff8080;}
+.rip-ing-unit{font-size:.5rem;color:rgba(253,246,227,.35);margin-left:2px;}
+
+/* equipment cards */
+.rip-eq-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+.rip-eq{
+  background:rgba(255,140,0,.05);
+  border:1px solid rgba(255,140,0,.1);
+  border-radius:7px;
+  padding:7px 9px;
+  display:flex;align-items:flex-start;gap:8px;
+}
+.rip-eq-ic{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+.rip-eq-body{}
+.rip-eq-name{
+  font-size:.64rem;font-weight:700;color:var(--cream);display:block;margin-bottom:1px;
+}
+.rip-eq-desc{
+  font-family:'Crimson Pro',serif;font-style:italic;
+  font-size:.6rem;color:rgba(253,246,227,.35);line-height:1.4;
+}
+/* required badge */
+.rip-eq-req{
+  display:inline-block;font-size:.42rem;padding:2px 5px;border-radius:4px;
+  letter-spacing:.08em;text-transform:uppercase;margin-left:5px;vertical-align:middle;
+}
+.req-yes{background:rgba(255,69,0,.18);color:#ff9060;border:1px solid rgba(255,69,0,.25);}
+.req-nice{background:rgba(255,200,0,.1);color:#c8a840;border:1px solid rgba(255,200,0,.15);}
 
 /* ===== RESULT MODAL ===== */
 .ro{
@@ -534,22 +582,30 @@ input[type=range]::-webkit-slider-thumb{
           </div>
         </div><!-- /oven-3d-outer -->
         </div><!-- /oven-scale-wrap -->
-      </div><!-- /ov-inner -->
 
-      <!-- RECIPE INFO PANEL -->
-      <div class="rip" id="rip">
-        <div class="rip-inner">
-          <div style="flex:1;min-width:0;">
+        <!-- RECIPE SIDE POPUP — overlays oven -->
+        <div class="rip" id="rip">
+          <div class="rip-scroll">
             <div class="rip-head">
               <span class="rip-emoji" id="rip-emoji">🍞</span>
-              <span class="rip-name" id="rip-name">—</span>
-              <span class="rip-culture" id="rip-culture">—</span>
+              <div class="rip-titles">
+                <span class="rip-name" id="rip-name">—</span>
+                <span class="rip-culture" id="rip-culture">—</span>
+              </div>
+              <button class="rip-close" onclick="clearRecipe()">✕</button>
             </div>
-            <div class="rip-ings" id="rip-ings"></div>
+
+            <div class="rip-sec">Ingredients</div>
+            <div id="rip-ings"></div>
+
+            <div style="margin-top:12px;">
+              <div class="rip-sec">Equipment</div>
+              <div class="rip-eq-list" id="rip-eq"></div>
+            </div>
           </div>
-          <button class="rip-clear" onclick="clearRecipe()" title="Clear recipe">✕</button>
         </div>
-      </div>
+
+      </div><!-- /ov-inner -->
 
       <!-- DIAL PANEL -->
       <div class="dp">
@@ -908,7 +964,6 @@ function makeDial(svgId,which,vmin,vmax,step){
       if(S.activeRecipeIdx!=null){
         S.activeRecipeIdx=null;
         document.getElementById('rip').classList.remove('open');
-        requestAnimationFrame(scaleOven);
       }
     }
     updDial(which,c);updatePreds();
@@ -1012,33 +1067,113 @@ function applyP(idx){
   setTimeout(()=>switchTab('oven'),400);
 }
 
+// Equipment definitions by recipe type
+const EQUIPMENT={
+  boule:[
+    {ic:'🧺',name:'Banneton / Proofing Basket',desc:'Coiled cane basket that gives the boule its shape and flour-dusted rings during final proof.',req:'yes'},
+    {ic:'🫕',name:'Dutch Oven',desc:'Cast iron pot with lid. Creates a steam chamber for maximum oven spring and blistered crust.',req:'yes'},
+    {ic:'🪃',name:'Lame / Bread Scorer',desc:'Curved razor blade for slashing the ear. A sharp knife works in a pinch.',req:'yes'},
+    {ic:'⚖️',name:'Kitchen Scale',desc:'Baking by weight is non-negotiable for consistent results.',req:'yes'},
+  ],
+  campagne:[
+    {ic:'🧺',name:'Banneton / Proofing Basket',desc:'Oval banneton gives the batard its form during cold retard.',req:'yes'},
+    {ic:'🫕',name:'Dutch Oven or Combo Cooker',desc:'Traps steam for the initial bake phase. Flip the combo cooker and use the shallow side as a lid.',req:'yes'},
+    {ic:'🪃',name:'Lame',desc:'For the classic curved score that opens into a dramatic ear.',req:'yes'},
+  ],
+  ciabatta:[
+    {ic:'🫙',name:'Proofing Box or Humid Environment',desc:'High-hydration dough needs covered bulk ferment to prevent skin forming.',req:'yes'},
+    {ic:'🧴',name:'Bench Scraper',desc:'Essential for folding and dividing the wet dough without deflating.',req:'yes'},
+    {ic:'🍳',name:'Baking Stone or Steel',desc:'Preheated surface gives explosive bottom heat for open crumb.',req:'yes'},
+    {ic:'💧',name:'Steam Injection or Lava Rocks',desc:'Steam in the first 15 min keeps crust pliable for maximum spring.',req:'nice'},
+  ],
+  focaccia:[
+    {ic:'🟫',name:'Sheet Pan (half or full)',desc:'Generously oiled. The pan shape defines the focaccia.',req:'yes'},
+    {ic:'🫙',name:'Covered Container for Bulk',desc:'High-hydration dough needs covered fermentation.',req:'yes'},
+    {ic:'🧴',name:'Olive Oil',desc:'Pools in the dimples. Use good oil — it\'s a main ingredient, not a lubricant.',req:'yes'},
+  ],
+  hoagie:[
+    {ic:'🍳',name:'Baking Sheet with Steam Pan',desc:'Rolls bake on a sheet with a pan of boiling water for crust development.',req:'yes'},
+    {ic:'🧴',name:'Bench Scraper',desc:'For portioning the roll dough cleanly.',req:'yes'},
+  ],
+  baguette:[
+    {ic:'🥖',name:'Baguette Pan or Couche',desc:'Linen couche or perforated baguette pan holds the long shape during final proof.',req:'yes'},
+    {ic:'🍳',name:'Baking Stone + Steam',desc:'Stone preheated 45+ min. Steam for first 12 min is critical.',req:'yes'},
+    {ic:'🪃',name:'Lame',desc:'Multiple diagonal slashes at a shallow 30° angle.',req:'yes'},
+    {ic:'🧊',name:'Steam Source',desc:'Cast iron pan with boiling water, or lava rocks. Steam defines baguette crust.',req:'yes'},
+  ],
+  bagel:[
+    {ic:'🫕',name:'Large Pot for Boiling',desc:'Bagels must be boiled in barley malt or baking soda water before baking. Non-negotiable.',req:'yes'},
+    {ic:'🍳',name:'Baking Sheet',desc:'With parchment. Bagels go straight from boil to sheet to oven.',req:'yes'},
+    {ic:'⚖️',name:'Kitchen Scale',desc:'Low-hydration dough is precise work — weigh every piece.',req:'yes'},
+  ],
+  nypizza:[
+    {ic:'🍳',name:'Pizza Stone or Steel',desc:'Preheated 1 hour at max temp. Steel conducts heat better than stone for NY crust.',req:'yes'},
+    {ic:'🍕',name:'Pizza Peel',desc:'Wooden peel for launching, metal peel for retrieving.',req:'yes'},
+    {ic:'🌡️',name:'Oven Thermometer',desc:'Home ovens lie. Know your actual temp.',req:'nice'},
+  ],
+  neopizza:[
+    {ic:'🍳',name:'Pizza Stone / Steel (or Ooni)',desc:'Must reach 750°F+ for authentic Neapolitan. A dedicated pizza oven is ideal.',req:'yes'},
+    {ic:'🍕',name:'Pizza Peel',desc:'Thin peel for launching. You have ~90 seconds per pie.',req:'yes'},
+    {ic:'🌡️',name:'Infrared Thermometer',desc:'Check your stone surface. You need 700°F minimum.',req:'yes'},
+  ],
+  detroit:[
+    {ic:'🟫',name:'Detroit-Style Pan (8×10 or 9×13)',desc:'Blue steel or anodized aluminum pan. The crispy caramelized cheese edges come from pan contact.',req:'yes'},
+    {ic:'🧴',name:'Olive or Vegetable Oil',desc:'Coat the pan generously. The bottom fries, not bakes.',req:'yes'},
+  ],
+  taglio:[
+    {ic:'🟫',name:'Sheet Pan (rimmed)',desc:'Roman-style bakes in a generously oiled rectangular pan.',req:'yes'},
+    {ic:'✂️',name:'Kitchen Scissors',desc:'Traditional Roman method for cutting al taglio portions.',req:'yes'},
+  ],
+  grissini:[
+    {ic:'🍳',name:'Baking Sheets (multiple)',desc:'Grissini bake in large batches on flat sheets.',req:'yes'},
+    {ic:'🧴',name:'Olive Oil',desc:'Rolled in olive oil before baking for crunch and flavor.',req:'yes'},
+  ],
+};
+// Default for unknown types
+const EQ_DEFAULT=[
+  {ic:'⚖️',name:'Kitchen Scale',desc:'Weigh all ingredients for consistent results.',req:'yes'},
+  {ic:'🫕',name:'Dutch Oven',desc:'Creates steam for open crumb and blistered crust.',req:'nice'},
+];
+
 function showRecipePanel(idx){
   const r=RECIPES[idx];
   const p=r.preset;
   const star=STARTERS.find(s=>s.id===p.starter);
   document.getElementById('rip-emoji').textContent=r.emoji;
   document.getElementById('rip-name').textContent=r.name;
-  document.getElementById('rip-culture').textContent=star?star.name.split(' ')[0]+' culture':'';
+  document.getElementById('rip-culture').textContent=star?star.name+' culture':'';
 
-  // Build ingredient pills — only show non-zero values
+  // Ingredients
   const ings=[
-    {k:'flour',  label:'Flour',   v:p.flour,   unit:'g'},
-    {k:'water',  label:'Water',   v:p.water,   unit:'g'},
-    {k:'salt',   label:'Salt',    v:p.salt,    unit:'g'},
-    {k:'starter-amt',label:'Starter',v:p['starter-amt'],unit:'g'},
-    p.oil   > 0 ? {k:'oil',  label:'Oil',   v:p.oil,   unit:'g'} : null,
-    p.honey > 0 ? {k:'honey',label:'Honey', v:p.honey, unit:'g'} : null,
-    {k:'temp',   label:'Temp',    v:p.temp,    unit:'°F'},
-    {k:'time',   label:'Time',    v:p['bake-time'],unit:'min'},
+    {label:'Flour',   v:p.flour,      unit:'g'},
+    {label:'Water',   v:p.water,      unit:'g'},
+    {label:'Salt',    v:p.salt,       unit:'g'},
+    {label:'Starter', v:p['starter-amt'], unit:'g'},
+    p.oil   > 0 ? {label:'Oil',   v:p.oil,   unit:'g'} : null,
+    p.honey > 0 ? {label:'Honey', v:p.honey, unit:'g'} : null,
+    {label:'Hydration',v:Math.round(p.water/p.flour*100), unit:'%'},
   ].filter(Boolean);
 
   document.getElementById('rip-ings').innerHTML=ings.map(i=>
-    `<div class="rip-pill"><span class="rip-pv">${i.v}<span style="font-size:.5rem;opacity:.6">${i.unit}</span></span><span class="rip-pk">${i.label}</span></div>`
+    `<div class="rip-ing-row">
+      <span class="rip-ing-name">${i.label}</span>
+      <span class="rip-ing-val">${i.v}<span class="rip-ing-unit">${i.unit}</span></span>
+    </div>`
+  ).join('');
+
+  // Equipment
+  const eq=(p.type&&EQUIPMENT[p.type])||EQ_DEFAULT;
+  document.getElementById('rip-eq').innerHTML=eq.map(e=>
+    `<div class="rip-eq">
+      <span class="rip-eq-ic">${e.ic}</span>
+      <div class="rip-eq-body">
+        <span class="rip-eq-name">${e.name}<span class="rip-eq-req ${e.req==='yes'?'req-yes':'req-nice'}">${e.req==='yes'?'required':'helpful'}</span></span>
+        <span class="rip-eq-desc">${e.desc}</span>
+      </div>
+    </div>`
   ).join('');
 
   document.getElementById('rip').classList.add('open');
-  // Re-scale oven so it accounts for the new panel height
-  requestAnimationFrame(scaleOven);
 }
 
 function clearRecipe(){
@@ -1046,7 +1181,6 @@ function clearRecipe(){
   S.activeRecipeIdx=null;
   S.recipeType=null;
   document.getElementById('rip').classList.remove('open');
-  requestAnimationFrame(scaleOven);
 }
 
 // =======================================
