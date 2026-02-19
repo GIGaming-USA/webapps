@@ -937,15 +937,162 @@ function build3D(lat,lon){
     }
   }
 
-  // Labels
-  if(S.vcLabels)data.forEach(function(d){
-    var wC=COMPASS[Math.round(d.dir/22.5)%16],div=document.createElement('div');
-    var ltc=cm((d.tempF+10)/120,'temp');
-    div.style.cssText='position:absolute;pointer-events:none;font:600 8px JetBrains Mono,monospace;background:rgba(8,12,20,.88);border-left:2px solid rgb('+ltc[0]+','+ltc[1]+','+ltc[2]+');padding:3px 8px;white-space:nowrap;z-index:20;line-height:1.6;border-radius:0 3px 3px 0;';
-    div.innerHTML='<span style="color:rgba(160,200,230,.4)">'+d.p+'hPa '+d.km.toFixed(1)+'km</span><br><span style="color:rgb('+ltc[0]+','+ltc[1]+','+ltc[2]+')">'+Math.round(d.tempF)+'F</span><span style="color:#2288ff"> Td:'+Math.round(d.dewF)+'F</span> <span style="color:rgba(100,160,210,.6)">'+Math.round(d.wind)+'kt '+wC+'</span> <span style="color:#2a5a8a">'+Math.round(d.rh)+'%</span>';
-    div.dataset.sx=CW/2+.15;div.dataset.sy=d.alt;div.dataset.sz=0;
-    vizCol.appendChild(div);labelEls.push(div);
-  });
+  // === COMPREHENSIVE 3D LABELS ===
+  if(S.vcLabels){
+    // Helper to create a positioned label
+    function mkLabel(text,sx,sy,sz,color,bg,fontSize,borderColor){
+      var div=document.createElement('div');
+      div.style.cssText='position:absolute;pointer-events:none;font:'+(fontSize||'600 8px')+' JetBrains Mono,monospace;background:'+(bg||'rgba(8,12,20,.88)')+';padding:2px 6px;white-space:nowrap;z-index:20;border-radius:3px;'+(borderColor?'border-left:2px solid '+borderColor+';':'')+'color:'+(color||'#7a9abb')+';';
+      div.innerHTML=text;
+      div.dataset.sx=sx;div.dataset.sy=sy;div.dataset.sz=sz;
+      vizCol.appendChild(div);labelEls.push(div);
+      return div;
+    }
+
+    // --- Pressure level labels (right side) ---
+    data.forEach(function(d){
+      var wC=COMPASS[Math.round(d.dir/22.5)%16];
+      var ltc=cm((d.tempF+10)/120,'temp');
+      var tcStr='rgb('+ltc[0]+','+ltc[1]+','+ltc[2]+')';
+      mkLabel(
+        '<span style="color:rgba(160,200,230,.4)">'+d.p+'hPa '+d.km.toFixed(1)+'km</span><br>'+
+        '<span style="color:'+tcStr+'">'+Math.round(d.tempF)+'F</span>'+
+        '<span style="color:#2288ff"> Td:'+Math.round(d.dewF)+'F</span> '+
+        '<span style="color:rgba(100,160,210,.6)">'+Math.round(d.wind)+'kt '+wC+'</span> '+
+        '<span style="color:#2a5a8a">'+Math.round(d.rh)+'%</span>',
+        CW/2+.15, d.alt, 0, null, 'rgba(8,12,20,.88)', '600 8px', tcStr
+      );
+    });
+
+    // --- Tube labels (at top of each profile tube) ---
+    if(S.vcTubes){
+      var topD=data[data.length-1];
+      var tTopN=(topD.tempF+10)/120;
+      var ttc=cm(tTopN,'temp');
+      mkLabel('TEMP','600 7px',
+        (tTopN-.5)*CW*.75, CH+.08, -.05,
+        'rgb('+ttc[0]+','+ttc[1]+','+ttc[2]+')', 'rgba(8,12,20,.85)', '700 9px', null);
+      // Actually use mkLabel properly
+    }
+
+    // Temp tube label
+    var tTopN2=(data[data.length-1].tempF+10)/120;
+    mkLabel('<span style="color:#ff6644">T</span>EMP',
+      (tTopN2-.5)*CW*.75, CH+.06, -.05, '#ff8866', 'rgba(8,12,20,.85)', '700 8px', '#ff4422');
+
+    // Dewpoint tube label
+    var dTopC=(data[data.length-1].tempF-32)*5/9,dTopDew=dTopC-(100-data[data.length-1].rh)/5,dTopF=dTopDew*9/5+32;
+    var dTopN=(dTopF+10)/100;
+    mkLabel('<span style="color:#2288ff">T</span>d',
+      ((dTopF+10)/100-.5)*CW*.75, CH+.06, .05, '#2288ff', 'rgba(8,12,20,.85)', '700 8px', '#2288ff');
+
+    // Wetbulb tube label
+    if(S.vcTubes){
+      var wbTop=data[data.length-1].wetbulbF;
+      mkLabel('<span style="color:#8844ff">W</span>b',
+        ((wbTop+10)/120-.5)*CW*.75, CH+.06, .1, '#8844ff', 'rgba(8,12,20,.85)', '700 8px', '#8844ff');
+    }
+
+    // Theta-e tube label (right side)
+    if(S.vcTubes){
+      var teTop=data[data.length-1].theta_e;
+      mkLabel('&theta;e',
+        CW/2+.12, CH+.06, ((teTop-260)/80-.5)*CD*.6, '#44cccc', 'rgba(8,12,20,.85)', '700 9px', '#44cccc');
+    }
+
+    // --- Freezing level label ---
+    if(S.vcFreezing&&freezingAlt>0&&freezingAlt<CH){
+      mkLabel('<span style="color:#00ffff">0°C FREEZING</span>',
+        -CW/2-.05, freezingAlt, CD/2+.05, '#00ffff', 'rgba(8,12,20,.9)', '700 8px', '#00ddff');
+    }
+
+    // --- DGZ label ---
+    if(S.vcFreezing){
+      var dgzB=0,dgzT=0;
+      for(var dgi=0;dgi<data.length;dgi++){
+        if(data[dgi].tC<=-12&&dgzB===0)dgzB=data[dgi].alt;
+        if(data[dgi].tC<=-18&&dgzT===0)dgzT=data[dgi].alt;
+      }
+      if(dgzB>0&&dgzT>0&&dgzT>dgzB){
+        mkLabel('<span style="color:#ff3333">DGZ</span> <span style="color:#ff6666;font-size:7px">-12/-18°C</span>',
+          CW/2+.05, (dgzB+dgzT)/2, -CD/2-.05, '#ff4444', 'rgba(8,12,20,.9)', '700 8px', '#ff2222');
+      }
+    }
+
+    // --- Hodograph label ---
+    if(S.vcHodo){
+      mkLabel('<span style="color:#88bbff">HODOGRAPH</span>',
+        -CW*.7, CH*.6+.5, CW*.7, '#88bbff', 'rgba(8,12,20,.88)', '700 8px', '#4488ff');
+      // Speed ring labels
+      mkLabel('<span style="color:#3a5a80">30kt</span>',
+        -CW*.7+.35*.3, CH*.6, CW*.7, '#3a5a80', 'rgba(8,12,20,.7)', '500 6px', null);
+      mkLabel('<span style="color:#3a5a80">60kt</span>',
+        -CW*.7+.35*.6, CH*.6, CW*.7, '#3a5a80', 'rgba(8,12,20,.7)', '500 6px', null);
+      // Height legend
+      mkLabel('<span style="color:#ff4444">SFC-3km</span> <span style="color:#44ff44">3-6km</span> <span style="color:#4488ff">6km+</span>',
+        -CW*.7, CH*.6-.25, CW*.7, '#aaa', 'rgba(8,12,20,.82)', '500 6px', null);
+    }
+
+    // --- Omega axis labels ---
+    if(S.vcOmega){
+      mkLabel('<span style="color:#6688aa">OMEGA</span>',
+        -CW/2-.15, CH+.06, 0, '#6688aa', 'rgba(8,12,20,.85)', '700 7px', '#4466aa');
+      mkLabel('<span style="color:#44aaff">&#9650; RISE</span>',
+        -CW/2-.35, CH*.7, 0, '#44aaff', 'rgba(8,12,20,.75)', '500 6px', null);
+      mkLabel('<span style="color:#ff6644">&#9660; SINK</span>',
+        -CW/2-.35, CH*.3, 0, '#ff6644', 'rgba(8,12,20,.75)', '500 6px', null);
+    }
+
+    // --- CAPE tower label ---
+    if(S.vcCape&&surfCape>80){
+      var capeLabelH=(surfCape/5000)*CH*.9;
+      mkLabel('<span style="color:#ffaa00">CAPE</span> <span style="color:#ff8800">'+Math.round(surfCape)+'</span><span style="color:#996600;font-size:7px"> J/kg</span>',
+        .35, capeLabelH+.08, 0, '#ffaa00', 'rgba(8,12,20,.88)', '700 8px', '#ff8800');
+    }
+
+    // --- Cloud layer labels ---
+    if(S.vcClouds){
+      var cloudLabeled=false;
+      data.forEach(function(d){
+        if(d.rh>=75&&!cloudLabeled){
+          mkLabel('<span style="color:rgba(200,220,240,.6)">CLOUD</span> <span style="color:rgba(200,220,240,.4);font-size:7px">RH '+Math.round(d.rh)+'%</span>',
+            0, d.alt+.12, CD/2+.05, 'rgba(200,220,240,.5)', 'rgba(8,12,20,.8)', '600 7px', 'rgba(200,220,240,.3)');
+          cloudLabeled=true;
+        }
+      });
+    }
+
+    // --- Precip label ---
+    if(S.vcPrecip&&surfPrec>0.005){
+      var precipType=data[0].tC<1?'SNOW':'RAIN';
+      var precipColor=data[0].tC<1?'#aaddff':'#4488ff';
+      mkLabel('<span style="color:'+precipColor+'">'+precipType+'</span> <span style="color:'+precipColor+';font-size:7px">'+(surfPrec*25.4).toFixed(1)+' mm/hr</span>',
+        -CW*.3, CH*.15, -CD/2-.05, precipColor, 'rgba(8,12,20,.88)', '700 8px', precipColor);
+    }
+
+    // --- Ground label ---
+    mkLabel('<span style="color:rgba(160,200,230,.35)">SFC '+Math.round(surfP)+' hPa</span>',
+      -CW/2, .02, CD/2+.05, 'rgba(160,200,230,.4)', 'rgba(8,12,20,.75)', '500 7px', null);
+
+    // --- Column top label ---
+    mkLabel('<span style="color:rgba(160,200,230,.3)">200 hPa ~11.8 km</span>',
+      -CW/2, CH+.02, CD/2+.05, 'rgba(160,200,230,.3)', 'rgba(8,12,20,.75)', '500 7px', null);
+
+    // --- LCL label (if meaningful) ---
+    if(lclM>0&&lclM<12000){
+      var lclAlt=(lclM/12000)*CH;
+      if(lclAlt<CH){
+        mkLabel('<span style="color:#aabb44">LCL</span> <span style="color:#889933;font-size:7px">'+Math.round(lclM)+'m</span>',
+          CW/2+.05, lclAlt, CD/2+.05, '#aabb44', 'rgba(8,12,20,.85)', '600 7px', '#88aa22');
+      }
+    }
+
+    // --- Wind shear vector label ---
+    if(shr06>5){
+      mkLabel('<span style="color:#cc88ff">SHR 0-6</span> <span style="color:#aa66dd">'+Math.round(shr06)+'kt</span>',
+        CW/2+.05, CH*.5, -CD/2-.05, '#cc88ff', 'rgba(8,12,20,.85)', '600 7px', '#aa55ee');
+    }
+  }
 
   // Info panels
   document.getElementById('viz-top').style.display='block';
