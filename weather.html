@@ -69,7 +69,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
 #vt-tags{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap;}
 .vtag{font:600 9px/1 var(--mono);padding:3px 7px;border-radius:3px;border:1px solid;}
 #viz-bottom{position:absolute;bottom:0;left:0;right:0;z-index:10;pointer-events:none;background:linear-gradient(0deg,rgba(8,12,20,.95) 0%,rgba(8,12,20,.4) 70%,transparent 100%);padding:30px 14px 8px;}
-#vb-data{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;}
+#vb-data{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;}
 .vd{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.04);border-radius:4px;padding:5px 7px;}
 .vd-l{font:500 7px/1 var(--sans);color:var(--muted);letter-spacing:.3px;text-transform:uppercase;}
 .vd-v{font:700 15px/1 var(--mono);color:#fff;margin-top:2px;}
@@ -85,7 +85,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
 #tl-head{display:flex;align-items:center;gap:10px;padding:5px 12px 3px;border-bottom:1px solid rgba(255,255,255,.03);}
 .tl-lbl{font:600 8px/1 var(--sans);color:var(--muted);text-transform:uppercase;letter-spacing:.8px;}
 #tl-run{font:500 9px/1 var(--mono);color:var(--green);}
-#tl-valid{font:500 9px/1 var(--mono);color:var(--yellow);}
+#tl-valid{font:600 12px/1 var(--mono);color:#fff;}
 .play-row{display:flex;gap:3px;margin-left:auto;}
 .pb{padding:2px 9px;background:transparent;border:1px solid var(--border);border-radius:3px;color:var(--muted);font:600 9px/1 var(--sans);cursor:pointer;transition:all .1s;}
 .pb:hover{border-color:var(--accent);color:var(--accent);}
@@ -131,7 +131,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
   #vt-tags{gap:4px;}
   .vtag{font-size:8px;padding:3px 6px;}
   #viz-bottom{padding:20px 10px 10px;}
-  #vb-data{grid-template-columns:repeat(2,1fr);gap:6px;}
+  #vb-data{grid-template-columns:repeat(2,1fr);gap:4px;}
   .vd-v{font-size:16px;}
   #viz-controls{top:14px;right:50px;flex-direction:row;flex-wrap:wrap;gap:4px;max-width:60%;}
   .vc{padding:5px 10px;font-size:9px;}
@@ -139,7 +139,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
   #tl-head{padding:3px 8px 2px;gap:6px;flex-wrap:wrap;}
   .tl-lbl{display:none;}
   #tl-run{font-size:8px;}
-  #tl-valid{font-size:8px;}
+  #tl-valid{font-size:11px;}
   .play-row{gap:2px;margin-left:auto;}
   .pb{padding:4px 12px;font-size:10px;border-radius:4px;min-height:28px;display:flex;align-items:center;}
   #tl-track{padding:0 8px;}
@@ -206,6 +206,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
       <button class="vc on" id="vc-winds">WINDS</button><button class="vc on" id="vc-parts">PARTICLES</button>
       <button class="vc on" id="vc-tubes">T/Td</button><button class="vc on" id="vc-labels">LABELS</button>
       <button class="vc on" id="vc-cape">CAPE</button><button class="vc on" id="vc-precip">PRECIP</button>
+      <button class="vc on" id="vc-hodo">HODOGRAPH</button><button class="vc on" id="vc-omega">OMEGA</button>
+      <button class="vc on" id="vc-freezing">FREEZING</button><button class="vc on" id="vc-clouds">CLOUDS</button>
     </div>
     <div id="viz-bottom" style="display:none"><div id="vb-legend"></div><div id="vb-data"></div></div>
   </div>
@@ -243,7 +245,7 @@ const PALTS=[0,.12,.25,.4,.52,.64,.74,.84,.9,.96];
 const PALT_KM=[0.11,0.76,1.46,3.01,4.2,5.57,7.18,9.16,10.36,11.78];
 const COMPASS=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
 const CITIES=[[40.71,-74.01,'New York'],[34.05,-118.24,'Los Angeles'],[41.87,-87.62,'Chicago'],[29.76,-95.37,'Houston'],[33.45,-112.07,'Phoenix'],[47.61,-122.33,'Seattle'],[37.77,-122.42,'San Francisco'],[25.77,-80.19,'Miami'],[38.89,-77.03,'Washington DC'],[42.36,-71.06,'Boston'],[39.73,-104.99,'Denver'],[36.17,-86.78,'Nashville'],[44.98,-93.27,'Minneapolis'],[32.79,-96.80,'Dallas']];
-const S={model:'GFS',layer:'temp',fhr:0,playing:false,barbsOn:true,contourOn:true,gridOn:true,seed:42731,pLat:null,pLon:null,vizOpen:false,vcRotate:true,vcSlabs:true,vcWinds:true,vcParts:true,vcTubes:true,vcLabels:true,vcCape:true,vcPrecip:true,audioOn:false};
+const S={model:'GFS',layer:'temp',fhr:0,playing:false,barbsOn:true,contourOn:true,gridOn:true,seed:42731,pLat:null,pLon:null,vizOpen:false,vcRotate:true,vcSlabs:true,vcWinds:true,vcParts:true,vcTubes:true,vcLabels:true,vcCape:true,vcPrecip:true,vcHodo:true,vcOmega:true,vcFreezing:true,vcClouds:true,audioOn:false};
 
 // === AUDIO ENGINE ===
 let audioCtx=null,masterGain=null,windGain=null,rainGain=null;
@@ -554,9 +556,36 @@ function clearScene(){
 
 function build3D(lat,lon){
   clearScene();var fhr=S.fhr;
-  var data=PLEVELS.map(function(p,i){return{p:p,alt:PALTS[i]*CH,km:PALT_KM[i],tempF:wxAtP(lat,lon,'temp',fhr,p),wind:wxAtP(lat,lon,'wind',fhr,p),rh:wxAtP(lat,lon,'humidity',fhr,p),dir:windDir(lat,lon,fhr,p)};});
+  var mob=isMobile();
+  // Compute full sounding profile with dewpoint, theta-e, omega, wetbulb
+  var data=PLEVELS.map(function(p,i){
+    var tempF=wxAtP(lat,lon,'temp',fhr,p);
+    var wind=wxAtP(lat,lon,'wind',fhr,p);
+    var rh=wxAtP(lat,lon,'humidity',fhr,p);
+    var dir=windDir(lat,lon,fhr,p);
+    var tC=(tempF-32)*5/9;
+    var dewC=tC-(100-rh)/5; // Magnus approx
+    var dewF=dewC*9/5+32;
+    var wetbulbC=tC*Math.atan(0.151977*Math.sqrt(rh+8.313659))+Math.atan(tC+rh)-Math.atan(rh-1.676331)+0.00391838*Math.pow(rh,1.5)*Math.atan(0.023101*rh)-4.686035;
+    var wetbulbF=wetbulbC*9/5+32;
+    // Theta-e (equivalent potential temperature) simplified
+    var theta_e=(tC+273.15)*Math.pow(1000/p,0.286)*Math.exp(2.5e6*0.622*rh/100*6.112*Math.exp(17.67*tC/(tC+243.5))/(1.005e3*(tC+273.15)*p));
+    theta_e=Math.min(400,Math.max(250,280+tC*.3+rh*.15+(1000-p)*.02)); // simplified stable version
+    // Omega (vertical velocity)
+    var omega=noise(lon/50+p*.005+fhr*.01,lat/30+p*.003,3)*2;
+    return{p:p,alt:PALTS[i]*CH,km:PALT_KM[i],tempF:tempF,tC:tC,dewF:dewF,dewC:dewC,wetbulbF:wetbulbF,
+           wind:wind,rh:rh,dir:dir,theta_e:theta_e,omega:omega};
+  });
   var surfCape=wxSurf(lat,lon,'cape',fhr),surfPrec=wxSurf(lat,lon,'precip',fhr),surfP=wxSurf(lat,lon,'pressure',fhr);
   var tF0=data[0].tempF;
+  // Derived sounding params
+  var shr06=Math.sqrt(Math.pow(data[4].wind*Math.sin(data[4].dir*Math.PI/180)-data[0].wind*Math.sin(data[0].dir*Math.PI/180),2)+Math.pow(data[4].wind*Math.cos(data[4].dir*Math.PI/180)-data[0].wind*Math.cos(data[0].dir*Math.PI/180),2));
+  var srh=Math.abs(shr06)*1.8; // simplified SRH
+  var pwat=0;for(var i=0;i<data.length-1;i++){pwat+=(data[i].rh+data[i+1].rh)/200*((data[i].p-data[i+1].p)/100)*2.5;}
+  var lcl=data[0].tC-data[0].dewC; // rough LCL spread in C, *125m per C
+  var lclM=lcl*125;
+  var freezingAlt=0;for(var i=0;i<data.length;i++){if(data[i].tC<=0){freezingAlt=data[i].alt;break;}}
+  if(freezingAlt===0)freezingAlt=CH;
   updateAudio(data[0].wind,surfPrec);
 
   // Ground
@@ -667,12 +696,161 @@ function build3D(lat,lon){
     ring.rotation.x=-Math.PI/2;ring.position.y=d.alt;atmGrp.add(ring);
   });
 
+  // === FREEZING LEVEL PLANE (bright cyan disc) ===
+  if(S.vcFreezing&&freezingAlt>0&&freezingAlt<CH){
+    var fzGeo=new THREE.RingGeometry(0,CW*.52,48);
+    var fzMat=new THREE.MeshBasicMaterial({color:0x00ddff,transparent:true,opacity:.08,side:THREE.DoubleSide,depthWrite:false});
+    var fzMesh=new THREE.Mesh(fzGeo,fzMat);fzMesh.rotation.x=-Math.PI/2;fzMesh.position.y=freezingAlt;atmGrp.add(fzMesh);
+    // Bright ring at freezing level
+    var fzRing=new THREE.Mesh(new THREE.RingGeometry(CW*.50,CW*.53,48),new THREE.MeshBasicMaterial({color:0x00ffff,transparent:true,opacity:.45,side:THREE.DoubleSide}));
+    fzRing.rotation.x=-Math.PI/2;fzRing.position.y=freezingAlt;atmGrp.add(fzRing);
+    // Dashed lines at freezing level
+    var fzEdge=new THREE.EdgesGeometry(new THREE.PlaneGeometry(CW*1.05,CD*1.05));
+    var fzLine=new THREE.LineSegments(fzEdge,new THREE.LineBasicMaterial({color:0x00ffff,transparent:true,opacity:.5}));
+    fzLine.rotation.x=-Math.PI/2;fzLine.position.y=freezingAlt;atmGrp.add(fzLine);
+  }
+
+  // === 3D HODOGRAPH (wind shear spiral in corner) ===
+
+  // === DGZ (Dendritic Growth Zone: -12C to -18C) ===
+  if(S.vcFreezing){
+    var dgzBot=0,dgzTop=0;
+    for(var di=0;di<data.length;di++){
+      if(data[di].tC<=-12&&dgzBot===0)dgzBot=data[di].alt;
+      if(data[di].tC<=-18&&dgzTop===0)dgzTop=data[di].alt;
+    }
+    if(dgzBot>0&&dgzTop>0&&dgzTop>dgzBot){
+      // Red dashed zone markers
+      var dgzH=dgzTop-dgzBot;
+      var dgzGeo=new THREE.CylinderGeometry(CW*.52,CW*.52,dgzH,32,1,true);
+      var dgzMat=new THREE.MeshBasicMaterial({color:0xff2222,transparent:true,opacity:.04,side:THREE.DoubleSide,depthWrite:false});
+      var dgzMesh=new THREE.Mesh(dgzGeo,dgzMat);
+      dgzMesh.position.y=dgzBot+dgzH/2;atmGrp.add(dgzMesh);
+      // Top and bottom rings
+      [dgzBot,dgzTop].forEach(function(yy){
+        var dgzRing=new THREE.Mesh(new THREE.RingGeometry(CW*.49,CW*.52,32),new THREE.MeshBasicMaterial({color:0xff3333,transparent:true,opacity:.35,side:THREE.DoubleSide}));
+        dgzRing.rotation.x=-Math.PI/2;dgzRing.position.y=yy;atmGrp.add(dgzRing);
+      });
+    }
+  }
+
+  // === THETA-E PROFILE (equivalent potential temp tube, right side) ===
+  if(S.vcTubes){
+    var tePts=data.map(function(d){
+      var teN=(d.theta_e-260)/80; // normalize ~260-340K range to 0-1
+      return new THREE.Vector3(CW/2+.12,d.alt,(teN-.5)*CD*.6);
+    });
+    if(tePts.length>1){
+      var teCurve=new THREE.CatmullRomCurve3(tePts);
+      var teTube=new THREE.TubeGeometry(teCurve,mob?30:60,.015,6,false);
+      atmGrp.add(new THREE.Mesh(teTube,new THREE.MeshLambertMaterial({color:0x44cccc,transparent:true,opacity:.7,emissive:0x002222,emissiveIntensity:.3})));
+    }
+  }
+  if(S.vcHodo){
+    var hodoGrp=new THREE.Group();
+    hodoGrp.position.set(-CW*.7,CH*.6,CW*.7);
+    hodoGrp.scale.set(.35,.35,.35);
+    // Reference circles
+    [.3,.6,.9].forEach(function(r){
+      var ringGeo2=new THREE.RingGeometry(r-.01,r+.01,32);
+      var ringMat2=new THREE.MeshBasicMaterial({color:0x1a3050,transparent:true,opacity:.4,side:THREE.DoubleSide});
+      var ring2=new THREE.Mesh(ringGeo2,ringMat2);ring2.rotation.x=-Math.PI/2;hodoGrp.add(ring2);
+    });
+    // Crosshairs
+    var chGeo=new THREE.BufferGeometry();
+    var chPos=new Float32Array([-1,0,0,1,0,0,0,0,-1,0,0,1]);
+    chGeo.setAttribute('position',new THREE.BufferAttribute(chPos,3));
+    hodoGrp.add(new THREE.LineSegments(chGeo,new THREE.LineBasicMaterial({color:0x1a3050,transparent:true,opacity:.3})));
+    // Wind vectors as connected line (hodograph trace)
+    var hPts=[];
+    data.forEach(function(d){
+      var rad=d.dir*Math.PI/180,spd=d.wind/100;
+      hPts.push(new THREE.Vector3(Math.sin(rad)*spd,0,-Math.cos(rad)*spd));
+    });
+    if(hPts.length>1){
+      var hCurve=new THREE.CatmullRomCurve3(hPts);
+      var hTube=new THREE.TubeGeometry(hCurve,50,.015,6,false);
+      // Color by height
+      var hColors=new Float32Array(hTube.attributes.position.count*3);
+      for(var i=0;i<hTube.attributes.position.count;i++){
+        var frac=i/hTube.attributes.position.count;
+        if(frac<.33){hColors[i*3]=1;hColors[i*3+1]=.2;hColors[i*3+2]=.2;} // red=low
+        else if(frac<.66){hColors[i*3]=.2;hColors[i*3+1]=1;hColors[i*3+2]=.2;} // green=mid
+        else{hColors[i*3]=.2;hColors[i*3+1]=.4;hColors[i*3+2]=1;} // blue=upper
+      }
+      hTube.setAttribute('color',new THREE.BufferAttribute(hColors,3));
+      hodoGrp.add(new THREE.Mesh(hTube,new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,opacity:.9})));
+      // Dots at each level
+      data.forEach(function(d,idx){
+        var rad2=d.dir*Math.PI/180,spd2=d.wind/100;
+        var dotGeo=new THREE.SphereGeometry(.03,8,8);
+        var hFrac=idx/data.length;
+        var dotCol=hFrac<.33?0xff4444:hFrac<.66?0x44ff44:0x4488ff;
+        var dot=new THREE.Mesh(dotGeo,new THREE.MeshBasicMaterial({color:dotCol}));
+        dot.position.set(Math.sin(rad2)*spd2,0,-Math.cos(rad2)*spd2);
+        hodoGrp.add(dot);
+      });
+    }
+    atmGrp.add(hodoGrp);
+  }
+
+  // === OMEGA (vertical velocity) BARS on left side ===
+  if(S.vcOmega){
+    data.forEach(function(d){
+      var omegaVal=d.omega;
+      var barLen=Math.abs(omegaVal)*CW*.15;
+      var barCol=omegaVal<0?0x44aaff:0xff6644; // blue=rising, red=sinking
+      var barGeo=new THREE.BoxGeometry(barLen,.02,.06);
+      var barMat=new THREE.MeshBasicMaterial({color:barCol,transparent:true,opacity:.6});
+      var bar=new THREE.Mesh(barGeo,barMat);
+      bar.position.set(-CW/2-.15+(omegaVal<0?-barLen/2:barLen/2),d.alt,0);
+      atmGrp.add(bar);
+    });
+    // Omega axis line
+    var axGeo=new THREE.BufferGeometry();
+    var axPos=new Float32Array([-CW/2-.15,0,0,-CW/2-.15,CH,0]);
+    axGeo.setAttribute('position',new THREE.BufferAttribute(axPos,3));
+    atmGrp.add(new THREE.LineSegments(axGeo,new THREE.LineBasicMaterial({color:0x2a4060,transparent:true,opacity:.5})));
+  }
+
+  // === CLOUD LAYERS (volumetric puffs where RH > 80%) ===
+  if(S.vcClouds){
+    data.forEach(function(d){
+      if(d.rh<75)return;
+      var cloudOpacity=(d.rh-75)/25*0.25; // 0 at 75%, 0.25 at 100%
+      var cloudCount=mob?3:6;
+      for(var ci=0;ci<cloudCount;ci++){
+        var cx=(Math.random()-.5)*CW*.7,cz=(Math.random()-.5)*CD*.7;
+        var cSize=.15+Math.random()*.25;
+        var cloudGeo=new THREE.SphereGeometry(cSize,8,6);
+        // Flatten the sphere to look like a cloud puff
+        var cpos=cloudGeo.attributes.position;
+        for(var vi=0;vi<cpos.count;vi++){cpos.setY(vi,cpos.getY(vi)*.4);}
+        cloudGeo.computeVertexNormals();
+        var cloudMat=new THREE.MeshLambertMaterial({color:0xccddef,transparent:true,opacity:cloudOpacity,depthWrite:false});
+        var cloud=new THREE.Mesh(cloudGeo,cloudMat);
+        cloud.position.set(cx,d.alt+.01+Math.random()*.05,cz);
+        atmGrp.add(cloud);
+      }
+    });
+  }
+
+  // === WETBULB TUBE (blue, thinner, beside the dewpoint) ===
+  if(S.vcTubes){
+    var wbPts=data.map(function(d){var wN=(d.wetbulbF+10)/120;return new THREE.Vector3((wN-.5)*CW*.75,d.alt,.1);});
+    if(wbPts.length>1){
+      var wbCurve=new THREE.CatmullRomCurve3(wbPts);
+      atmGrp.add(new THREE.Mesh(new THREE.TubeGeometry(wbCurve,mob?30:60,.012,6,false),
+        new THREE.MeshLambertMaterial({color:0x8844ff,transparent:true,opacity:.6,emissive:0x220044,emissiveIntensity:.4})));
+    }
+  }
+
   // Labels
   if(S.vcLabels)data.forEach(function(d){
     var wC=COMPASS[Math.round(d.dir/22.5)%16],div=document.createElement('div');
     var ltc=cm((d.tempF+10)/120,'temp');
     div.style.cssText='position:absolute;pointer-events:none;font:600 8px JetBrains Mono,monospace;background:rgba(8,12,20,.88);border-left:2px solid rgb('+ltc[0]+','+ltc[1]+','+ltc[2]+');padding:3px 8px;white-space:nowrap;z-index:20;line-height:1.6;border-radius:0 3px 3px 0;';
-    div.innerHTML='<span style="color:rgba(160,200,230,.4)">'+d.p+'hPa '+d.km.toFixed(1)+'km</span><br><span style="color:rgb('+ltc[0]+','+ltc[1]+','+ltc[2]+')">'+Math.round(d.tempF)+'F</span> <span style="color:rgba(100,160,210,.6)">'+Math.round(d.wind)+'kt '+wC+'</span> <span style="color:#2a5a8a">RH:'+Math.round(d.rh)+'%</span>';
+    div.innerHTML='<span style="color:rgba(160,200,230,.4)">'+d.p+'hPa '+d.km.toFixed(1)+'km</span><br><span style="color:rgb('+ltc[0]+','+ltc[1]+','+ltc[2]+')">'+Math.round(d.tempF)+'F</span><span style="color:#2288ff"> Td:'+Math.round(d.dewF)+'F</span> <span style="color:rgba(100,160,210,.6)">'+Math.round(d.wind)+'kt '+wC+'</span> <span style="color:#2a5a8a">'+Math.round(d.rh)+'%</span>';
     div.dataset.sx=CW/2+.15;div.dataset.sy=d.alt;div.dataset.sz=0;
     vizCol.appendChild(div);labelEls.push(div);
   });
@@ -685,10 +863,35 @@ function build3D(lat,lon){
   var city=nearCity(lat,lon);
   document.getElementById('vt-loc').textContent=(city?city+' - ':'')+MODELS[S.model].label+' F+'+String(fhr).padStart(3,'0')+'h';
   var w0=data[0].wind,wd0=data[0].dir,wC0=COMPASS[Math.round(wd0/22.5)%16],li=-(surfCape/800-.5);
-  document.getElementById('vt-tags').innerHTML='<div class="vtag" style="color:#ff8070;border-color:rgba(255,128,112,.25);background:rgba(255,128,112,.05)">'+Math.round(tF0)+'F</div><div class="vtag" style="color:#88aaff;border-color:rgba(136,170,255,.25);background:rgba(136,170,255,.05)">'+Math.round(w0)+'kt '+wC0+'</div><div class="vtag" style="color:#aaaaee;border-color:rgba(170,170,238,.25);background:rgba(170,170,238,.05)">'+Math.round(surfP)+'hPa</div><div class="vtag" style="color:#ffcc44;border-color:rgba(255,204,68,.25);background:rgba(255,204,68,.05)">CAPE '+Math.round(surfCape)+'</div>'+(surfPrec>.003?'<div class="vtag" style="color:#4488ff;border-color:rgba(68,136,255,.25);background:rgba(68,136,255,.05)">PRCP '+surfPrec.toFixed(3)+'"</div>':'');
+  document.getElementById('vt-tags').innerHTML=
+    '<div class="vtag" style="color:#ff8070;border-color:rgba(255,128,112,.25);background:rgba(255,128,112,.05)">'+Math.round(tF0)+'F / '+Math.round(data[0].dewF)+'F</div>'+
+    '<div class="vtag" style="color:#88aaff;border-color:rgba(136,170,255,.25);background:rgba(136,170,255,.05)">'+Math.round(w0)+'kt '+wC0+'</div>'+
+    '<div class="vtag" style="color:#aaaaee;border-color:rgba(170,170,238,.25);background:rgba(170,170,238,.05)">'+Math.round(surfP)+'hPa</div>'+
+    '<div class="vtag" style="color:#ffcc44;border-color:rgba(255,204,68,.25);background:rgba(255,204,68,.05)">CAPE '+Math.round(surfCape)+'</div>'+
+    '<div class="vtag" style="color:#00ddff;border-color:rgba(0,221,255,.25);background:rgba(0,221,255,.05)">FRZ '+((freezingAlt/CH)*12).toFixed(1)+'km</div>'+
+    (surfPrec>.003?'<div class="vtag" style="color:#4488ff;border-color:rgba(68,136,255,.25);background:rgba(68,136,255,.05)">PRCP '+surfPrec.toFixed(3)+'"</div>':'');
   var upWinds=Math.round(data[4].wind)+'/'+Math.round(data[6].wind)+'/'+Math.round(data[8].wind);
-  document.getElementById('vb-data').innerHTML='<div class="vd"><div class="vd-l">LI</div><div class="vd-v" style="color:'+(li<-3?'#ff4040':li<0?'#ffaa00':'#44cc44')+'">'+li.toFixed(1)+'</div><div class="vd-u">neg=unstable</div></div><div class="vd"><div class="vd-l">850/500/300</div><div class="vd-v" style="font-size:12px">'+upWinds+'</div><div class="vd-u">kt</div></div><div class="vd"><div class="vd-l">Precip</div><div class="vd-v" style="color:#4488ff">'+(surfPrec<.003?'NONE':(surfPrec*25.4).toFixed(1))+'</div><div class="vd-u">'+(surfPrec<.003?'--':'mm/hr')+'</div></div><div class="vd"><div class="vd-l">Cloud</div><div class="vd-v">'+Math.round(Math.max(0,Math.min(100,50+46*noise(lon/50+fhr*.01,lat/30,3))))+'%</div><div class="vd-u">total sky</div></div>';
-  document.getElementById('vb-legend').innerHTML='<div class="vbl"><div class="vbl-sw" style="background:linear-gradient(90deg,#0033ff,#00ff88,#ffaa00,#ff0000)"></div>Temp</div><div class="vbl"><div class="vbl-sw" style="background:#2288ff"></div>Dewpoint</div><div class="vbl"><div class="vbl-sw" style="background:linear-gradient(90deg,#0055ff,#ffdd00,#ff0000)"></div>Wind</div>'+(surfCape>80?'<div class="vbl"><div class="vbl-sw" style="background:linear-gradient(90deg,#550000,#ff8800)"></div>CAPE</div>':'');
+  var rh_850_500=Math.round((data[2].rh+data[3].rh+data[4].rh+data[5].rh)/4);
+  document.getElementById('vb-data').innerHTML=
+    '<div class="vd"><div class="vd-l">SBCAPE</div><div class="vd-v" style="color:'+(surfCape>2000?'#ff4040':surfCape>500?'#ffaa00':'#44cc44')+'">'+Math.round(surfCape)+'</div><div class="vd-u">J/kg</div></div>'+
+    '<div class="vd"><div class="vd-l">SHR 0-6km</div><div class="vd-v" style="color:'+(shr06>40?'#ff4040':shr06>20?'#ffaa00':'#44cc44')+'">'+Math.round(shr06)+'</div><div class="vd-u">kt</div></div>'+
+    '<div class="vd"><div class="vd-l">SRH</div><div class="vd-v">'+Math.round(srh)+'</div><div class="vd-u">m2/s2</div></div>'+
+    '<div class="vd"><div class="vd-l">PWAT</div><div class="vd-v" style="color:#4488ff">'+pwat.toFixed(2)+'</div><div class="vd-u">in</div></div>'+
+    '<div class="vd"><div class="vd-l">LCL</div><div class="vd-v">'+Math.round(lclM)+'</div><div class="vd-u">m AGL</div></div>'+
+    '<div class="vd"><div class="vd-l">RH 850-500</div><div class="vd-v">'+rh_850_500+'</div><div class="vd-u">%</div></div>'+
+    '<div class="vd"><div class="vd-l">850/500/300</div><div class="vd-v" style="font-size:11px">'+upWinds+'</div><div class="vd-u">kt</div></div>'+
+    '<div class="vd"><div class="vd-l">Precip</div><div class="vd-v" style="color:#4488ff">'+(surfPrec<.003?'NONE':(surfPrec*25.4).toFixed(1))+'</div><div class="vd-u">'+(surfPrec<.003?'--':'mm/hr')+'</div></div>';
+  document.getElementById('vb-legend').innerHTML=
+    '<div class="vbl"><div class="vbl-sw" style="background:linear-gradient(90deg,#0033ff,#00ff88,#ffaa00,#ff0000)"></div>Temp</div>'+
+    '<div class="vbl"><div class="vbl-sw" style="background:#2288ff"></div>Dewpoint</div>'+
+    '<div class="vbl"><div class="vbl-sw" style="background:#8844ff"></div>Wetbulb</div>'+
+    '<div class="vbl"><div class="vbl-sw" style="background:#00ffff"></div>Freezing</div>'+
+    '<div class="vbl"><div class="vbl-sw" style="background:linear-gradient(90deg,#ff4444,#44ff44,#4488ff)"></div>Hodograph</div>'+
+    '<div class="vbl"><div class="vbl-sw" style="background:linear-gradient(90deg,#ff6644,transparent,#44aaff)"></div>Omega</div>'+
+    (surfCape>80?'<div class="vbl"><div class="vbl-sw" style="background:linear-gradient(90deg,#550000,#ff8800)"></div>CAPE</div>':'')+
+    '<div class="vbl"><div class="vbl-sw" style="background:rgba(200,220,240,.3)"></div>Clouds</div>'+
+    '<div class="vbl"><div class="vbl-sw" style="background:rgba(255,50,50,.35)"></div>DGZ</div>'+
+    '<div class="vbl"><div class="vbl-sw" style="background:#44cccc"></div>Theta-e</div>';
 }
 
 // === RENDER LOOP ===
@@ -767,10 +970,19 @@ function buildTicks(){
     var sp=document.createElement('span');sp.className='ftick'+(v===0?' on':'');sp.textContent='F'+String(v).padStart(3,'0');tk.appendChild(sp);});
 }
 function updateTL(){
-  var base=new Date('2026-02-19T00:00:00Z');base.setHours(base.getHours()+S.fhr);
-  var iso=base.toISOString().replace('T',' ').slice(0,16)+'Z',ml=MODELS[S.model];
-  document.getElementById('tl-run').textContent=ml.label+' 2026-02-19 00Z';
-  document.getElementById('tl-valid').textContent='F+'+String(S.fhr).padStart(3,'0')+'h '+iso;
+  var base=new Date('2026-02-19T00:00:00Z');base.setUTCHours(base.getUTCHours()+S.fhr);
+  var ml=MODELS[S.model];
+  var days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var dayName=days[base.getUTCDay()];
+  var mon=months[base.getUTCMonth()];
+  var date=base.getUTCDate();
+  var hr=base.getUTCHours();
+  var ampm=hr>=12?'PM':'AM';
+  var hr12=hr%12||12;
+  var dateStr=dayName+' '+mon+' '+date+', '+hr12+':00 '+ampm+' UTC';
+  document.getElementById('tl-run').textContent=ml.label;
+  document.getElementById('tl-valid').textContent=dateStr;
   document.getElementById('fcst-tag').textContent='F+'+String(S.fhr).padStart(3,'0');
   var max=parseInt(document.getElementById('fslider').max),pct=(S.fhr/max*100).toFixed(1);
   document.getElementById('fslider').style.background='linear-gradient(90deg,var(--accent) '+pct+'%,var(--border) '+pct+'%)';
@@ -833,7 +1045,7 @@ document.getElementById('btn-contour').addEventListener('click',function(){S.con
 document.getElementById('btn-grid').addEventListener('click',function(){S.gridOn=!S.gridOn;document.getElementById('btn-grid').classList.toggle('on',S.gridOn);schedRedraw();});
 
 function vcTog(id,key){document.getElementById(id).addEventListener('click',function(){S[key]=!S[key];document.getElementById(id).classList.toggle('on',S[key]);if(S.pLat!==null)build3D(S.pLat,S.pLon);});}
-vcTog('vc-slabs','vcSlabs');vcTog('vc-winds','vcWinds');vcTog('vc-parts','vcParts');vcTog('vc-tubes','vcTubes');vcTog('vc-labels','vcLabels');vcTog('vc-cape','vcCape');vcTog('vc-precip','vcPrecip');
+vcTog('vc-slabs','vcSlabs');vcTog('vc-winds','vcWinds');vcTog('vc-parts','vcParts');vcTog('vc-tubes','vcTubes');vcTog('vc-labels','vcLabels');vcTog('vc-cape','vcCape');vcTog('vc-precip','vcPrecip');vcTog('vc-hodo','vcHodo');vcTog('vc-omega','vcOmega');vcTog('vc-freezing','vcFreezing');vcTog('vc-clouds','vcClouds');
 document.getElementById('vc-rotate').addEventListener('click',function(){S.vcRotate=autoRot=!S.vcRotate;document.getElementById('vc-rotate').classList.toggle('on',S.vcRotate);});
 
 document.getElementById('fslider').addEventListener('input',function(e){setFhr(parseInt(e.target.value));});
