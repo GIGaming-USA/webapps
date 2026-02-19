@@ -116,15 +116,33 @@ body > .shell {
 .sec::before{content:'◆';font-size:.4rem;color:var(--ember);}
 
 /* ===== STARTER CARDS ===== */
-.sc{background:rgba(255,140,0,.04);border:1px solid rgba(255,140,0,.1);border-radius:8px;
-  padding:12px 13px;margin-bottom:8px;cursor:pointer;transition:all .16s;position:relative;overflow:hidden;
-  -webkit-touch-callout:none;}
-.sc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--gold),var(--ember));opacity:0;transition:.16s;}
-.sc.sel{border-color:var(--amber);background:rgba(255,140,0,.09);}.sc.sel::before{opacity:1;}
+.sc{
+  background:rgba(255,140,0,.04);border:1px solid rgba(255,140,0,.1);border-radius:10px;
+  padding:16px;margin-bottom:12px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
+  -webkit-touch-callout:none;
+}
+.sc::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:linear-gradient(180deg,var(--gold),var(--ember));opacity:0;transition:.2s;
+  border-radius:10px 0 0 10px;
+}
+.sc.sel{border-color:var(--amber);background:rgba(255,140,0,.08);box-shadow:0 0 20px rgba(255,140,0,.08);}
+.sc.sel::before{opacity:1;}
 .sc:active{background:rgba(255,140,0,.1);}
-.sc-n{font-weight:700;font-size:.68rem;color:var(--gold);margin-bottom:1px;}
-.sc-o{font-family:'Crimson Pro',serif;font-style:italic;font-size:.7rem;color:rgba(253,246,227,.4);}
-.sc-t{font-size:.58rem;color:rgba(253,246,227,.26);margin-top:3px;line-height:1.45;}
+/* culture emoji/flag */
+.sc-flag{font-size:2rem;margin-bottom:8px;display:block;line-height:1;}
+.sc-n{font-family:'Playfair Display',serif;font-weight:700;font-size:.92rem;color:var(--gold);margin-bottom:2px;}
+.sc-o{font-family:'Crimson Pro',serif;font-style:italic;font-size:.72rem;color:rgba(253,246,227,.45);margin-bottom:6px;}
+.sc-t{font-size:.62rem;color:rgba(253,246,227,.35);line-height:1.55;}
+/* active badge */
+.sc-badge{
+  position:absolute;top:14px;right:14px;
+  font-size:.48rem;letter-spacing:.12em;text-transform:uppercase;
+  background:rgba(255,140,0,.2);color:var(--gold);
+  border:1px solid rgba(255,140,0,.3);border-radius:10px;
+  padding:3px 8px;opacity:0;transition:.2s;
+}
+.sc.sel .sc-badge{opacity:1;}
 
 /* ===== INGREDIENT ROWS ===== */
 .ir{margin-bottom:16px;}
@@ -512,10 +530,7 @@ input[type=range]::-webkit-slider-thumb{
 
     <!-- TAB: INGREDIENTS -->
     <div class="tab-pane" id="tab-ings">
-      <div class="sec">Starter Culture</div>
-      <div id="starters-list"></div>
-
-      <div class="sec" style="margin-top:18px">Ingredients</div>
+      <div class="sec">Ingredients</div>
 
       <div class="ir">
         <div class="il"><span class="in">🌾 Bread Flour</span><span class="iv" id="flour-val">400 <span class="iu">g</span></span></div>
@@ -535,7 +550,7 @@ input[type=range]::-webkit-slider-thumb{
         <div class="ut"><button class="ub act" onclick="setU('salt','g',this)">g</button><button class="ub" onclick="setU('salt','tsp',this)">tsp</button></div>
       </div>
       <div class="ir">
-        <div class="il"><span class="in">🥄 Starter</span><span class="iv" id="starter-amt-val">100 <span class="iu">g</span></span></div>
+        <div class="il"><span class="in">🥄 Starter Amount</span><span class="iv" id="starter-amt-val">100 <span class="iu">g</span></span></div>
         <input type="range" id="starter-amt" min="10" max="300" value="100" oninput="upI('starter-amt',this)">
         <div class="ut"><button class="ub act" onclick="setU('starter-amt','g',this)">g</button><button class="ub" onclick="setU('starter-amt','cup',this)">cups</button></div>
       </div>
@@ -555,6 +570,16 @@ input[type=range]::-webkit-slider-thumb{
       <div style="height:20px"></div>
     </div>
 
+    <!-- TAB: CULTURE -->
+    <div class="tab-pane" id="tab-culture">
+      <div class="sec">Active Culture</div>
+      <p style="font-family:'Crimson Pro',serif;font-style:italic;font-size:.78rem;color:rgba(253,246,227,.38);margin-bottom:16px;line-height:1.6;">
+        Two legendary cultures from Ed Wood's International Sourdough. Tap to select.
+      </p>
+      <div id="starters-list"></div>
+      <div style="height:20px"></div>
+    </div>
+
     <!-- TAB: RECIPES -->
     <div class="tab-pane" id="tab-recipes">
       <div class="sec">Recipe Presets</div>
@@ -570,7 +595,10 @@ input[type=range]::-webkit-slider-thumb{
       <span class="tb-ic">🔥</span><span class="tb-lb">Oven</span>
     </button>
     <button class="tb" id="tb-ings" onclick="switchTab('ings')">
-      <span class="tb-ic">🌾</span><span class="tb-lb">Ingredients</span>
+      <span class="tb-ic">⚖️</span><span class="tb-lb">Mix</span>
+    </button>
+    <button class="tb" id="tb-culture" onclick="switchTab('culture')">
+      <span class="tb-ic">🧫</span><span class="tb-lb">Culture</span>
     </button>
     <button class="tb" id="tb-recipes" onclick="switchTab('recipes')">
       <span class="tb-ic">📋</span><span class="tb-lb">Recipes</span>
@@ -595,41 +623,31 @@ input[type=range]::-webkit-slider-thumb{
 // DATA
 // =======================================
 const STARTERS=[
-  {id:'sf',      name:'San Francisco Sourdough', origin:'San Francisco, CA (1849)',           notes:'The gold-rush classic. Lactobacillus sanfranciscensis. Sharply tangy, blistered crumb, legendary.',            color:'#d4a84b'},
-  {id:'ischia',  name:'Ischia Island',           origin:'Island of Ischia, Italy (Ed Wood)', notes:"Ed Wood's prized Italian island culture. Fruity, mild lactic tang. Exceptional for ciabatta and Neapolitan.", color:'#e8c060'},
-  {id:'napoli',  name:'Napoli (Neapolitan)',      origin:'Naples, Italy (Ed Wood)',           notes:"Classic Neapolitan culture. Mild acidity, sweet, floral notes. The pizza & focaccia culture.",              color:'#e0a040'},
-  {id:'camaldo', name:'Camaldoli Monastery',      origin:'Tuscany, Italy (1400s)',            notes:'Ancient Benedictine monastery culture. Mild, nutty, complex. One of the oldest sourdoughs in Europe.',       color:'#c8903a'},
-  {id:'semolina',name:'Semolina Lievito Madre',  origin:'Sicily, Italy',                     notes:'Italian mother dough. Stiff culture. Mild lactic tang. Used for panettone, ciabatta & grissini.',            color:'#f0c860'},
-  {id:'yukon',   name:'Yukon Sourdough',         origin:'Yukon, Canada (1898)',              notes:'Gold Rush era prospector culture. Robust and hearty. Mild sour with wheaty character.',                      color:'#bf7d2f'},
-  {id:'oregon',  name:"Carl's Oregon Trail",      origin:'Oregon, USA (1847)',                notes:"Pioneer-era culture kept alive for 175+ years. Mild, sweet, extremely versatile.",                            color:'#d09040'},
-  {id:'czech',   name:'Czech Dark Rye',           origin:'Bohemia, Czech Republic',           notes:'Rye-based culture. Deeply earthy, sour, and pungent. Dense country loaves.',                                color:'#804828'},
+  {id:'sf',     name:'San Francisco Sourdough', origin:'San Francisco, CA (1849)',           notes:'The gold-rush classic. Lactobacillus sanfranciscensis. Sharply tangy, blistered crumb. The benchmark.',     color:'#d4a84b'},
+  {id:'ischia', name:'Ischia Island',           origin:'Island of Ischia, Italy (Ed Wood)', notes:"Ed Wood's prized Italian island culture. Fruity, mild lactic tang. Exceptional for pizza, ciabatta, focaccia.", color:'#e8c060'},
 ];
 
 const RECIPES=[
   {emoji:'🍞',name:'Classic SF Boule',        diff:'medium',desc:'The quintessential sourdough. Open crumb, blistered crust, sharp 1849 culture tang.',
    preset:{flour:450,water:338,salt:10,'starter-amt':90,oil:0,honey:0,temp:480,'bake-time':45,starter:'sf',type:'boule'}},
-  {emoji:'🥖',name:'Pain de Campagne',        diff:'medium',desc:"French country loaf. Camaldoli's mild complexity, medium-open crumb, rustic blistered crust.",
-   preset:{flour:400,water:300,salt:9,'starter-amt':80,oil:0,honey:0,temp:460,'bake-time':40,starter:'camaldo',type:'campagne'}},
   {emoji:'🫓',name:'Ischia Ciabatta',         diff:'hard',  desc:"Ed Wood's Ischia island culture. Impossibly open crumb, razor-thin crust, fruity tang.",
    preset:{flour:500,water:455,salt:11,'starter-amt':120,oil:32,honey:0,temp:478,'bake-time':34,starter:'ischia',type:'ciabatta'}},
-  {emoji:'🫓',name:'Roman Focaccia',          diff:'easy',  desc:'Napoli culture. Dimpled, oil-pooled. Throw on rosemary and coarse salt. Crispy base, cloud interior.',
-   preset:{flour:500,water:430,salt:12,'starter-amt':140,oil:65,honey:0,temp:432,'bake-time':28,starter:'napoli',type:'focaccia'}},
-  {emoji:'🥖',name:'Hoagie Rolls',            diff:'easy',  desc:'Soft, chewy sourdough sub rolls. Honey gives subtle sweetness. Perfect for cold cuts.',
-   preset:{flour:400,water:240,salt:9,'starter-amt':80,oil:25,honey:18,temp:400,'bake-time':25,starter:'oregon',type:'hoagie'}},
-  {emoji:'🥖',name:'Sourdough Baguette',      diff:'hard',  desc:'Long ferment, slashed deeply. Shattering crust, wildly open irregular crumb. Camaldoli culture.',
-   preset:{flour:500,water:360,salt:11,'starter-amt':60,oil:0,honey:0,temp:488,'bake-time':28,starter:'camaldo',type:'baguette'}},
+  {emoji:'🫓',name:'Roman Focaccia',          diff:'easy',  desc:'Ischia culture. Dimpled, oil-pooled. Throw on rosemary and coarse salt. Crispy base, cloud interior.',
+   preset:{flour:500,water:430,salt:12,'starter-amt':140,oil:65,honey:0,temp:432,'bake-time':28,starter:'ischia',type:'focaccia'}},
+  {emoji:'🥖',name:'Sourdough Baguette',      diff:'hard',  desc:'Long ferment, slashed deeply. Shattering crust, wildly open irregular crumb. SF culture.',
+   preset:{flour:500,water:360,salt:11,'starter-amt':60,oil:0,honey:0,temp:488,'bake-time':28,starter:'sf',type:'baguette'}},
   {emoji:'🥯',name:'NY Sourdough Bagels',     diff:'hard',  desc:'Low hydration. Boiled in barley malt water, baked fierce. SF tang makes these extraordinary.',
    preset:{flour:500,water:268,salt:11,'starter-amt':100,oil:0,honey:22,temp:500,'bake-time':26,starter:'sf',type:'bagel'}},
   {emoji:'🍕',name:'New York Slice',          diff:'medium',desc:'Cold-fermented 72hrs. High-protein flour. Thin, crispy edge, foldable center.',
    preset:{flour:500,water:325,salt:12,'starter-amt':40,oil:20,honey:8,temp:550,'bake-time':14,starter:'sf',type:'nypizza'}},
-  {emoji:'🍕',name:'Neapolitan Pizza',        diff:'hard',  desc:"00 flour, 65% hydration. Napoli culture. Leopard-spotted blistered crust. 90-second bake energy.",
-   preset:{flour:500,water:325,salt:11,'starter-amt':30,oil:0,honey:0,temp:550,'bake-time':10,starter:'napoli',type:'neopizza'}},
+  {emoji:'🍕',name:'Neapolitan Pizza',        diff:'hard',  desc:"00 flour, 65% hydration. Ischia island culture. Leopard-spotted blistered crust. 90-second bake energy.",
+   preset:{flour:500,water:325,salt:11,'starter-amt':30,oil:0,honey:0,temp:550,'bake-time':10,starter:'ischia',type:'neopizza'}},
   {emoji:'🍕',name:'Detroit Pan Pizza',       diff:'easy',  desc:'Square pan. Crispy-fried bottom, focaccia-soft interior. Wisconsin brick cheese to the edges.',
-   preset:{flour:500,water:375,salt:11,'starter-amt':100,oil:45,honey:5,temp:478,'bake-time':22,starter:'oregon',type:'detroit'}},
-  {emoji:'🍕',name:'Roman Pizza al Taglio',   diff:'medium',desc:'By-the-slice Roman style. High hydration, olive oil, crispy base. Semolina Lievito Madre.',
-   preset:{flour:500,water:412,salt:11,'starter-amt':80,oil:40,honey:0,temp:462,'bake-time':25,starter:'semolina',type:'taglio'}},
-  {emoji:'🧆',name:'Grissini',               diff:'easy',  desc:'Italian thin crispy breadsticks. Semolina Lievito Madre. Crackling, light, utterly addictive.',
-   preset:{flour:400,water:220,salt:9,'starter-amt':60,oil:30,honey:0,temp:425,'bake-time':18,starter:'semolina',type:'grissini'}},
+   preset:{flour:500,water:375,salt:11,'starter-amt':100,oil:45,honey:5,temp:478,'bake-time':22,starter:'ischia',type:'detroit'}},
+  {emoji:'🍕',name:'Roman Pizza al Taglio',   diff:'medium',desc:'By-the-slice Roman style. High hydration, olive oil, crispy base. Ischia culture.',
+   preset:{flour:500,water:412,salt:11,'starter-amt':80,oil:40,honey:0,temp:462,'bake-time':25,starter:'ischia',type:'taglio'}},
+  {emoji:'🧆',name:'Grissini',               diff:'easy',  desc:'Italian thin crispy breadsticks. Ischia culture. Crackling, light, utterly addictive.',
+   preset:{flour:400,water:220,salt:9,'starter-amt':60,oil:30,honey:0,temp:425,'bake-time':18,starter:'ischia',type:'grissini'}},
   {emoji:'🫓',name:'Focaccia Pull-Apart Rolls',diff:'easy', desc:'Individual dimpled buns. Oiled, golden. Ischia culture adds fruity tang. Disappear immediately.',
    preset:{flour:450,water:380,salt:10,'starter-amt':120,oil:55,honey:0,temp:428,'bake-time':22,starter:'ischia',type:'focaccia'}},
 ];
@@ -707,10 +725,16 @@ function init(){
   });
 }
 
+const FLAGS={sf:'🇺🇸',ischia:'🇮🇹'};
 function renderStarters(){
   document.getElementById('starters-list').innerHTML=
     STARTERS.map(s=>`<div class="sc ${s.id===S.selectedStarter?'sel':''}" onclick="pickStar('${s.id}')" id="sc-${s.id}">
-      <div class="sc-n">${s.name}</div><div class="sc-o">${s.origin}</div><div class="sc-t">${s.notes}</div></div>`).join('');
+      <span class="sc-badge">active</span>
+      <span class="sc-flag">${FLAGS[s.id]||'🧫'}</span>
+      <div class="sc-n">${s.name}</div>
+      <div class="sc-o">${s.origin}</div>
+      <div class="sc-t">${s.notes}</div>
+    </div>`).join('');
 }
 function renderRecipes(){
   document.getElementById('recipes-list').innerHTML=
