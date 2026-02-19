@@ -2,90 +2,244 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ARTISAN BREAD FORGE — 3D Sourdough Simulator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Bread Forge</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Space+Mono:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap');
-:root{--ember:#ff4500;--amber:#ff8c00;--gold:#ffd700;--cream:#fdf6e3;--bg:#0d0a06;--panel:#0f0804;--border:rgba(255,140,0,.15);}
-*{margin:0;padding:0;box-sizing:border-box;}html,body{height:100%;overflow:hidden;}
-body{background:var(--bg);font-family:'Space Mono',monospace;color:var(--cream);
-  background-image:radial-gradient(ellipse at 20% 80%,rgba(139,69,19,.12) 0%,transparent 55%),radial-gradient(ellipse at 80% 20%,rgba(255,69,0,.07) 0%,transparent 55%);}
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Space+Mono:wght@400;700&family=Crimson+Pro:ital,wght@0,300;1,300&display=swap');
 
-/* HEADER */
-.hdr{text-align:center;padding:12px 20px 8px;border-bottom:1px solid var(--border);background:rgba(10,5,0,.7);position:relative;z-index:10;}
-.hdr h1{font-family:'Playfair Display',serif;font-size:clamp(1.2rem,2.8vw,2rem);font-weight:900;letter-spacing:.12em;
-  background:linear-gradient(135deg,#ffd700,#ff8c00,#ff4500);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  filter:drop-shadow(0 0 16px rgba(255,140,0,.5));}
-.hdr p{font-family:'Crimson Pro',serif;font-style:italic;color:rgba(253,246,227,.42);font-size:.72rem;letter-spacing:.18em;}
+:root{
+  --ember:#ff4500;--amber:#ff8c00;--gold:#ffd700;--cream:#fdf6e3;
+  --bg:#0d0a06;--panel:#0f0804;--border:rgba(255,140,0,.15);
+  --tab-h:62px;
+  /* hdr-h base — JS will correct this after measuring */
+  --hdr-h:52px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+  --safe-l:env(safe-area-inset-left,0px);
+  --safe-r:env(safe-area-inset-right,0px);
+}
 
-/* LAYOUT */
-.app{display:grid;grid-template-columns:280px 1fr 255px;height:calc(100vh - 58px);overflow:hidden;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+/* Eliminate 300ms tap delay on iOS for all interactive elements */
+a,button,.sc,.rc,.ub,.tb,.bake-btn-big,.bake-c,.rcl{touch-action:manipulation;}
+/* Prevent text selection during gestures */
+.dial-svg,.oven-scale-wrap{-webkit-user-select:none;user-select:none;}
+html{height:100%;height:-webkit-fill-available;}
+body{
+  background:var(--bg);font-family:'Space Mono',monospace;color:var(--cream);
+  height:100%; height:-webkit-fill-available;
+  height:100dvh;
+  overflow:hidden;
+  position:fixed; width:100%;
+  /* Flex column so header + shell fill the height naturally */
+  display:flex; flex-direction:column;
+  background-image:radial-gradient(ellipse at 20% 80%,rgba(139,69,19,.12) 0%,transparent 55%),radial-gradient(ellipse at 80% 20%,rgba(255,69,0,.07) 0%,transparent 55%);
+}
 
-/* SIDE PANELS */
-.pl,.pr{background:var(--panel);overflow-y:auto;padding:12px;scrollbar-width:thin;scrollbar-color:var(--amber) transparent;}
-.pl{border-right:1px solid var(--border);}
-.pr{border-left:1px solid var(--border);}
-.sec{font-family:'Playfair Display',serif;font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;color:var(--amber);
-  margin-bottom:9px;padding-bottom:4px;border-bottom:1px solid rgba(255,140,0,.18);display:flex;align-items:center;gap:6px;}
-.sec::before{content:'◆';font-size:.42rem;color:var(--ember);}
+/* ===== HEADER ===== */
+.hdr{
+  padding:8px 16px calc(8px);
+  padding-top:calc(10px + var(--safe-top));
+  background:rgba(8,4,0,.92);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:20;flex-shrink:0;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.hdr h1{
+  font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:900;letter-spacing:.1em;
+  background:linear-gradient(135deg,#ffd700,#ff8c00,#ff4500);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 12px rgba(255,140,0,.45));
+}
+.hdr-sub{font-family:'Crimson Pro',serif;font-style:italic;color:rgba(253,246,227,.38);font-size:.6rem;letter-spacing:.15em;margin-top:1px;}
 
-/* Starter cards */
-.sc{background:rgba(255,140,0,.04);border:1px solid rgba(255,140,0,.1);border-radius:5px;padding:8px 9px;margin-bottom:6px;cursor:pointer;transition:all .16s;position:relative;overflow:hidden;}
+/* ===== SHELL ===== */
+.shell{
+  display:flex;flex-direction:column;
+  /* Fill remaining space after header auto-sizes */
+  flex:1;
+  min-height:0;
+  overflow:hidden;
+}
+
+/* Wrap hdr + shell in a full-height flex column */
+body > .hdr,
+body > .shell {
+  /* body is position:fixed width:100% so these fill it */
+}
+
+/* ===== TAB CONTENT ===== */
+.tab-content{
+  flex:1;overflow:hidden;position:relative;
+  min-height:0;
+}
+.tab-pane{
+  position:absolute;inset:0;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+  padding:16px 16px;
+  padding-left:calc(16px + var(--safe-l));
+  padding-right:calc(16px + var(--safe-r));
+  padding-bottom:calc(16px + var(--safe-bot));
+}
+.tab-pane.active{opacity:1;pointer-events:all;}
+
+/* ===== TAB BAR ===== */
+.tab-bar{
+  /* Height = fixed content area + safe area padding */
+  padding-bottom:var(--safe-bot);
+  background:rgba(8,4,0,.96);
+  border-top:1px solid var(--border);
+  display:flex;align-items:stretch;
+  flex-shrink:0;z-index:20;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.tb{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;cursor:pointer;border:none;background:transparent;
+  color:rgba(253,246,227,.35);transition:color .18s;
+  padding:10px 4px;
+  min-height:54px; /* ensures bar has height even with safe-bot:0 */
+}
+.tb.act{color:var(--gold);}
+.tb-ic{font-size:1.3rem;line-height:1;display:block;}
+.tb-lb{font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;font-family:'Space Mono',monospace;}
+.tb.act .tb-ic{filter:drop-shadow(0 0 6px rgba(255,200,0,.5));}
+
+/* ===== SECTION HEADERS ===== */
+.sec{font-family:'Playfair Display',serif;font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:var(--amber);
+  margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid rgba(255,140,0,.18);display:flex;align-items:center;gap:6px;}
+.sec::before{content:'◆';font-size:.4rem;color:var(--ember);}
+
+/* ===== STARTER CARDS ===== */
+.sc{background:rgba(255,140,0,.04);border:1px solid rgba(255,140,0,.1);border-radius:8px;
+  padding:12px 13px;margin-bottom:8px;cursor:pointer;transition:all .16s;position:relative;overflow:hidden;
+  -webkit-touch-callout:none;}
 .sc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--gold),var(--ember));opacity:0;transition:.16s;}
-.sc:hover{border-color:rgba(255,140,0,.3);background:rgba(255,140,0,.07);}
-.sc.sel{border-color:var(--amber);background:rgba(255,140,0,.1);}.sc.sel::before{opacity:1;}
-.sc-n{font-weight:700;font-size:.6rem;color:var(--gold);}.sc-o{font-family:'Crimson Pro',serif;font-style:italic;font-size:.65rem;color:rgba(253,246,227,.42);}
-.sc-t{font-size:.54rem;color:rgba(253,246,227,.28);margin-top:2px;line-height:1.4;}
+.sc.sel{border-color:var(--amber);background:rgba(255,140,0,.09);}.sc.sel::before{opacity:1;}
+.sc:active{background:rgba(255,140,0,.1);}
+.sc-n{font-weight:700;font-size:.68rem;color:var(--gold);margin-bottom:1px;}
+.sc-o{font-family:'Crimson Pro',serif;font-style:italic;font-size:.7rem;color:rgba(253,246,227,.4);}
+.sc-t{font-size:.58rem;color:rgba(253,246,227,.26);margin-top:3px;line-height:1.45;}
 
-/* Ingredient rows */
-.ir{margin-bottom:12px;}
-.il{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
-.in{font-size:.6rem;color:var(--cream);}.iv{font-size:.65rem;color:var(--gold);font-weight:700;}.iu{font-size:.48rem;color:rgba(253,246,227,.36);margin-left:1px;}
-input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:linear-gradient(90deg,var(--ember) var(--pct,50%),rgba(255,255,255,.07) var(--pct,50%));border-radius:2px;outline:none;cursor:pointer;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle,var(--gold),var(--amber));box-shadow:0 0 6px rgba(255,200,0,.5);cursor:pointer;transition:transform .14s;}
-input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3);}
-.ut{display:flex;gap:3px;margin-top:3px;}.ub{font-size:.48rem;padding:2px 5px;border:1px solid rgba(255,140,0,.22);background:transparent;color:rgba(253,246,227,.4);border-radius:3px;cursor:pointer;transition:all .13s;font-family:'Space Mono',monospace;}
+/* ===== INGREDIENT ROWS ===== */
+.ir{margin-bottom:16px;}
+.il{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+.in{font-size:.65rem;color:var(--cream);}
+.iv{font-size:.72rem;color:var(--gold);font-weight:700;}
+.iu{font-size:.5rem;color:rgba(253,246,227,.35);}
+
+/* BIG touch-friendly range */
+input[type=range]{
+  -webkit-appearance:none;width:100%;height:4px;
+  background:linear-gradient(90deg,var(--ember) var(--pct,50%),rgba(255,255,255,.08) var(--pct,50%));
+  border-radius:2px;outline:none;cursor:pointer;
+  /* iOS needs explicit height + padding for better hit area */
+  padding:10px 0;background-clip:content-box;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:26px;height:26px;border-radius:50%;
+  background:radial-gradient(circle at 38% 35%,var(--gold),var(--amber));
+  box-shadow:0 0 8px rgba(255,200,0,.5),0 2px 6px rgba(0,0,0,.5);
+  cursor:pointer;border:2px solid rgba(255,200,0,.3);
+}
+.ut{display:flex;gap:5px;margin-top:5px;}
+.ub{font-size:.52rem;padding:5px 10px;border:1px solid rgba(255,140,0,.22);background:transparent;color:rgba(253,246,227,.4);
+  border-radius:4px;cursor:pointer;transition:all .13s;font-family:'Space Mono',monospace;min-height:36px;}
 .ub.act{background:rgba(255,140,0,.16);color:var(--gold);border-color:var(--amber);}
-.hm{margin-top:5px;height:4px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden;}
-.hf{height:100%;background:linear-gradient(90deg,#3366ff,#00aaff);border-radius:2px;transition:width .4s;box-shadow:0 0 5px rgba(0,150,255,.4);}
-.hl{display:flex;justify-content:space-between;font-size:.48rem;color:rgba(253,246,227,.35);margin-top:2px;}
-.pred{background:rgba(255,140,0,.05);border:1px solid rgba(255,140,0,.1);border-radius:4px;padding:8px;margin-top:7px;font-size:.55rem;color:rgba(253,246,227,.48);line-height:1.65;}
-.pred strong{color:var(--gold);}
-.bake-btn-l{width:100%;margin-top:10px;padding:12px;background:linear-gradient(135deg,#cc3700,#ff6600,#ff8c00);border:none;border-radius:6px;color:#fff;
-  font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;letter-spacing:.13em;cursor:pointer;
-  box-shadow:0 4px 16px rgba(255,69,0,.35),inset 0 1px 0 rgba(255,255,255,.16);transition:all .2s;text-transform:uppercase;position:relative;overflow:hidden;}
-.bake-btn-l::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.1),transparent);pointer-events:none;}
-.bake-btn-l:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(255,69,0,.52);}
-.bake-btn-l.baking{animation:pfr .8s ease-in-out infinite;cursor:not-allowed;}
-@keyframes pfr{0%,100%{box-shadow:0 4px 16px rgba(255,69,0,.35);}50%{box-shadow:0 4px 36px rgba(255,69,0,.82),0 0 50px rgba(255,140,0,.32);}}
+.ub:active{transform:scale(.95);}
 
-/* Recipe cards */
-.rc{background:rgba(255,140,0,.03);border:1px solid rgba(255,140,0,.09);border-radius:6px;padding:9px;margin-bottom:7px;cursor:pointer;transition:all .16s;}
-.rc:hover{border-color:rgba(255,140,0,.3);background:rgba(255,140,0,.07);transform:translateX(-2px);}
-.re{font-size:1.1rem;margin-bottom:3px;display:block;}.rn{font-family:'Playfair Display',serif;font-size:.76rem;color:var(--gold);margin-bottom:2px;}
-.rd{font-family:'Crimson Pro',serif;font-style:italic;font-size:.66rem;color:rgba(253,246,227,.38);line-height:1.35;}
-.diff{display:inline-block;font-size:.48rem;padding:2px 5px;border-radius:8px;margin-top:4px;letter-spacing:.08em;text-transform:uppercase;}
+/* hydration bar */
+.hm{margin-top:6px;height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;}
+.hf{height:100%;background:linear-gradient(90deg,#3366ff,#00aaff);border-radius:3px;transition:width .4s;box-shadow:0 0 5px rgba(0,150,255,.4);}
+.hl{display:flex;justify-content:space-between;font-size:.5rem;color:rgba(253,246,227,.35);margin-top:3px;}
+
+/* prediction */
+.pred{background:rgba(255,140,0,.05);border:1px solid rgba(255,140,0,.1);border-radius:6px;
+  padding:10px 12px;margin-top:10px;font-size:.6rem;color:rgba(253,246,227,.5);line-height:1.7;}
+.pred strong{color:var(--gold);}
+
+/* bake button left panel */
+.bake-btn-big{
+  width:100%;margin-top:14px;padding:16px;
+  background:linear-gradient(135deg,#cc3700,#ff6600,#ff8c00);
+  border:none;border-radius:10px;color:#fff;
+  font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;letter-spacing:.13em;
+  cursor:pointer;box-shadow:0 4px 18px rgba(255,69,0,.38),inset 0 1px 0 rgba(255,255,255,.18);
+  transition:all .18s;text-transform:uppercase;position:relative;overflow:hidden;
+  min-height:54px;
+}
+.bake-btn-big::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.1),transparent);pointer-events:none;}
+.bake-btn-big:active{transform:scale(.97);}
+.bake-btn-big.baking{animation:pfr .8s ease-in-out infinite;cursor:not-allowed;}
+@keyframes pfr{0%,100%{box-shadow:0 4px 18px rgba(255,69,0,.38);}50%{box-shadow:0 4px 36px rgba(255,69,0,.82),0 0 50px rgba(255,140,0,.32);}}
+
+/* ===== RECIPE CARDS ===== */
+.rc{background:rgba(255,140,0,.03);border:1px solid rgba(255,140,0,.09);border-radius:10px;
+  padding:13px;margin-bottom:10px;cursor:pointer;transition:all .16s;display:flex;gap:12px;align-items:flex-start;}
+.rc:active{background:rgba(255,140,0,.09);transform:scale(.98);}
+.re{font-size:1.6rem;line-height:1;flex-shrink:0;margin-top:2px;}
+.rc-body{flex:1;}
+.rn{font-family:'Playfair Display',serif;font-size:.85rem;color:var(--gold);margin-bottom:3px;}
+.rd{font-family:'Crimson Pro',serif;font-style:italic;font-size:.72rem;color:rgba(253,246,227,.38);line-height:1.38;}
+.diff{display:inline-block;font-size:.5rem;padding:3px 7px;border-radius:10px;margin-top:5px;letter-spacing:.08em;text-transform:uppercase;}
 .easy{background:rgba(80,200,80,.12);color:#80c080;border:1px solid rgba(80,200,80,.16);}
 .medium{background:rgba(255,165,0,.12);color:#ffa050;border:1px solid rgba(255,165,0,.16);}
 .hard{background:rgba(255,60,60,.12);color:#ff8060;border:1px solid rgba(255,60,60,.16);}
 
-/* ===== OVEN VIEWPORT ===== */
-.ov-vp{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:radial-gradient(ellipse at 50% 45%,#180900 0%,#070300 100%);overflow:hidden;}
+/* ===== OVEN TAB ===== */
+.oven-pane{
+  display:flex !important;
+  flex-direction:column;
+  background:radial-gradient(ellipse at 50% 45%,#180900 0%,#070300 100%);
+  padding:0 !important;
+  overflow:hidden !important;
+}
+.ov-inner{
+  /* Takes all remaining space after dial panel */
+  flex:1;
+  min-height:0; /* crucial: lets flex child shrink below content size */
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
 .rg{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(255,80,0,0) 30%,transparent);pointer-events:none;transition:background 2s;z-index:0;}
 .rg.on{background:radial-gradient(ellipse at center,rgba(255,80,0,.1) 25%,rgba(255,40,0,.02) 80%);}
 .hl-lines{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
 .hl-l{position:absolute;width:2px;background:linear-gradient(180deg,transparent,rgba(255,140,0,.07),transparent);animation:hr linear infinite;opacity:0;bottom:0;}
 @keyframes hr{0%{transform:translateY(100%);opacity:0;}25%{opacity:.7;}80%{opacity:.25;}100%{transform:translateY(-100%);opacity:0;}}
 
-.ltd{position:absolute;top:12px;left:50%;transform:translateX(-50%);text-align:center;opacity:0;transition:opacity .5s;pointer-events:none;z-index:6;}
-.ltd-l{font-size:.48rem;color:var(--amber);letter-spacing:.18em;}
-.ltd-v{font-family:'Playfair Display',serif;font-size:1.55rem;color:var(--ember);text-shadow:0 0 16px rgba(255,69,0,.65);}
+.ltd{position:absolute;top:10px;left:50%;transform:translateX(-50%);text-align:center;opacity:0;transition:opacity .5s;pointer-events:none;z-index:6;}
+.ltd-l{font-size:.45rem;color:var(--amber);letter-spacing:.18em;}
+.ltd-v{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--ember);text-shadow:0 0 16px rgba(255,69,0,.65);}
 
-/* ===== TRUE 3D OVEN BOX ===== */
-.oven-wrap{
+/* ===== 3D OVEN — scales to fill available space ===== */
+/* 
+  Trick: wrap a fixed-pixel 3D scene inside a 100%-wide container.
+  The scaler div has width=100% and height set to maintain the oven aspect ratio.
+  The oven-3d-outer is position:absolute, sized at 580x460, centered,
+  then CSS scale() is applied. Because it's absolute, it doesn't affect flow.
+*/
+.oven-scale-wrap{
+  position:relative;z-index:2;flex-shrink:0;
+  width:100%;
+  /* height set by JS to match scaled oven */
+  overflow:visible;
+}
+.oven-3d-outer{
+  position:absolute;
+  width:580px;height:460px;
+  left:50%;top:0;
+  transform-origin:top center;
   perspective:1200px;perspective-origin:50% 38%;
-  width:580px;height:460px;position:relative;z-index:2;flex-shrink:0;
 }
 .oven-3d{
   width:520px;height:390px;
@@ -93,121 +247,57 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3);}
   transform-style:preserve-3d;
   transform:rotateX(14deg) rotateY(-7deg);
 }
-
-/* ---- FACES ---- */
-/* depth = 55px */
 .face{position:absolute;transform-style:preserve-3d;}
-.f-front{
-  width:520px;height:390px;
-  background:linear-gradient(160deg,#363636 0%,#232323 45%,#181818 100%);
-  border:1px solid rgba(255,255,255,.045);
-  transform:translateZ(55px);
-  border-radius:10px 10px 4px 4px;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.07),inset 0 -2px 0 rgba(0,0,0,.5);
-}
-.f-top{
-  width:520px;height:55px;
-  background:linear-gradient(180deg,#484848 0%,#2a2a2a 100%);
-  border:1px solid rgba(255,255,255,.07);
-  transform:rotateX(90deg) translateY(-195px) translateZ(195px);
-  box-shadow:inset 0 3px 0 rgba(255,255,255,.1);
-}
-.f-right{
-  width:55px;height:390px;
-  background:linear-gradient(90deg,#1e1e1e,#161616);
-  border:1px solid rgba(255,255,255,.03);
-  transform:rotateY(90deg) translateX(-0px) translateZ(465px);
-  transform-origin:left center;
-}
-.f-left{
-  width:55px;height:390px;
-  background:linear-gradient(90deg,#1e1e1e,#161616);
-  border:1px solid rgba(255,255,255,.03);
-  transform:rotateY(-90deg) translateZ(0px);
-  transform-origin:right center;
-}
-.f-bot{
-  width:520px;height:55px;
-  background:linear-gradient(180deg,#131313,#0a0a0a);
-  transform:rotateX(-90deg) translateY(195px) translateZ(195px);
-}
-.f-back{
-  width:520px;height:390px;
-  background:#0a0a0a;
-  transform:translateZ(0px);
-}
-
-/* top vents */
+.f-front{width:520px;height:390px;background:linear-gradient(160deg,#363636 0%,#232323 45%,#181818 100%);border:1px solid rgba(255,255,255,.045);transform:translateZ(55px);border-radius:10px 10px 4px 4px;box-shadow:inset 0 2px 0 rgba(255,255,255,.07),inset 0 -2px 0 rgba(0,0,0,.5);}
+.f-top{width:520px;height:55px;background:linear-gradient(180deg,#484848 0%,#2a2a2a 100%);border:1px solid rgba(255,255,255,.07);transform:rotateX(90deg) translateY(-195px) translateZ(195px);box-shadow:inset 0 3px 0 rgba(255,255,255,.1);}
+.f-right{width:55px;height:390px;background:linear-gradient(90deg,#1e1e1e,#161616);border:1px solid rgba(255,255,255,.03);transform:rotateY(90deg) translateX(-0px) translateZ(465px);transform-origin:left center;}
+.f-left{width:55px;height:390px;background:linear-gradient(90deg,#1e1e1e,#161616);border:1px solid rgba(255,255,255,.03);transform:rotateY(-90deg) translateZ(0px);transform-origin:right center;}
+.f-bot{width:520px;height:55px;background:linear-gradient(180deg,#131313,#0a0a0a);transform:rotateX(-90deg) translateY(195px) translateZ(195px);}
+.f-back{width:520px;height:390px;background:#0a0a0a;transform:translateZ(0px);}
 .vent{height:5px;background:rgba(0,0,0,.55);border-radius:3px;flex:1;}
-
-/* legs */
 .leg{position:absolute;width:16px;height:32px;background:linear-gradient(180deg,#2e2e2e,#181818);border-radius:0 0 4px 4px;box-shadow:0 5px 10px rgba(0,0,0,.7);}
 .lg-fl{bottom:-32px;left:28px;}.lg-fr{bottom:-32px;right:28px;}
-
-/* side rivet details */
 .rivet{position:absolute;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#555,#222);border:1px solid #111;box-shadow:0 1px 2px rgba(0,0,0,.6);}
 
-/* ---- OVEN WINDOW (inside front face) ---- */
+/* oven window */
 .ow-wrap{position:absolute;top:26px;left:50%;transform:translateX(-50%);width:368px;height:248px;}
-.ow{width:100%;height:100%;background:radial-gradient(ellipse at 42% 28%,#1e0900 0%,#0b0400 60%,#000 100%);
-  border-radius:11px;border:6px solid #222;
-  box-shadow:inset 0 0 40px rgba(255,100,0,0),inset 0 0 0 2px rgba(255,255,255,.035),0 5px 16px rgba(0,0,0,.85),0 0 0 1px rgba(0,0,0,.9);
-  overflow:hidden;position:relative;transition:box-shadow 1.3s,background 1.3s;}
-.ow.hot{
-  background:radial-gradient(ellipse at 42% 68%,#3e1600 0%,#1c0700 52%,#050200 100%);
-  box-shadow:inset 0 0 80px rgba(255,75,0,.65),inset 0 0 28px rgba(255,155,0,.24),inset 0 0 0 2px rgba(255,180,0,.07),
-    0 0 60px rgba(255,80,0,.22),0 5px 16px rgba(0,0,0,.85);}
+.ow{width:100%;height:100%;background:radial-gradient(ellipse at 42% 28%,#1e0900 0%,#0b0400 60%,#000 100%);border-radius:11px;border:6px solid #222;box-shadow:inset 0 0 40px rgba(255,100,0,0),inset 0 0 0 2px rgba(255,255,255,.035),0 5px 16px rgba(0,0,0,.85),0 0 0 1px rgba(0,0,0,.9);overflow:hidden;position:relative;transition:box-shadow 1.3s,background 1.3s;}
+.ow.hot{background:radial-gradient(ellipse at 42% 68%,#3e1600 0%,#1c0700 52%,#050200 100%);box-shadow:inset 0 0 80px rgba(255,75,0,.65),inset 0 0 28px rgba(255,155,0,.24),inset 0 0 0 2px rgba(255,180,0,.07),0 0 60px rgba(255,80,0,.22),0 5px 16px rgba(0,0,0,.85);}
 .gl1{position:absolute;width:52%;height:36%;top:4%;left:4%;background:linear-gradient(135deg,rgba(255,255,255,.048) 0%,transparent 70%);border-radius:7px;pointer-events:none;}
 .gl2{position:absolute;width:16%;height:52%;top:7%;right:6%;background:linear-gradient(180deg,rgba(255,255,255,.035) 0%,transparent 100%);border-radius:3px;pointer-events:none;}
-
-/* heating elements */
 .he{position:absolute;height:5px;left:5%;right:5%;border-radius:3px;background:#282828;transition:background 1.3s,box-shadow 1.3s;}
 .he-t{top:6%;}.he-b{bottom:6%;}
 .he.glow{background:linear-gradient(90deg,#b81f00,#ff4500,#ff9200,#ff4500,#b81f00);box-shadow:0 0 20px rgba(255,100,0,.88),0 0 38px rgba(255,69,0,.38);animation:ef 2.4s ease-in-out infinite;}
 @keyframes ef{0%,100%{opacity:1;}48%{opacity:.8;}75%{opacity:.93;}}
-
-/* oven rack */
 .rack-outer{position:absolute;bottom:23%;left:4%;right:4%;height:10px;overflow:visible;}
 .rack-h{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,#444,#888,#444);border-radius:1px;box-shadow:0 1px 3px rgba(0,0,0,.55);}
 .rack-h.tp{top:0;}.rack-h.bt{bottom:0;}
 .rack-v{position:absolute;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#666,#444);border-radius:1px;}
-
-/* glow on floor */
 .fgl{position:absolute;bottom:0;left:5%;right:5%;height:36%;background:radial-gradient(ellipse at center bottom,rgba(255,80,0,.2),transparent 72%);opacity:0;transition:opacity 1.8s;pointer-events:none;animation:fg 2.8s ease-in-out infinite;}
 @keyframes fg{0%,100%{filter:brightness(1);}50%{filter:brightness(1.35);}}
 .fgl.on{opacity:1;}
-
-/* smoke / embers */
 .smc{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
 .sp{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(210,190,170,.32),transparent);animation:sr linear forwards;pointer-events:none;}
 @keyframes sr{0%{transform:translateY(0) translateX(0) scale(.45);opacity:.5;}30%{opacity:.3;}80%{opacity:.1;}100%{transform:translateY(-220px) translateX(var(--dx,12px)) scale(3);opacity:0;}}
 .ep{position:absolute;width:3px;height:3px;border-radius:50%;animation:ef2 linear forwards;pointer-events:none;}
 @keyframes ef2{0%{opacity:1;}100%{transform:translateY(-260px) translateX(var(--ex,18px));opacity:0;}}
-
-/* condensation */
 .cd-wrap{position:absolute;inset:0;opacity:0;transition:opacity 3s;pointer-events:none;border-radius:6px;overflow:hidden;}
 .cd-wrap.vis{opacity:1;}
 .cd{position:absolute;width:2px;background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.04));border-radius:1px;animation:drp linear infinite;}
 @keyframes drp{0%{height:0;opacity:.72;}78%{opacity:.38;}100%{height:26px;opacity:0;}}
-
-/* oven light */
 .ovl{position:absolute;top:8px;right:24px;width:10px;height:10px;border-radius:50%;background:#ff8c00;box-shadow:0 0 7px #ff8c00,0 0 16px rgba(255,140,0,.42);opacity:0;transition:opacity .5s;}
 .ovl.on{opacity:1;animation:lp 2.2s ease-in-out infinite;}
 @keyframes lp{0%,100%{opacity:1;}50%{opacity:.5;}}
-
-/* thermometer */
 .thm{position:absolute;right:11px;top:50%;transform:translateY(-50%);width:12px;height:62px;}
 .thm-t{width:5px;height:44px;background:rgba(255,255,255,.08);border-radius:3px;margin:0 auto;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.12);}
 .thm-f{position:absolute;bottom:0;left:0;right:0;height:16%;background:linear-gradient(180deg,#ff6600,#ff4500);transition:height 3.8s ease-in-out;box-shadow:0 0 5px rgba(255,100,0,.52);}
 .thm-b{width:10px;height:10px;background:radial-gradient(circle,#ff4500,#cc2200);border-radius:50%;margin:0 auto;box-shadow:0 0 7px rgba(255,69,0,.52);}
 .thm-l{font-size:.4rem;color:rgba(253,246,227,.3);text-align:center;margin-top:1px;}
 
-/* ---- BREAD 3D ---- */
+/* bread */
 .bs{position:absolute;bottom:23%;left:50%;transform:translateX(-50%);width:230px;height:130px;display:flex;align-items:flex-end;justify-content:center;}
 .b3{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:165px;height:0;opacity:0;transition:height 3.5s cubic-bezier(.34,1.56,.64,1),opacity .6s;transform-style:preserve-3d;}
-.bb{width:165px;height:100%;background:#c17f3a;border-radius:50% 50% 30% 30%/60% 60% 40% 40%;position:relative;
-  transition:background 5s,filter 5s;
-  box-shadow:inset 0 -13px 24px rgba(0,0,0,.3),inset 0 7px 18px rgba(255,220,150,.16),0 14px 24px rgba(0,0,0,.6);overflow:visible;}
+.bb{width:165px;height:100%;background:#c17f3a;border-radius:50% 50% 30% 30%/60% 60% 40% 40%;position:relative;transition:background 5s,filter 5s;box-shadow:inset 0 -13px 24px rgba(0,0,0,.3),inset 0 7px 18px rgba(255,220,150,.16),0 14px 24px rgba(0,0,0,.6);overflow:visible;}
 .bsc{position:absolute;top:13%;left:11%;right:11%;height:4px;background:rgba(0,0,0,.26);border-radius:2px;transform:rotate(-14deg);box-shadow:0 2px 4px rgba(0,0,0,.4);opacity:0;transition:opacity 1.4s;}
 .bsc2{position:absolute;top:29%;left:17%;right:17%;height:3px;background:rgba(0,0,0,.18);border-radius:2px;transform:rotate(-9deg);opacity:0;transition:opacity 1.4s;}
 .bhi{position:absolute;top:8%;left:17%;width:36%;height:26%;background:radial-gradient(ellipse,rgba(255,240,180,.36) 0%,transparent 70%);border-radius:50%;pointer-events:none;}
@@ -218,268 +308,274 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3);}
 .bbt{position:absolute;bottom:-6px;left:4%;width:160px;height:10px;background:linear-gradient(180deg,#8b5520,#5a3510);border-radius:0 0 4px 4px;transform:perspective(100px) rotateX(-30deg);opacity:0;transition:opacity 1s,background 5s;}
 .mb{position:absolute;width:6px;height:6px;border-radius:50%;background:radial-gradient(circle,rgba(175,95,18,.8),transparent);animation:mbp 1s ease-out forwards;pointer-events:none;}
 @keyframes mbp{0%{transform:scale(0);opacity:1;}52%{transform:scale(1.6);opacity:.68;}100%{transform:scale(.35);opacity:0;}}
-
-/* ===== DIAL PANEL ===== */
-.dp{
-  width:580px;flex-shrink:0;
-  background:linear-gradient(180deg,#1d1d1d,#121212);
-  border-top:2px solid #080808;
-  border-radius:0 0 12px 12px;
-  padding:10px 24px;
-  display:flex;align-items:center;justify-content:space-between;
-  box-shadow:0 10px 35px rgba(0,0,0,.75);
-  position:relative;z-index:2;
-}
-.dg{text-align:center;position:relative;}
-.dl{font-size:.5rem;letter-spacing:.2em;color:rgba(253,246,227,.35);text-transform:uppercase;margin-bottom:5px;}
-.dv{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--ember);text-shadow:0 0 12px rgba(255,69,0,.52);margin-top:4px;}
-.ds{font-size:.44rem;color:rgba(253,246,227,.28);letter-spacing:.1em;}
-
-/* SVG dial */
-.dial-svg{cursor:grab;display:block;margin:0 auto;user-select:none;touch-action:none;}
-.dial-svg:active{cursor:grabbing;}
-
-/* center bake area */
-.bpw{flex:1;margin:0 20px;display:flex;flex-direction:column;align-items:center;gap:5px;}
-.bpb{width:100%;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
-.bpf{height:100%;width:0%;background:linear-gradient(90deg,var(--ember),var(--gold));box-shadow:0 0 7px var(--amber);transition:width .5s linear;}
-.bst{font-size:.52rem;color:var(--amber);letter-spacing:.13em;text-transform:uppercase;height:13px;}
-.bake-c{padding:9px 24px;background:linear-gradient(135deg,#cc3700,#ff6600,#ff8c00);border:none;border-radius:5px;color:#fff;
-  font-family:'Playfair Display',serif;font-size:.82rem;font-weight:700;letter-spacing:.12em;cursor:pointer;
-  box-shadow:0 3px 14px rgba(255,69,0,.33);transition:all .2s;text-transform:uppercase;}
-.bake-c:hover{transform:translateY(-2px);box-shadow:0 7px 22px rgba(255,69,0,.52);}
-.bake-c.baking{animation:pfr .8s ease-in-out infinite;cursor:not-allowed;}
-
-/* brand badge */
-.brand{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);
-  background:linear-gradient(135deg,#1a1a1a,#101010);border:1px solid #2e2e2e;border-radius:4px;padding:4px 14px;white-space:nowrap;}
+.brand{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a1a1a,#101010);border:1px solid #2e2e2e;border-radius:4px;padding:4px 14px;white-space:nowrap;}
 .brand span{font-family:'Playfair Display',serif;font-size:.58rem;letter-spacing:.28em;color:rgba(255,255,255,.2);text-transform:uppercase;}
 
-/* RESULT MODAL */
-.ro{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;
-  z-index:1000;opacity:0;pointer-events:none;transition:opacity .5s;backdrop-filter:blur(6px);}
+/* ===== DIAL PANEL (bottom of oven tab) ===== */
+.dp{
+  width:100%;flex-shrink:0;
+  background:linear-gradient(180deg,#1a1a1a,#101010);
+  border-top:2px solid #080808;
+  padding:10px 16px;
+  padding-bottom:calc(10px + var(--safe-bot));
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;z-index:3;
+  /* Fixed height so oven area gets the rest */
+  min-height:0;
+}
+.dg{text-align:center;}
+.dl{font-size:.5rem;letter-spacing:.18em;color:rgba(253,246,227,.35);text-transform:uppercase;margin-bottom:4px;}
+.dv{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--ember);text-shadow:0 0 12px rgba(255,69,0,.52);margin-top:4px;}
+.ds{font-size:.44rem;color:rgba(253,246,227,.28);letter-spacing:.1em;}
+.dial-svg{cursor:grab;display:block;margin:0 auto;user-select:none;touch-action:none;}
+.dial-svg:active{cursor:grabbing;}
+.bpw{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.bpb{width:100%;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.bpf{height:100%;width:0%;background:linear-gradient(90deg,var(--ember),var(--gold));box-shadow:0 0 7px var(--amber);transition:width .5s linear;}
+.bst{font-size:.52rem;color:var(--amber);letter-spacing:.13em;text-transform:uppercase;height:14px;}
+.bake-c{
+  padding:11px 20px;background:linear-gradient(135deg,#cc3700,#ff6600,#ff8c00);
+  border:none;border-radius:8px;color:#fff;
+  font-family:'Playfair Display',serif;font-size:.88rem;font-weight:700;letter-spacing:.1em;
+  cursor:pointer;box-shadow:0 3px 14px rgba(255,69,0,.33);transition:all .18s;
+  text-transform:uppercase;min-height:44px;
+}
+.bake-c:active{transform:scale(.96);}
+.bake-c.baking{animation:pfr .8s ease-in-out infinite;cursor:not-allowed;}
+
+/* ===== RESULT MODAL ===== */
+.ro{
+  position:fixed;inset:0;
+  padding:20px 16px;
+  padding-top:calc(20px + var(--safe-top));
+  padding-bottom:calc(20px + var(--safe-bot));
+  background:rgba(0,0,0,.9);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;opacity:0;pointer-events:none;transition:opacity .4s;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+}
 .ro.show{opacity:1;pointer-events:all;}
-.rc2{background:linear-gradient(135deg,#1b0e04,#110800);border:1px solid rgba(255,140,0,.26);border-radius:14px;
-  padding:30px;max-width:400px;width:90%;text-align:center;
-  box-shadow:0 40px 90px rgba(0,0,0,.9),0 0 50px rgba(255,100,0,.07);
-  transform:scale(.8);transition:transform .5s cubic-bezier(.34,1.56,.64,1);}
+.rc2{
+  background:linear-gradient(135deg,#1b0e04,#110800);
+  border:1px solid rgba(255,140,0,.26);border-radius:16px;
+  padding:24px 20px;width:100%;max-width:380px;text-align:center;
+  box-shadow:0 30px 80px rgba(0,0,0,.9),0 0 40px rgba(255,100,0,.07);
+  transform:scale(.85);transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+}
 .ro.show .rc2{transform:scale(1);}
-.rv{width:180px;height:95px;margin:0 auto 15px;}
-.rt2{font-family:'Playfair Display',serif;font-size:1.35rem;color:var(--gold);margin-bottom:5px;filter:drop-shadow(0 0 10px rgba(255,200,0,.36));}
-.rs2{font-family:'Crimson Pro',serif;font-style:italic;color:rgba(253,246,227,.42);font-size:.8rem;margin-bottom:13px;}
-.rdsc{font-size:.66rem;color:rgba(253,246,227,.65);line-height:1.78;border-top:1px solid rgba(255,140,0,.12);border-bottom:1px solid rgba(255,140,0,.12);padding:11px 0;margin-bottom:13px;}
+.rv{width:180px;height:100px;margin:0 auto 14px;}
+.rt2{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold);margin-bottom:5px;filter:drop-shadow(0 0 10px rgba(255,200,0,.36));}
+.rs2{font-family:'Crimson Pro',serif;font-style:italic;color:rgba(253,246,227,.42);font-size:.8rem;margin-bottom:12px;}
+.rdsc{font-size:.68rem;color:rgba(253,246,227,.65);line-height:1.78;border-top:1px solid rgba(255,140,0,.12);border-bottom:1px solid rgba(255,140,0,.12);padding:11px 0;margin-bottom:12px;}
 .rst{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:16px;}
-.sb{background:rgba(255,140,0,.05);border:1px solid rgba(255,140,0,.1);border-radius:5px;padding:7px 4px;}
-.sv{font-size:.92rem;color:var(--gold);font-weight:700;}.sl{font-size:.48rem;color:rgba(253,246,227,.32);letter-spacing:.07em;margin-top:1px;}
-.rcl{background:linear-gradient(135deg,#cc3700,#ff6600);border:none;border-radius:5px;color:#fff;font-family:'Space Mono',monospace;font-size:.62rem;padding:9px 24px;cursor:pointer;letter-spacing:.09em;transition:all .2s;}
-.rcl:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(255,69,0,.36);}
+.sb{background:rgba(255,140,0,.05);border:1px solid rgba(255,140,0,.1);border-radius:6px;padding:8px 4px;}
+.sv{font-size:.92rem;color:var(--gold);font-weight:700;}.sl{font-size:.5rem;color:rgba(253,246,227,.32);letter-spacing:.07em;margin-top:1px;}
+.rcl{
+  background:linear-gradient(135deg,#cc3700,#ff6600);border:none;border-radius:8px;
+  color:#fff;font-family:'Space Mono',monospace;font-size:.65rem;
+  padding:13px 28px;cursor:pointer;letter-spacing:.09em;transition:all .18s;
+  min-height:48px;width:100%;
+}
+.rcl:active{transform:scale(.97);}
 </style>
 </head>
 <body>
 
 <div class="hdr">
-  <h1>ARTISAN BREAD FORGE</h1>
-  <p>3D Sourdough Simulation Laboratory — Ed Wood Cultures Edition</p>
+  <div>
+    <h1>ARTISAN BREAD FORGE</h1>
+    <div class="hdr-sub">Ed Wood Cultures Edition</div>
+  </div>
 </div>
 
-<div class="app">
+<div class="shell">
+  <div class="tab-content">
 
-<!-- LEFT PANEL -->
-<div class="pl">
-  <div class="sec">Sourdough Starter Culture</div>
-  <div id="starters-list"></div>
+    <!-- TAB: OVEN -->
+    <div class="tab-pane oven-pane active" id="tab-oven">
+      <div class="ov-inner" id="ov-inner">
+        <div class="rg" id="rg"></div>
+        <div class="hl-lines" id="hll"></div>
+        <div class="ltd" id="ltd"><div class="ltd-l">OVEN TEMP</div><div class="ltd-v" id="ltv">72°F</div></div>
 
-  <div class="sec" style="margin-top:12px">Ingredients</div>
-
-  <div class="ir">
-    <div class="il"><span class="in">🌾 Bread Flour</span><span class="iv" id="flour-val">400 <span class="iu">g</span></span></div>
-    <input type="range" id="flour" min="100" max="800" value="400" oninput="upI('flour',this)">
-    <div class="ut"><button class="ub act" onclick="setU('flour','g',this)">g</button><button class="ub" onclick="setU('flour','cup',this)">cups</button></div>
-  </div>
-  <div class="ir">
-    <div class="il"><span class="in">💧 Water</span><span class="iv" id="water-val">300 <span class="iu">g</span></span></div>
-    <input type="range" id="water" min="50" max="700" value="300" oninput="upI('water',this)">
-    <div class="ut"><button class="ub act" onclick="setU('water','g',this)">g</button><button class="ub" onclick="setU('water','ml',this)">ml</button><button class="ub" onclick="setU('water','cup',this)">cups</button></div>
-    <div class="hm"><div class="hf" id="hf"></div></div>
-    <div class="hl"><span>Hydration</span><span id="hpct">75%</span></div>
-  </div>
-  <div class="ir">
-    <div class="il"><span class="in">🧂 Salt</span><span class="iv" id="salt-val">9 <span class="iu">g</span></span></div>
-    <input type="range" id="salt" min="0" max="30" value="9" oninput="upI('salt',this)">
-    <div class="ut"><button class="ub act" onclick="setU('salt','g',this)">g</button><button class="ub" onclick="setU('salt','tsp',this)">tsp</button></div>
-  </div>
-  <div class="ir">
-    <div class="il"><span class="in">🥄 Starter</span><span class="iv" id="starter-amt-val">100 <span class="iu">g</span></span></div>
-    <input type="range" id="starter-amt" min="10" max="300" value="100" oninput="upI('starter-amt',this)">
-    <div class="ut"><button class="ub act" onclick="setU('starter-amt','g',this)">g</button><button class="ub" onclick="setU('starter-amt','cup',this)">cups</button></div>
-  </div>
-  <div class="ir">
-    <div class="il"><span class="in">🫒 Olive Oil</span><span class="iv" id="oil-val">0 <span class="iu">g</span></span></div>
-    <input type="range" id="oil" min="0" max="80" value="0" oninput="upI('oil',this)">
-    <div class="ut"><button class="ub act" onclick="setU('oil','g',this)">g</button><button class="ub" onclick="setU('oil','tbsp',this)">tbsp</button></div>
-  </div>
-  <div class="ir">
-    <div class="il"><span class="in">🍯 Honey / Malt</span><span class="iv" id="honey-val">0 <span class="iu">g</span></span></div>
-    <input type="range" id="honey" min="0" max="60" value="0" oninput="upI('honey',this)">
-    <div class="ut"><button class="ub act" onclick="setU('honey','g',this)">g</button><button class="ub" onclick="setU('honey','tbsp',this)">tbsp</button></div>
-  </div>
-
-  <div class="pred"><strong>Shape:</strong> <span id="shape-p">Classic Boule</span><br><strong>Crumb:</strong> <span id="crumb-p">Open, chewy</span></div>
-  <button class="bake-btn-l" id="bbl" onclick="startBake()">🔥 FIRE THE OVEN</button>
-</div>
-
-<!-- CENTER OVEN -->
-<div class="ov-vp" id="ovvp">
-  <div class="rg" id="rg"></div>
-  <div class="hl-lines" id="hll"></div>
-  <div class="ltd" id="ltd"><div class="ltd-l">OVEN TEMP</div><div class="ltd-v" id="ltv">72°F</div></div>
-
-  <div class="oven-wrap">
-    <div class="oven-3d" id="o3d">
-
-      <!-- back face -->
-      <div class="face f-back"></div>
-
-      <!-- top face with vents -->
-      <div class="face f-top">
-        <div style="display:flex;gap:10px;align-items:center;height:100%;padding:0 50px;">
-          <div class="vent"></div><div class="vent"></div><div class="vent"></div>
-          <div class="vent"></div><div class="vent"></div><div class="vent"></div>
-        </div>
-      </div>
-
-      <!-- side faces with rivets -->
-      <div class="face f-right">
-        <div class="rivet" style="top:18%;left:50%;transform:translateX(-50%)"></div>
-        <div class="rivet" style="top:55%;left:50%;transform:translateX(-50%)"></div>
-        <div class="rivet" style="top:82%;left:50%;transform:translateX(-50%)"></div>
-        <div style="position:absolute;top:10%;bottom:10%;left:50%;transform:translateX(-50%);width:3px;background:rgba(255,255,255,.02);border-radius:2px;"></div>
-      </div>
-      <div class="face f-left">
-        <div class="rivet" style="top:18%;left:50%;transform:translateX(-50%)"></div>
-        <div class="rivet" style="top:55%;left:50%;transform:translateX(-50%)"></div>
-        <div class="rivet" style="top:82%;left:50%;transform:translateX(-50%)"></div>
-      </div>
-      <div class="face f-bot"></div>
-
-      <!-- FRONT FACE — main visual -->
-      <div class="face f-front">
-
-        <!-- Oven window -->
-        <div class="ow-wrap">
-          <div class="ow" id="ow">
-            <div class="gl1"></div><div class="gl2"></div>
-            <div class="he he-t" id="het"></div>
-            <div class="he he-b" id="heb"></div>
-            <div class="fgl" id="fgl"></div>
-
-            <!-- Rack -->
-            <div class="rack-outer" id="rack-outer">
-              <div class="rack-h tp"></div>
-              <div class="rack-h bt"></div>
-            </div>
-            <div style="position:absolute;bottom:23%;left:4%;right:4%;height:2px;background:linear-gradient(90deg,#484848,#888,#484848);border-radius:1px;box-shadow:0 1px 3px rgba(0,0,0,.55);"></div>
-
-            <!-- Bread -->
-            <div class="bs" id="bstage">
-              <div class="b3" id="b3">
-                <div class="bb" id="bbd">
-                  <div class="bsc" id="bsc1"></div>
-                  <div class="bsc2" id="bsc2"></div>
-                  <div class="bhi"></div><div class="bsh"></div>
-                  <div class="chov" id="chov"></div>
-                  <div class="bmp" id="bmp1" style="width:44px;height:23px;top:17%;left:7%"></div>
-                  <div class="bmp" id="bmp2" style="width:34px;height:17px;top:31%;right:11%"></div>
-                </div>
-                <div class="bsd" id="bsd"></div>
-                <div class="bbt" id="bbt"></div>
+        <div class="oven-scale-wrap" id="ovScaleWrap">
+        <div class="oven-3d-outer" id="ov3do">
+          <div class="oven-3d" id="o3d">
+            <div class="face f-back"></div>
+            <div class="face f-top">
+              <div style="display:flex;gap:10px;align-items:center;height:100%;padding:0 50px;">
+                <div class="vent"></div><div class="vent"></div><div class="vent"></div>
+                <div class="vent"></div><div class="vent"></div><div class="vent"></div>
               </div>
             </div>
-
-            <div class="cd-wrap" id="cdw"></div>
-            <div class="smc" id="smc"></div>
-            <div class="thm"><div class="thm-t"><div class="thm-f" id="tf"></div></div><div class="thm-b"></div><div class="thm-l">°F</div></div>
-            <div class="ovl" id="ovl"></div>
+            <div class="face f-right">
+              <div class="rivet" style="top:18%;left:50%;transform:translateX(-50%)"></div>
+              <div class="rivet" style="top:55%;left:50%;transform:translateX(-50%)"></div>
+              <div class="rivet" style="top:82%;left:50%;transform:translateX(-50%)"></div>
+            </div>
+            <div class="face f-left">
+              <div class="rivet" style="top:18%;left:50%;transform:translateX(-50%)"></div>
+              <div class="rivet" style="top:55%;left:50%;transform:translateX(-50%)"></div>
+              <div class="rivet" style="top:82%;left:50%;transform:translateX(-50%)"></div>
+            </div>
+            <div class="face f-bot"></div>
+            <div class="face f-front">
+              <div class="ow-wrap">
+                <div class="ow" id="ow">
+                  <div class="gl1"></div><div class="gl2"></div>
+                  <div class="he he-t" id="het"></div>
+                  <div class="he he-b" id="heb"></div>
+                  <div class="fgl" id="fgl"></div>
+                  <div class="rack-outer" id="rack-outer">
+                    <div class="rack-h tp"></div><div class="rack-h bt"></div>
+                  </div>
+                  <div style="position:absolute;bottom:23%;left:4%;right:4%;height:2px;background:linear-gradient(90deg,#484848,#888,#484848);border-radius:1px;box-shadow:0 1px 3px rgba(0,0,0,.55);"></div>
+                  <div class="bs" id="bstage">
+                    <div class="b3" id="b3">
+                      <div class="bb" id="bbd">
+                        <div class="bsc" id="bsc1"></div>
+                        <div class="bsc2" id="bsc2"></div>
+                        <div class="bhi"></div><div class="bsh"></div>
+                        <div class="chov" id="chov"></div>
+                        <div class="bmp" id="bmp1" style="width:44px;height:23px;top:17%;left:7%"></div>
+                        <div class="bmp" id="bmp2" style="width:34px;height:17px;top:31%;right:11%"></div>
+                      </div>
+                      <div class="bsd" id="bsd"></div>
+                      <div class="bbt" id="bbt"></div>
+                    </div>
+                  </div>
+                  <div class="cd-wrap" id="cdw"></div>
+                  <div class="smc" id="smc"></div>
+                  <div class="thm"><div class="thm-t"><div class="thm-f" id="tf"></div></div><div class="thm-b"></div><div class="thm-l">°F</div></div>
+                  <div class="ovl" id="ovl"></div>
+                </div>
+              </div>
+              <div class="brand"><span>Bread Forge Pro</span></div>
+              <div class="leg lg-fl"></div><div class="leg lg-fr"></div>
+            </div>
           </div>
+        </div><!-- /oven-3d-outer -->
+        </div><!-- /oven-scale-wrap -->
+      </div><!-- /ov-inner -->
+
+      <!-- DIAL PANEL -->
+      <div class="dp">
+        <div class="dg">
+          <div class="dl">Temperature</div>
+          <svg class="dial-svg" id="dtsvg" width="88" height="88" viewBox="0 0 96 96" style="touch-action:none;">
+            <defs>
+              <linearGradient id="dg1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ff4500"/><stop offset="50%" stop-color="#ff8c00"/><stop offset="100%" stop-color="#ffd700"/>
+              </linearGradient>
+              <radialGradient id="kg1" cx="38%" cy="33%">
+                <stop offset="0%" stop-color="#484848"/><stop offset="100%" stop-color="#1e1e1e"/>
+              </radialGradient>
+            </defs>
+            <g id="tt"></g>
+            <circle fill="none" stroke="#0e0e0e" stroke-width="7" cx="48" cy="48" r="36" stroke-dasharray="226.2" stroke-dashoffset="56.5" transform="rotate(135 48 48)"/>
+            <circle fill="none" stroke="url(#dg1)" stroke-width="7" stroke-linecap="round" cx="48" cy="48" r="36" id="ta" stroke-dasharray="226.2" stroke-dashoffset="226.2" transform="rotate(135 48 48)"/>
+            <circle fill="url(#kg1)" stroke="#181818" stroke-width="1.5" cx="48" cy="48" r="28"/>
+            <circle fill="#1c1c1c" stroke="#111" stroke-width="1" cx="48" cy="48" r="19"/>
+            <circle id="td" fill="#ffd700" cx="48" cy="24" r="3.5" style="filter:drop-shadow(0 0 3px rgba(255,200,0,.7))"/>
+          </svg>
+          <div class="dv" id="dtv">450°F</div>
+          <div class="ds">drag · pinch</div>
         </div>
 
-        <!-- brand plate -->
-        <div class="brand"><span>Bread Forge Pro</span></div>
+        <div class="bpw">
+          <div class="bst" id="bst">READY TO BAKE</div>
+          <div class="bpb"><div class="bpf" id="bpf"></div></div>
+          <button class="bake-c" id="bbc" onclick="startBake()">🔥 BAKE</button>
+        </div>
 
-        <!-- legs -->
-        <div class="leg lg-fl"></div>
-        <div class="leg lg-fr"></div>
+        <div class="dg">
+          <div class="dl">Duration</div>
+          <svg class="dial-svg" id="dmsvg" width="88" height="88" viewBox="0 0 96 96" style="touch-action:none;">
+            <defs>
+              <linearGradient id="dg2" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#3366ff"/><stop offset="100%" stop-color="#00ddff"/>
+              </linearGradient>
+            </defs>
+            <g id="tm"></g>
+            <circle fill="none" stroke="#0e0e0e" stroke-width="7" cx="48" cy="48" r="36" stroke-dasharray="226.2" stroke-dashoffset="56.5" transform="rotate(135 48 48)"/>
+            <circle fill="none" stroke="url(#dg2)" stroke-width="7" stroke-linecap="round" cx="48" cy="48" r="36" id="ma" stroke-dasharray="226.2" stroke-dashoffset="226.2" transform="rotate(135 48 48)"/>
+            <circle fill="url(#kg1)" stroke="#181818" stroke-width="1.5" cx="48" cy="48" r="28"/>
+            <circle fill="#1c1c1c" stroke="#111" stroke-width="1" cx="48" cy="48" r="19"/>
+            <circle id="md" fill="#00aaff" cx="48" cy="24" r="3.5" style="filter:drop-shadow(0 0 3px rgba(0,170,255,.7))"/>
+          </svg>
+          <div class="dv" id="dmv" style="color:#00aaff;text-shadow:0 0 12px rgba(0,170,255,.5)">45 min</div>
+          <div class="ds">drag · pinch</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: INGREDIENTS -->
+    <div class="tab-pane" id="tab-ings">
+      <div class="sec">Starter Culture</div>
+      <div id="starters-list"></div>
+
+      <div class="sec" style="margin-top:18px">Ingredients</div>
+
+      <div class="ir">
+        <div class="il"><span class="in">🌾 Bread Flour</span><span class="iv" id="flour-val">400 <span class="iu">g</span></span></div>
+        <input type="range" id="flour" min="100" max="800" value="400" oninput="upI('flour',this)">
+        <div class="ut"><button class="ub act" onclick="setU('flour','g',this)">g</button><button class="ub" onclick="setU('flour','cup',this)">cups</button></div>
+      </div>
+      <div class="ir">
+        <div class="il"><span class="in">💧 Water</span><span class="iv" id="water-val">300 <span class="iu">g</span></span></div>
+        <input type="range" id="water" min="50" max="700" value="300" oninput="upI('water',this)">
+        <div class="ut"><button class="ub act" onclick="setU('water','g',this)">g</button><button class="ub" onclick="setU('water','ml',this)">ml</button><button class="ub" onclick="setU('water','cup',this)">cups</button></div>
+        <div class="hm"><div class="hf" id="hf"></div></div>
+        <div class="hl"><span>Hydration</span><span id="hpct">75%</span></div>
+      </div>
+      <div class="ir">
+        <div class="il"><span class="in">🧂 Salt</span><span class="iv" id="salt-val">9 <span class="iu">g</span></span></div>
+        <input type="range" id="salt" min="0" max="30" value="9" oninput="upI('salt',this)">
+        <div class="ut"><button class="ub act" onclick="setU('salt','g',this)">g</button><button class="ub" onclick="setU('salt','tsp',this)">tsp</button></div>
+      </div>
+      <div class="ir">
+        <div class="il"><span class="in">🥄 Starter</span><span class="iv" id="starter-amt-val">100 <span class="iu">g</span></span></div>
+        <input type="range" id="starter-amt" min="10" max="300" value="100" oninput="upI('starter-amt',this)">
+        <div class="ut"><button class="ub act" onclick="setU('starter-amt','g',this)">g</button><button class="ub" onclick="setU('starter-amt','cup',this)">cups</button></div>
+      </div>
+      <div class="ir">
+        <div class="il"><span class="in">🫒 Olive Oil</span><span class="iv" id="oil-val">0 <span class="iu">g</span></span></div>
+        <input type="range" id="oil" min="0" max="80" value="0" oninput="upI('oil',this)">
+        <div class="ut"><button class="ub act" onclick="setU('oil','g',this)">g</button><button class="ub" onclick="setU('oil','tbsp',this)">tbsp</button></div>
+      </div>
+      <div class="ir">
+        <div class="il"><span class="in">🍯 Honey / Malt</span><span class="iv" id="honey-val">0 <span class="iu">g</span></span></div>
+        <input type="range" id="honey" min="0" max="60" value="0" oninput="upI('honey',this)">
+        <div class="ut"><button class="ub act" onclick="setU('honey','g',this)">g</button><button class="ub" onclick="setU('honey','tbsp',this)">tbsp</button></div>
       </div>
 
+      <div class="pred"><strong>Shape:</strong> <span id="shape-p">Classic Boule</span><br><strong>Crumb:</strong> <span id="crumb-p">Open, chewy</span></div>
+      <button class="bake-btn-big" id="bbl" onclick="goOvenAndBake()">🔥 FIRE THE OVEN</button>
+      <div style="height:20px"></div>
     </div>
+
+    <!-- TAB: RECIPES -->
+    <div class="tab-pane" id="tab-recipes">
+      <div class="sec">Recipe Presets</div>
+      <div id="recipes-list"></div>
+      <div style="height:20px"></div>
+    </div>
+
   </div>
 
-  <!-- DIAL PANEL -->
-  <div class="dp">
-    <!-- TEMP DIAL -->
-    <div class="dg">
-      <div class="dl">Temperature</div>
-      <svg class="dial-svg" id="dtsvg" width="96" height="96" viewBox="0 0 96 96" style="touch-action:none;">
-        <defs>
-          <linearGradient id="dg1" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#ff4500"/><stop offset="50%" stop-color="#ff8c00"/><stop offset="100%" stop-color="#ffd700"/>
-          </linearGradient>
-          <radialGradient id="kg1" cx="38%" cy="33%">
-            <stop offset="0%" stop-color="#484848"/><stop offset="100%" stop-color="#1e1e1e"/>
-          </radialGradient>
-        </defs>
-        <g id="tt"></g>
-        <circle fill="none" stroke="#0e0e0e" stroke-width="7" cx="48" cy="48" r="36" stroke-dasharray="226.2" stroke-dashoffset="56.5" transform="rotate(135 48 48)"/>
-        <circle fill="none" stroke="url(#dg1)" stroke-width="7" stroke-linecap="round" cx="48" cy="48" r="36" id="ta" stroke-dasharray="226.2" stroke-dashoffset="226.2" transform="rotate(135 48 48)"/>
-        <circle fill="url(#kg1)" stroke="#181818" stroke-width="1.5" cx="48" cy="48" r="28"/>
-        <circle fill="#1c1c1c" stroke="#111" stroke-width="1" cx="48" cy="48" r="19"/>
-        <circle id="td" fill="#ffd700" cx="48" cy="24" r="3.2" style="filter:drop-shadow(0 0 3px rgba(255,200,0,.7))"/>
-        <line x1="40" y1="48" x2="56" y2="48" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="44" y1="41" x2="52" y2="55" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="52" y1="41" x2="44" y2="55" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      <div class="dv" id="dtv">450°F</div>
-      <div class="ds">drag or scroll</div>
-    </div>
-
-    <!-- CENTER -->
-    <div class="bpw">
-      <div class="bst" id="bst">READY TO BAKE</div>
-      <div class="bpb"><div class="bpf" id="bpf"></div></div>
-      <button class="bake-c" id="bbc" onclick="startBake()">🔥 BAKE</button>
-    </div>
-
-    <!-- TIME DIAL -->
-    <div class="dg">
-      <div class="dl">Duration</div>
-      <svg class="dial-svg" id="dmsvg" width="96" height="96" viewBox="0 0 96 96" style="touch-action:none;">
-        <defs>
-          <linearGradient id="dg2" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#3366ff"/><stop offset="100%" stop-color="#00ddff"/>
-          </linearGradient>
-        </defs>
-        <g id="tm"></g>
-        <circle fill="none" stroke="#0e0e0e" stroke-width="7" cx="48" cy="48" r="36" stroke-dasharray="226.2" stroke-dashoffset="56.5" transform="rotate(135 48 48)"/>
-        <circle fill="none" stroke="url(#dg2)" stroke-width="7" stroke-linecap="round" cx="48" cy="48" r="36" id="ma" stroke-dasharray="226.2" stroke-dashoffset="226.2" transform="rotate(135 48 48)"/>
-        <circle fill="url(#kg1)" stroke="#181818" stroke-width="1.5" cx="48" cy="48" r="28"/>
-        <circle fill="#1c1c1c" stroke="#111" stroke-width="1" cx="48" cy="48" r="19"/>
-        <circle id="md" fill="#00aaff" cx="48" cy="24" r="3.2" style="filter:drop-shadow(0 0 3px rgba(0,170,255,.7))"/>
-        <line x1="40" y1="48" x2="56" y2="48" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="44" y1="41" x2="52" y2="55" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-linecap="round"/>
-        <line x1="52" y1="41" x2="44" y2="55" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      <div class="dv" id="dmv" style="color:#00aaff;text-shadow:0 0 12px rgba(0,170,255,.5)">45 min</div>
-      <div class="ds">drag or scroll</div>
-    </div>
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tb act" id="tb-oven" onclick="switchTab('oven')">
+      <span class="tb-ic">🔥</span><span class="tb-lb">Oven</span>
+    </button>
+    <button class="tb" id="tb-ings" onclick="switchTab('ings')">
+      <span class="tb-ic">🌾</span><span class="tb-lb">Ingredients</span>
+    </button>
+    <button class="tb" id="tb-recipes" onclick="switchTab('recipes')">
+      <span class="tb-ic">📋</span><span class="tb-lb">Recipes</span>
+    </button>
   </div>
-</div>
-
-<!-- RIGHT PANEL -->
-<div class="pr">
-  <div class="sec">Recipe Presets</div>
-  <div id="recipes-list"></div>
-</div>
-
 </div>
 
 <!-- RESULT MODAL -->
@@ -510,7 +606,6 @@ const STARTERS=[
 ];
 
 const RECIPES=[
-  // CLASSIC LOAVES
   {emoji:'🍞',name:'Classic SF Boule',        diff:'medium',desc:'The quintessential sourdough. Open crumb, blistered crust, sharp 1849 culture tang.',
    preset:{flour:450,water:338,salt:10,'starter-amt':90,oil:0,honey:0,temp:480,'bake-time':45,starter:'sf',type:'boule'}},
   {emoji:'🥖',name:'Pain de Campagne',        diff:'medium',desc:"French country loaf. Camaldoli's mild complexity, medium-open crumb, rustic blistered crust.",
@@ -519,14 +614,13 @@ const RECIPES=[
    preset:{flour:500,water:455,salt:11,'starter-amt':120,oil:32,honey:0,temp:478,'bake-time':34,starter:'ischia',type:'ciabatta'}},
   {emoji:'🫓',name:'Roman Focaccia',          diff:'easy',  desc:'Napoli culture. Dimpled, oil-pooled. Throw on rosemary and coarse salt. Crispy base, cloud interior.',
    preset:{flour:500,water:430,salt:12,'starter-amt':140,oil:65,honey:0,temp:432,'bake-time':28,starter:'napoli',type:'focaccia'}},
-  {emoji:'🥖',name:'Hoagie Rolls',            diff:'easy',  desc:'Soft, chewy sourdough sub rolls. Honey gives subtle sweetness. Perfect for cold cuts and Italian beef.',
+  {emoji:'🥖',name:'Hoagie Rolls',            diff:'easy',  desc:'Soft, chewy sourdough sub rolls. Honey gives subtle sweetness. Perfect for cold cuts.',
    preset:{flour:400,water:240,salt:9,'starter-amt':80,oil:25,honey:18,temp:400,'bake-time':25,starter:'oregon',type:'hoagie'}},
   {emoji:'🥖',name:'Sourdough Baguette',      diff:'hard',  desc:'Long ferment, slashed deeply. Shattering crust, wildly open irregular crumb. Camaldoli culture.',
    preset:{flour:500,water:360,salt:11,'starter-amt':60,oil:0,honey:0,temp:488,'bake-time':28,starter:'camaldo',type:'baguette'}},
   {emoji:'🥯',name:'NY Sourdough Bagels',     diff:'hard',  desc:'Low hydration. Boiled in barley malt water, baked fierce. SF tang makes these extraordinary.',
    preset:{flour:500,water:268,salt:11,'starter-amt':100,oil:0,honey:22,temp:500,'bake-time':26,starter:'sf',type:'bagel'}},
-  // PIZZA
-  {emoji:'🍕',name:'New York Slice',          diff:'medium',desc:'Cold-fermented 72hrs. High-protein flour. Thin, crispy edge, foldable center. Hold it right.',
+  {emoji:'🍕',name:'New York Slice',          diff:'medium',desc:'Cold-fermented 72hrs. High-protein flour. Thin, crispy edge, foldable center.',
    preset:{flour:500,water:325,salt:12,'starter-amt':40,oil:20,honey:8,temp:550,'bake-time':14,starter:'sf',type:'nypizza'}},
   {emoji:'🍕',name:'Neapolitan Pizza',        diff:'hard',  desc:"00 flour, 65% hydration. Napoli culture. Leopard-spotted blistered crust. 90-second bake energy.",
    preset:{flour:500,water:325,salt:11,'starter-amt':30,oil:0,honey:0,temp:550,'bake-time':10,starter:'napoli',type:'neopizza'}},
@@ -534,7 +628,6 @@ const RECIPES=[
    preset:{flour:500,water:375,salt:11,'starter-amt':100,oil:45,honey:5,temp:478,'bake-time':22,starter:'oregon',type:'detroit'}},
   {emoji:'🍕',name:'Roman Pizza al Taglio',   diff:'medium',desc:'By-the-slice Roman style. High hydration, olive oil, crispy base. Semolina Lievito Madre.',
    preset:{flour:500,water:412,salt:11,'starter-amt':80,oil:40,honey:0,temp:462,'bake-time':25,starter:'semolina',type:'taglio'}},
-  // SPECIALTY
   {emoji:'🧆',name:'Grissini',               diff:'easy',  desc:'Italian thin crispy breadsticks. Semolina Lievito Madre. Crackling, light, utterly addictive.',
    preset:{flour:400,water:220,salt:9,'starter-amt':60,oil:30,honey:0,temp:425,'bake-time':18,starter:'semolina',type:'grissini'}},
   {emoji:'🫓',name:'Focaccia Pull-Apart Rolls',diff:'easy', desc:'Individual dimpled buns. Oiled, golden. Ischia culture adds fruity tang. Disappear immediately.',
@@ -551,6 +644,51 @@ let S={
   baking:false,
 };
 let smIv=null,emIv=null;
+let activeTab='oven';
+
+// =======================================
+// TABS
+// =======================================
+function switchTab(name){
+  if(activeTab===name)return;
+  activeTab=name;
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('act'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.getElementById('tb-'+name).classList.add('act');
+  sndClick(660,0.06,0.1);
+}
+
+function goOvenAndBake(){
+  switchTab('oven');
+  setTimeout(startBake,300);
+}
+
+// =======================================
+// SCALE OVEN TO VIEWPORT
+// =======================================
+function scaleOven(){
+  const inner=document.getElementById('ov-inner');
+  const ov3do=document.getElementById('ov3do');
+  const wrap=document.getElementById('ovScaleWrap');
+  if(!inner||!ov3do||!wrap)return;
+
+  const OW=580,OH=460; // native oven pixel dimensions
+  const avW=inner.clientWidth;
+  const avH=inner.clientHeight;
+
+  // Fit to available space, never exceed native size
+  const scale=Math.min(1,avW/OW,avH/OH)*0.96;
+  const scaledH=Math.round(OH*scale);
+
+  // Wrapper takes up exactly the scaled height in layout flow
+  wrap.style.height=scaledH+'px';
+
+  // Oven sits absolute inside wrapper; left:50% + translateX(-50%) centers it
+  // scale from top-center so height matches wrapper
+  ov3do.style.transform=`translateX(-50%) scale(${scale})`;
+  ov3do.style.transformOrigin='top center';
+}
 
 // =======================================
 // INIT
@@ -559,6 +697,14 @@ function init(){
   renderStarters();renderRecipes();
   buildRack();buildHL();buildCond();buildDialTicks();
   initDials();updateAll();
+  // Double-RAF ensures layout is settled before measuring (critical on iOS Safari)
+  requestAnimationFrame(()=>requestAnimationFrame(scaleOven));
+  window.addEventListener('resize',scaleOven);
+  window.addEventListener('orientationchange',()=>setTimeout(scaleOven,300));
+  document.querySelectorAll('input[type=range]').forEach(el=>{
+    el.addEventListener('touchstart',()=>getAC(),{passive:true});
+    el.addEventListener('input',()=>sndSlider());
+  });
 }
 
 function renderStarters(){
@@ -569,20 +715,18 @@ function renderStarters(){
 function renderRecipes(){
   document.getElementById('recipes-list').innerHTML=
     RECIPES.map((r,i)=>`<div class="rc" onclick="applyP(${i})">
-      <span class="re">${r.emoji}</span><div class="rn">${r.name}</div>
-      <div class="rd">${r.desc}</div><span class="diff ${r.diff}">${r.diff}</span></div>`).join('');
+      <span class="re">${r.emoji}</span>
+      <div class="rc-body"><div class="rn">${r.name}</div><div class="rd">${r.desc}</div><span class="diff ${r.diff}">${r.diff}</span></div>
+      </div>`).join('');
 }
 
 function buildRack(){
   const w=document.getElementById('rack-outer');
-  for(let i=0;i<16;i++){
-    const b=document.createElement('div');b.className='rack-v';
-    b.style.left=(3+i*(94/15))+'%';w.appendChild(b);
-  }
+  for(let i=0;i<16;i++){const b=document.createElement('div');b.className='rack-v';b.style.left=(3+i*(94/15))+'%';w.appendChild(b);}
 }
 function buildHL(){
   const c=document.getElementById('hll');
-  for(let i=0;i<16;i++){
+  for(let i=0;i<12;i++){
     const l=document.createElement('div');l.className='hl-l';
     l.style.left=(2+Math.random()*96)+'%';l.style.width=(1+Math.random()*2)+'px';
     l.style.height=(45+Math.random()*120)+'px';
@@ -603,7 +747,7 @@ function buildCond(){
 // =======================================
 // DIALS
 // =======================================
-const CIRC=2*Math.PI*36; // 226.2
+const CIRC=2*Math.PI*36;
 const D_MIN=135,D_SWP=270;
 
 function buildDialTicks(){
@@ -625,29 +769,25 @@ function buildTicks(gid,vmin,vmax,step,majs){
     g.appendChild(l);
   }
 }
-
 function dv2arc(v,vmin,vmax){
   const t=Math.max(0,Math.min(1,(v-vmin)/(vmax-vmin)));
   return CIRC-(t*CIRC*D_SWP/360);
 }
 function updDial(which,v){
   if(which==='temp'){
-    const off=dv2arc(v,300,550);
-    document.getElementById('ta').setAttribute('stroke-dashoffset',off);
+    document.getElementById('ta').setAttribute('stroke-dashoffset',dv2arc(v,300,550));
     const ang=(D_MIN+(v-300)/250*D_SWP)*Math.PI/180;
     document.getElementById('td').setAttribute('cx',48+23*Math.cos(ang));
     document.getElementById('td').setAttribute('cy',48+23*Math.sin(ang));
     document.getElementById('dtv').textContent=v+'°F';
   } else {
-    const off=dv2arc(v,8,90);
-    document.getElementById('ma').setAttribute('stroke-dashoffset',off);
+    document.getElementById('ma').setAttribute('stroke-dashoffset',dv2arc(v,8,90));
     const ang=(D_MIN+(v-8)/82*D_SWP)*Math.PI/180;
     document.getElementById('md').setAttribute('cx',48+23*Math.cos(ang));
     document.getElementById('md').setAttribute('cy',48+23*Math.sin(ang));
     document.getElementById('dmv').textContent=v+' min';
   }
 }
-
 function initDials(){
   makeDial('dtsvg','temp',300,550,5);
   makeDial('dmsvg','time',8,90,1);
@@ -660,31 +800,40 @@ function makeDial(svgId,which,vmin,vmax,step){
   function clamp(v){return Math.max(vmin,Math.min(vmax,Math.round(v/step)*step));}
   function cur(){return which==='temp'?S.temp:S['bake-time'];}
   function set(v){
-    const c=clamp(v);
+    const prev=cur(),c=clamp(v);
     if(which==='temp'){S.temp=c;}else{S['bake-time']=c;}
     S.recipeType=null;
+    if(c!==prev)maybeSndDialTick();
     updDial(which,c);updatePreds();
   }
-  svg.addEventListener('mousedown',e=>{drag=true;sx=e.clientX;sy=e.clientY;sv=cur();e.preventDefault();});
-  window.addEventListener('mousemove',e=>{
-    if(!drag)return;
-    const range=vmax-vmin;
-    const delta=(e.clientX-sx)-(e.clientY-sy);
-    set(sv+delta/160*range);
-  });
+  // Mouse
+  svg.addEventListener('mousedown',e=>{drag=true;sx=e.clientX;sy=e.clientY;sv=cur();e.preventDefault();getAC();});
+  window.addEventListener('mousemove',e=>{if(!drag)return;set(sv+((e.clientX-sx)-(e.clientY-sy))/150*(vmax-vmin));});
   window.addEventListener('mouseup',()=>{drag=false;});
-  svg.addEventListener('touchstart',e=>{drag=true;sx=e.touches[0].clientX;sy=e.touches[0].clientY;sv=cur();e.preventDefault();},{passive:false});
+  // Touch — use angle from center for natural knob feel
+  svg.addEventListener('touchstart',e=>{
+    drag=true;sv=cur();
+    const r=svg.getBoundingClientRect();
+    const cx=r.left+r.width/2,cy=r.top+r.height/2;
+    sx=Math.atan2(e.touches[0].clientY-cy,e.touches[0].clientX-cx);
+    e.preventDefault();getAC();
+  },{passive:false});
   window.addEventListener('touchmove',e=>{
     if(!drag)return;
-    const range=vmax-vmin;
-    const delta=(e.touches[0].clientX-sx)-(e.touches[0].clientY-sy);
-    set(sv+delta/160*range);
+    const r=svg.getBoundingClientRect();
+    const cx=r.left+r.width/2,cy=r.top+r.height/2;
+    let ang=Math.atan2(e.touches[0].clientY-cy,e.touches[0].clientX-cx);
+    let delta=ang-sx;
+    // wrap delta
+    if(delta>Math.PI)delta-=2*Math.PI;
+    if(delta<-Math.PI)delta+=2*Math.PI;
+    set(sv+delta/(Math.PI)*(vmax-vmin)*0.55);
   });
   window.addEventListener('touchend',()=>{drag=false;});
+  // Wheel
   svg.addEventListener('wheel',e=>{
     e.preventDefault();
-    const s=which==='temp'?5:1;
-    set(cur()+(e.deltaY<0?s:-s));
+    set(cur()+(e.deltaY<0?step:-step));
   },{passive:false});
 }
 function setDialDirect(which,v){
@@ -730,12 +879,14 @@ function updateAll(){
   updateHyd();updatePreds();
 }
 function pickStar(id){
+  sndClick(660,0.08,0.12);
   S.selectedStarter=id;
   document.querySelectorAll('.sc').forEach(c=>c.classList.remove('sel'));
   document.getElementById('sc-'+id).classList.add('sel');
   updatePreds();
 }
 function applyP(idx){
+  sndClick(880,0.07,0.14);
   const p=RECIPES[idx].preset;
   S.recipeType=null;
   Object.keys(p).forEach(k=>{
@@ -748,6 +899,8 @@ function applyP(idx){
   setDialDirect('temp',p.temp);
   setDialDirect('time',p['bake-time']);
   updateAll();
+  // Switch to oven tab after brief delay so user sees preset applied
+  setTimeout(()=>switchTab('oven'),400);
 }
 
 // =======================================
@@ -781,9 +934,11 @@ function updatePreds(){
 // BAKE
 // =======================================
 function startBake(){
-  if(S.baking)return;S.baking=true;
+  if(S.baking)return;
+  sndFireBtn();
+  S.baking=true;
   const btns=[document.getElementById('bbl'),document.getElementById('bbc')];
-  btns.forEach(b=>{b.classList.add('baking');b.textContent=b.id==='bbc'?'⏳ BAKING...':'⏳ BAKING...';});
+  btns.forEach(b=>{if(b){b.classList.add('baking');b.textContent=b.id==='bbc'?'⏳ BAKING...':'⏳ BAKING...';}});
 
   const ow=document.getElementById('ow'),het=document.getElementById('het'),heb=document.getElementById('heb');
   const fgl=document.getElementById('fgl'),rg=document.getElementById('rg'),ovl=document.getElementById('ovl');
@@ -791,7 +946,11 @@ function startBake(){
   const tf=document.getElementById('tf');
 
   bst.textContent='PREHEATING...';ltd.style.opacity='1';ovl.classList.add('on');
-  setTimeout(()=>{ow.classList.add('hot');het.classList.add('glow');heb.classList.add('glow');fgl.classList.add('on');rg.classList.add('on');},380);
+
+  setTimeout(()=>{
+    ow.classList.add('hot');het.classList.add('glow');heb.classList.add('glow');fgl.classList.add('on');rg.classList.add('on');
+    sndElementOn();setTimeout(()=>startHum(S.temp),300);
+  },380);
 
   let curT=72;const tgt=S.temp,ph=Date.now();
   (function at(){
@@ -802,7 +961,7 @@ function startBake(){
   })();
 
   setTimeout(()=>{
-    bst.textContent='LOADING DOUGH...';
+    bst.textContent='LOADING DOUGH...';sndDoorClunk();
     const b3=document.getElementById('b3');b3.style.opacity='0';b3.style.height='0';
     const bb=document.getElementById('bbd');bb.style.background='#d4b070';bb.style.filter='none';
     setTimeout(()=>{
@@ -817,11 +976,13 @@ function startBake(){
     bst.textContent='BAKING...';
     startSmoke();startEmbers();startMaillard();
     animProg(bakeDur);animBread(bakeDur);
+    startSizzle();
+    [1000,2800,4500,6200,8000].forEach(t=>setTimeout(sndSteam,t));
     setTimeout(()=>document.getElementById('cdw').classList.add('vis'),2200);
   },4400);
 
   setTimeout(()=>{
-    bst.textContent='OVEN SPRING! 🌡️';
+    bst.textContent='OVEN SPRING! 🌡️';sndSpring();
     document.getElementById('b3').style.height=getBH();
     document.getElementById('bsc1').style.opacity='1';
     document.getElementById('bsc2').style.opacity='.62';
@@ -836,12 +997,10 @@ function getBH(){
   const h=S.water/S.flour;
   if(h>0.86)return'50px';if(h>0.75)return'64px';if(h<0.55)return'36px';return'58px';
 }
-
 function animProg(dur){
   const s=Date.now(),bar=document.getElementById('bpf');
   (function t(){const p=Math.min(100,(Date.now()-s)/dur*100);bar.style.width=p+'%';if(p<100)requestAnimationFrame(t);})();
 }
-
 function animBread(dur){
   const s=Date.now(),bb=document.getElementById('bbd'),bsd=document.getElementById('bsd'),bbt=document.getElementById('bbt'),chov=document.getElementById('chov');
   const burnt=S.temp>535&&S['bake-time']>45,dark=S.temp>478||S['bake-time']>52;
@@ -858,14 +1017,12 @@ function animBread(dur){
     if(p<1)requestAnimationFrame(t);
   })();
 }
-
 function lerp(a,b,t){
   const ah=parseInt(a.slice(1),16),bh=parseInt(b.slice(1),16);
   const ar=(ah>>16)&255,ag=(ah>>8)&255,ab=ah&255;
   const br=(bh>>16)&255,bg=(bh>>8)&255,bb=bh&255;
   return`rgb(${Math.round(ar+(br-ar)*t)},${Math.round(ag+(bg-ag)*t)},${Math.round(ab+(bb-ab)*t)})`;
 }
-
 function startSmoke(){
   const c=document.getElementById('smc');
   smIv=setInterval(()=>{
@@ -900,9 +1057,9 @@ function startMaillard(){
   },640);
   setTimeout(()=>clearInterval(bi),12500);
 }
-
 function finishBake(){
   clearInterval(smIv);clearInterval(emIv);
+  stopSizzle();stopHum();sndDone();
   const bst=document.getElementById('bst');bst.textContent='BREAD IS DONE! 🎉';
   setTimeout(()=>{
     document.getElementById('ow').classList.remove('hot');
@@ -914,503 +1071,20 @@ function finishBake(){
     setTimeout(()=>{
       showResult();S.baking=false;
       const btns=[document.getElementById('bbl'),document.getElementById('bbc')];
-      btns.forEach(b=>{b.classList.remove('baking');b.textContent=b.id==='bbc'?'🔥 BAKE':'🔥 FIRE THE OVEN';});
+      btns.forEach(b=>{if(b){b.classList.remove('baking');b.textContent=b.id==='bbc'?'🔥 BAKE':'🔥 FIRE THE OVEN';}});
       bst.textContent='READY TO BAKE';
       document.getElementById('ltd').style.opacity='0';
       document.getElementById('ovl').classList.remove('on');
     },2200);
   },1300);
 }
-
 function showResult(){
   const star=STARTERS.find(s=>s.id===S.selectedStarter);
   const h=Math.round(S.water/S.flour*100),total=Math.round(S.flour+S.water+S.salt+S['starter-amt']+S.oil+S.honey);
   const burnt=S.temp>535&&S['bake-time']>45,raw=S.temp<320||S['bake-time']<8;
   let r;
-  if(burnt)r={name:'Charcoal Brick',emoji:'🪨',color:'#1a0a02',desc:'Completely carbonized. The Maillard reaction clocked out hours ago. Your smoke detector has submitted a formal complaint. Try cooler and shorter next time.'};
-  else if(raw)r={name:'Raw Dough Blob',emoji:'💧',color:'#d4b070',desc:'Still gummy inside. The crumb has the structural integrity of wet cement. You can use it as a doorstop — a warm, yeasty one. Hotter. Longer. Both.'};
-  else r=detBread();
-  document.getElementById('rviz').innerHTML=`
-    <div style="width:180px;height:95px;position:relative;">
-      <div style="width:166px;height:${h>75?84:63}px;background:${r.color||'#8b4513'};
-        border-radius:${h>84?'44%':'50%'} ${h>84?'44%':'50%'} 30% 30%/62% 62% 38% 38%;
-        position:absolute;bottom:0;left:7px;
-        box-shadow:inset 0 -11px 22px rgba(0,0,0,.42),0 11px 22px rgba(0,0,0,.56);overflow:hidden;">
-        <div style="position:absolute;top:13%;left:9%;right:9%;height:4px;background:rgba(0,0,0,.23);border-radius:2px;transform:rotate(-13deg)"></div>
-        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(255,230,150,.26),transparent 58%)"></div>
-      </div>
-      <div style="font-size:1.9rem;position:absolute;top:-8px;right:0">${r.emoji}</div>
-    </div>`;
-  document.getElementById('rtit').textContent=r.name;
-  document.getElementById('rsub').textContent=`${star.name} · ${h}% Hydration`;
-  document.getElementById('rdsc').textContent=r.desc;
-  document.getElementById('rst').innerHTML=`
-    <div class="sb"><div class="sv">${h}%</div><div class="sl">HYDRATION</div></div>
-    <div class="sb"><div class="sv">${total}g</div><div class="sl">TOTAL DOUGH</div></div>
-    <div class="sb"><div class="sv">${S.temp}°F</div><div class="sl">BAKE TEMP</div></div>`;
-  document.getElementById('ro').classList.add('show');
-}
-
-function detBread(){
-  const h=S.water/S.flour,hasOil=S.oil>15,hasHoney=S.honey>8;
-  const hiT=S.temp>490,shortT=S['bake-time']<=15;
-  const star=STARTERS.find(s=>s.id===S.selectedStarter);
-  const isIt=['ischia','napoli','semolina','camaldo'].includes(S.selectedStarter);
-  const c=star.name;
-  const TM={
-    boule:{name:'Artisan Sourdough Boule',emoji:'🍞',color:'#9a5a18',
-      desc:`A masterwork. The ear opened dramatically. Open glossy crumb, complex tang from the ${c} culture. Tap the bottom — that hollow knock means everything went right.`},
-    campagne:{name:'Pain de Campagne',emoji:'🥖',color:'#a06820',
-      desc:`A beautiful French country loaf. ${c} lends mild complexity. Medium-open crumb, blistered thin crust. Slather with good butter.`},
-    ciabatta:{name:'Sourdough Ciabatta',emoji:'🫓',color:'#b8782a',
-      desc:`Impossibly open crumb with massive irregular holes — proper ciabatta. The high hydration and ${c} culture delivered. The crust crackles like glass.`},
-    focaccia:{name:'Sourdough Focaccia',emoji:'🫓',color:'#c8903a',
-      desc:`Golden, dimpled, olive-oil-soaked perfection. ${isIt?`The ${c} culture`:'This culture'} gave a beautiful mild tang cutting through the richness. Crispy base, cloud interior.`},
-    hoagie:{name:'Sourdough Hoagie Rolls',emoji:'🥖',color:'#d4a040',
-      desc:`Soft, pillowy rolls with a golden crust and gentle tang. The oil and honey created a tender, slightly sweet crumb. Load them up with Italian beef or cold cuts.`},
-    baguette:{name:'Sourdough Baguette',emoji:'🥖',color:'#b87030',
-      desc:`Shattering thin crust, wildly open irregular crumb. The scores bloomed exactly right. The ${c} culture gives it character. Tear off a piece immediately.`},
-    bagel:{name:'NY Sourdough Bagels',emoji:'🥯',color:'#a06028',
-      desc:`Chewy, dense, beautifully tanned. The SF culture's sharpness elevates these above any commercial bagel you've had. Always boil in barley malt water first.`},
-    nypizza:{name:'New York Pizza Dough',emoji:'🍕',color:'#8a3a14',
-      desc:`Classic NY slice — thin, foldable, crispy edge with complex sourdough tang underneath. The ${c} culture's sharpness is perfect here. Don't cut it with scissors.`},
-    neopizza:{name:'Neapolitan Pizza',emoji:'🍕',color:'#7a3010',
-      desc:`Leopard-spotted, blistered, charred in all the right places. The ${c} culture gives it authenticity money can't buy. Finish in 90 seconds. Use a real tomato.`},
-    detroit:{name:'Detroit Pan Pizza',emoji:'🍕',color:'#9a4820',
-      desc:`Square, caramelized edges, crispy-fried bottom, focaccia-soft interior. This is the pizza other pizzas are jealous of. Put the cheese all the way to the edges.`},
-    taglio:{name:'Roman Pizza al Taglio',emoji:'🍕',color:'#8a4218',
-      desc:`Roman by-the-slice pizza. Crispy bottom, airy mid, complex tang from the Semolina Lievito Madre. Cut with scissors. Sell by weight. Eat immediately.`},
-    grissini:{name:'Grissini',emoji:'🧆',color:'#c89040',
-      desc:`Impossibly thin and crackling crispy Italian breadsticks. The Semolina Lievito Madre gives them authentic character. You cannot eat just one.`},
-  };
-  if(S.recipeType&&TM[S.recipeType])return TM[S.recipeType];
-
-  // Fallback ratio logic
-  if(hiT&&shortT&&hasOil)return{name:'Sourdough Pizza Crust',emoji:'🍕',color:'#8a3a14',desc:'Blistered, charred, blistered spots. High heat + short time = maximum crust flavor. The tang underneath is magnificent.'};
-  if(hiT&&shortT)return{name:'Crispy Flatbread',emoji:'🫓',color:'#9a4820',desc:'Thin, crackling, intense. The high heat caramelized the crust before the inside could overthink things.'};
-  if(hasOil&&h>=0.85)return{name:'Sourdough Focaccia',emoji:'🫓',color:'#c8903a',desc:'Golden and dimpled. Olive oil pooled in every pocket. Crispy outside, cloud-soft inside.'};
-  if(h>=0.87)return{name:'Wild Ciabatta',emoji:'🫓',color:'#b07828',desc:'Huge irregular holes. The crust crackles like parchment when you break it. This is what courage looks like in bread form.'};
-  if(hasOil&&hasHoney&&h<=0.65)return{name:'Sourdough Hoagie Rolls',emoji:'🥖',color:'#d4a040',desc:'Soft, pillowy, slightly sweet. Honey and oil = tender crumb that holds up to the fillings.'};
-  if(h<0.55)return{name:'Sourdough Bagels',emoji:'🥯',color:'#a06028',desc:'Dense, chewy, beautifully tanned. Low hydration = real chew. Next time boil in barley malt water first.'};
-  if(h>=0.75)return{name:'Artisan Sourdough Boule',emoji:'🍞',color:'#9a5a18',desc:'A proper artisan loaf. Open crumb, blistered crust. The hollow knock at the bottom means everything went right.'};
-  if(h>=0.65)return{name:'Sourdough Batard',emoji:'🥖',color:'#a86020',desc:'Elegant oblong loaf. Medium-open crumb, thin blistered crust. A beautiful everyday bread.'};
-  return{name:'Rustic Country Loaf',emoji:'🍞',color:'#9a5018',desc:'Honest bread with genuine tang. Good crust, satisfying crumb. This is the kind of loaf that disappears within the hour.'};
-}
-
-function closeResult(){
-  document.getElementById('ro').classList.remove('show');
-  const b3=document.getElementById('b3');b3.style.height='0';b3.style.opacity='0';
-  ['bsc1','bsc2','bmp1','bmp2','chov','bsd','bbt'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.opacity='0';});
-  document.getElementById('bpf').style.width='0';
-  document.getElementById('smc').innerHTML='';
-  document.getElementById('tf').style.height='16%';
-  document.getElementById('ltv').textContent='72°F';
-}
-
-function eio(t){return t<.5?2*t*t:-1+(4-2*t)*t;}
-
-// =======================================
-// AUDIO ENGINE — pure Web Audio API
-// =======================================
-let AC=null, masterGain=null, sizzleNode=null, humNode=null, audioReady=false;
-
-function getAC(){
-  if(!AC){
-    AC=new(window.AudioContext||window.webkitAudioContext)();
-    masterGain=AC.createGain();masterGain.gain.value=0.72;masterGain.connect(AC.destination);
-  }
-  if(AC.state==='suspended')AC.resume();
-  audioReady=true;
-  return AC;
-}
-
-/* ---- noise buffer ---- */
-function makeNoise(dur=1){
-  const ac=getAC(),frames=ac.sampleRate*dur,buf=ac.createBuffer(1,frames,ac.sampleRate),d=buf.getChannelData(0);
-  for(let i=0;i<frames;i++)d[i]=Math.random()*2-1;
-  return buf;
-}
-
-/* ---- UI click / tick ---- */
-function sndClick(pitch=880,dur=0.06,vol=0.18){
-  try{
-    const ac=getAC(),o=ac.createOscillator(),g=ac.createGain();
-    o.type='sine';o.frequency.value=pitch;
-    g.gain.setValueAtTime(vol,ac.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+dur);
-    o.connect(g);g.connect(masterGain);
-    o.start();o.stop(ac.currentTime+dur+0.01);
-  }catch(e){}
-}
-
-/* ---- dial tick (subtle) ---- */
-function sndDialTick(){
-  try{
-    const ac=getAC(),o=ac.createOscillator(),g=ac.createGain();
-    o.type='triangle';o.frequency.value=1200+Math.random()*400;
-    g.gain.setValueAtTime(0.08,ac.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.04);
-    o.connect(g);g.connect(masterGain);o.start();o.stop(ac.currentTime+0.05);
-  }catch(e){}
-}
-let lastDialTick=0;
-function maybeSndDialTick(){
-  const now=Date.now();if(now-lastDialTick<80)return;lastDialTick=now;sndDialTick();
-}
-
-/* ---- slider whoosh ---- */
-let lastSliderSnd=0;
-function sndSlider(){
-  const now=Date.now();if(now-lastSliderSnd<120)return;lastSliderSnd=now;
-  try{
-    const ac=getAC(),nb=makeNoise(0.08),src=ac.createBufferSource();
-    const g=ac.createGain(),f=ac.createBiquadFilter();
-    src.buffer=nb;f.type='bandpass';f.frequency.value=800+Math.random()*400;f.Q.value=3;
-    g.gain.setValueAtTime(0.06,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.08);
-    src.connect(f);f.connect(g);g.connect(masterGain);src.start();src.stop(ac.currentTime+0.09);
-  }catch(e){}
-}
-
-/* ---- button FIRE click ---- */
-function sndFireBtn(){
-  try{
-    const ac=getAC();
-    // thump
-    const o=ac.createOscillator(),g=ac.createGain();
-    o.type='sine';o.frequency.setValueAtTime(180,ac.currentTime);
-    o.frequency.exponentialRampToValueAtTime(40,ac.currentTime+0.25);
-    g.gain.setValueAtTime(0.5,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.3);
-    o.connect(g);g.connect(masterGain);o.start();o.stop(ac.currentTime+0.32);
-    // click
-    const nb=makeNoise(0.06),src=ac.createBufferSource(),gn=ac.createGain(),f=ac.createBiquadFilter();
-    src.buffer=nb;f.type='highpass';f.frequency.value=2000;
-    gn.gain.setValueAtTime(0.2,ac.currentTime);gn.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.06);
-    src.connect(f);f.connect(gn);gn.connect(masterGain);src.start();src.stop(ac.currentTime+0.07);
-  }catch(e){}
-}
-
-/* ---- oven door clunk ---- */
-function sndDoorClunk(){
-  try{
-    const ac=getAC();
-    const nb=makeNoise(0.3),src=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();
-    src.buffer=nb;f.type='lowpass';f.frequency.value=300;
-    g.gain.setValueAtTime(0.0,ac.currentTime);
-    g.gain.linearRampToValueAtTime(0.55,ac.currentTime+0.01);
-    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.28);
-    src.connect(f);f.connect(g);g.connect(masterGain);src.start();src.stop(ac.currentTime+0.3);
-    // metal ring
-    const o=ac.createOscillator(),og=ac.createGain();
-    o.type='sine';o.frequency.value=320;
-    og.gain.setValueAtTime(0.12,ac.currentTime+0.01);og.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.35);
-    o.connect(og);og.connect(masterGain);o.start(ac.currentTime+0.01);o.stop(ac.currentTime+0.36);
-  }catch(e){}
-}
-
-/* ---- element heating crackle (one-shot bursts) ---- */
-function sndElementOn(){
-  try{
-    const ac=getAC();
-    for(let i=0;i<6;i++){
-      setTimeout(()=>{
-        try{
-          const nb=makeNoise(0.06),src=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();
-          src.buffer=nb;f.type='bandpass';f.frequency.value=600+Math.random()*1200;f.Q.value=1.5;
-          g.gain.setValueAtTime(0.0,ac.currentTime);
-          g.gain.linearRampToValueAtTime(0.15+Math.random()*0.1,ac.currentTime+0.01);
-          g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.06);
-          src.connect(f);f.connect(g);g.connect(masterGain);src.start();src.stop(ac.currentTime+0.07);
-        }catch(e){}
-      },i*120+Math.random()*80);
-    }
-  }catch(e){}
-}
-
-/* ---- preheat hum (low continuous rumble) ---- */
-function startHum(targetTemp){
-  try{
-    stopHum();
-    const ac=getAC();
-    // layered oscillators for oven hum
-    humNode=ac.createGain();
-    humNode.gain.value=0;
-    const freqs=[60,120,180,240];
-    freqs.forEach((f,i)=>{
-      const o=ac.createOscillator(),g=ac.createGain();
-      o.type=i===0?'sawtooth':'sine';
-      o.frequency.value=f+Math.random()*4;
-      g.gain.value=i===0?0.18:0.06/(i+1);
-      o.connect(g);g.connect(humNode);o.start();
-    });
-    // add slight noise underneath
-    const nb=makeNoise(2),src=ac.createBufferSource(),ng=ac.createGain(),nf=ac.createBiquadFilter();
-    src.buffer=nb;src.loop=true;nf.type='lowpass';nf.frequency.value=200;
-    ng.gain.value=0.04;
-    src.connect(nf);nf.connect(ng);ng.connect(humNode);src.start();
-    humNode.connect(masterGain);
-    // intensity scales with temp
-    const intensity=Math.min(0.35,0.1+(targetTemp-300)/500*0.25);
-    humNode.gain.linearRampToValueAtTime(intensity,ac.currentTime+2.5);
-  }catch(e){}
-}
-function stopHum(){
-  try{if(humNode){humNode.gain.linearRampToValueAtTime(0,(AC||{currentTime:0}).currentTime+1.5);setTimeout(()=>{try{humNode.disconnect();}catch(e){}humNode=null;},2000);}}catch(e){}
-}
-
-/* ---- sizzle / bake loop ---- */
-function startSizzle(){
-  try{
-    stopSizzle();
-    const ac=getAC();
-    sizzleNode=ac.createGain();sizzleNode.gain.value=0;
-    // pink-ish noise through a bandpass — sounds like sizzling fat
-    const nb=makeNoise(3),src=ac.createBufferSource();
-    src.buffer=nb;src.loop=true;
-    const f1=ac.createBiquadFilter(),f2=ac.createBiquadFilter();
-    f1.type='bandpass';f1.frequency.value=1800;f1.Q.value=0.5;
-    f2.type='highpass';f2.frequency.value=1200;
-    src.connect(f1);f1.connect(f2);f2.connect(sizzleNode);sizzleNode.connect(masterGain);
-    src.start();
-    // random amplitude wobble = crackling
-    (function wobble(){
-      if(!sizzleNode)return;
-      try{
-        const cur=sizzleNode.gain.value;
-        const target=0.08+Math.random()*0.14;
-        sizzleNode.gain.linearRampToValueAtTime(target,ac.currentTime+0.1+Math.random()*0.2);
-      }catch(e){}
-      setTimeout(wobble,80+Math.random()*120);
-    })();
-  }catch(e){}
-}
-function stopSizzle(){
-  try{
-    if(sizzleNode){
-      sizzleNode.gain.linearRampToValueAtTime(0,(AC||{currentTime:0}).currentTime+1.2);
-      setTimeout(()=>{try{sizzleNode.disconnect();}catch(e){}sizzleNode=null;},2000);
-    }
-  }catch(e){}
-}
-
-/* ---- oven spring POP ---- */
-function sndSpring(){
-  try{
-    const ac=getAC();
-    // upward sweep + pop
-    const o=ac.createOscillator(),g=ac.createGain();
-    o.type='sine';
-    o.frequency.setValueAtTime(200,ac.currentTime);
-    o.frequency.exponentialRampToValueAtTime(600,ac.currentTime+0.15);
-    o.frequency.exponentialRampToValueAtTime(300,ac.currentTime+0.35);
-    g.gain.setValueAtTime(0.3,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.5);
-    o.connect(g);g.connect(masterGain);o.start();o.stop(ac.currentTime+0.52);
-    // crack noise burst
-    const nb=makeNoise(0.12),src=ac.createBufferSource(),gn=ac.createGain(),f=ac.createBiquadFilter();
-    src.buffer=nb;f.type='bandpass';f.frequency.value=2500;f.Q.value=2;
-    gn.gain.setValueAtTime(0.25,ac.currentTime+0.1);gn.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.22);
-    src.connect(f);f.connect(gn);gn.connect(masterGain);src.start(ac.currentTime+0.1);src.stop(ac.currentTime+0.23);
-  }catch(e){}
-}
-
-/* ---- oven ding when done ---- */
-function sndDone(){
-  try{
-    const ac=getAC();
-    const notes=[523,659,784,1046]; // C5 E5 G5 C6 — arpeggio
-    notes.forEach((freq,i)=>{
-      setTimeout(()=>{
-        try{
-          const o=ac.createOscillator(),g=ac.createGain();
-          o.type='sine';o.frequency.value=freq;
-          g.gain.setValueAtTime(0.0,ac.currentTime);
-          g.gain.linearRampToValueAtTime(0.28,ac.currentTime+0.01);
-          g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+1.2);
-          o.connect(g);g.connect(masterGain);o.start();o.stop(ac.currentTime+1.3);
-          // 2nd harmonic shimmer
-          const o2=ac.createOscillator(),g2=ac.createGain();
-          o2.type='sine';o2.frequency.value=freq*2;
-          g2.gain.setValueAtTime(0.06,ac.currentTime);g2.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.8);
-          o2.connect(g2);g2.connect(masterGain);o2.start();o2.stop(ac.currentTime+0.9);
-        }catch(e){}
-      },i*180);
-    });
-  }catch(e){}
-}
-
-/* ---- crust tap sound (on result modal) ---- */
-function sndCrustTap(){
-  try{
-    const ac=getAC();
-    const nb=makeNoise(0.08),src=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();
-    src.buffer=nb;f.type='bandpass';f.frequency.value=900;f.Q.value=4;
-    g.gain.setValueAtTime(0.0,ac.currentTime);
-    g.gain.linearRampToValueAtTime(0.3,ac.currentTime+0.005);
-    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.12);
-    src.connect(f);f.connect(g);g.connect(masterGain);src.start();src.stop(ac.currentTime+0.14);
-    // hollow resonance
-    const o=ac.createOscillator(),og=ac.createGain();
-    o.type='sine';o.frequency.value=280;
-    og.gain.setValueAtTime(0.15,ac.currentTime+0.005);og.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.25);
-    o.connect(og);og.connect(masterGain);o.start(ac.currentTime+0.005);o.stop(ac.currentTime+0.27);
-  }catch(e){}
-}
-
-/* ---- steam hiss burst ---- */
-function sndSteam(){
-  try{
-    const ac=getAC(),nb=makeNoise(0.5),src=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();
-    src.buffer=nb;f.type='highpass';f.frequency.value=3000;
-    g.gain.setValueAtTime(0.0,ac.currentTime);
-    g.gain.linearRampToValueAtTime(0.18,ac.currentTime+0.05);
-    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.5);
-    src.connect(f);f.connect(g);g.connect(masterGain);src.start();src.stop(ac.currentTime+0.55);
-  }catch(e){}
-}
-
-// ---- hook audio into dial interactions ----
-// We patch at call sites instead — rebuild the dial event listeners with sound
-function makeDial(svgId,which,vmin,vmax,step){
-  const svg=document.getElementById(svgId);
-  let drag=false,sx=0,sy=0,sv=0;
-  function clamp(v){return Math.max(vmin,Math.min(vmax,Math.round(v/step)*step));}
-  function cur(){return which==='temp'?S.temp:S['bake-time'];}
-  function set(v){
-    const prev=cur(),c=clamp(v);
-    if(which==='temp'){S.temp=c;}else{S['bake-time']=c;}
-    S.recipeType=null;
-    if(c!==prev)maybeSndDialTick();
-    updDial(which,c);updatePreds();
-  }
-  svg.addEventListener('mousedown',e=>{drag=true;sx=e.clientX;sy=e.clientY;sv=cur();e.preventDefault();getAC();});
-  window.addEventListener('mousemove',e=>{
-    if(!drag)return;
-    const range=vmax-vmin,delta=(e.clientX-sx)-(e.clientY-sy);
-    set(sv+delta/160*range);
-  });
-  window.addEventListener('mouseup',()=>{drag=false;});
-  svg.addEventListener('touchstart',e=>{drag=true;sx=e.touches[0].clientX;sy=e.touches[0].clientY;sv=cur();e.preventDefault();getAC();},{passive:false});
-  window.addEventListener('touchmove',e=>{
-    if(!drag)return;
-    const range=vmax-vmin,delta=(e.touches[0].clientX-sx)-(e.touches[0].clientY-sy);
-    set(sv+delta/160*range);
-  });
-  window.addEventListener('touchend',()=>{drag=false;});
-  svg.addEventListener('wheel',e=>{
-    e.preventDefault();
-    const s=which==='temp'?5:1;
-    const prev=cur();
-    set(prev+(e.deltaY<0?s:-s));
-  },{passive:false});
-}
-
-// ---- hook audio into sliders ----
-document.querySelectorAll('input[type=range]').forEach(el=>{
-  el.addEventListener('mousedown',()=>getAC());
-  el.addEventListener('input',()=>sndSlider());
-});
-
-// ---- hook audio into startBake ----
-function startBake(){
-  if(S.baking)return;
-  sndFireBtn();
-  // call original logic inline (can't wrap easily, so we duplicate the audio hooks at the right times)
-  S.baking=true;
-  const btns=[document.getElementById('bbl'),document.getElementById('bbc')];
-  btns.forEach(b=>{b.classList.add('baking');b.textContent=b.id==='bbc'?'⏳ BAKING...':'⏳ BAKING...';});
-
-  const ow=document.getElementById('ow'),het=document.getElementById('het'),heb=document.getElementById('heb');
-  const fgl=document.getElementById('fgl'),rg=document.getElementById('rg'),ovl=document.getElementById('ovl');
-  const bst=document.getElementById('bst'),ltd=document.getElementById('ltd'),ltv=document.getElementById('ltv');
-  const tf=document.getElementById('tf');
-
-  bst.textContent='PREHEATING...';ltd.style.opacity='1';ovl.classList.add('on');
-
-  // AUDIO: element crackle + hum start
-  setTimeout(()=>{
-    ow.classList.add('hot');het.classList.add('glow');heb.classList.add('glow');fgl.classList.add('on');rg.classList.add('on');
-    sndElementOn();
-    setTimeout(()=>startHum(S.temp),300);
-  },380);
-
-  let curT=72;const tgt=S.temp,ph=Date.now();
-  (function at(){
-    const p=Math.min(1,(Date.now()-ph)/3400);
-    curT=72+(tgt-72)*eio(p);ltv.textContent=Math.round(curT)+'°F';
-    tf.style.height=Math.min(92,10+(curT-72)/(tgt-72)*78)+'%';
-    if(p<1)requestAnimationFrame(at);
-  })();
-
-  // AUDIO: door clunk when loading
-  setTimeout(()=>{
-    bst.textContent='LOADING DOUGH...';sndDoorClunk();
-    const b3=document.getElementById('b3');b3.style.opacity='0';b3.style.height='0';
-    const bb=document.getElementById('bbd');bb.style.background='#d4b070';bb.style.filter='none';
-    setTimeout(()=>{
-      b3.style.opacity='1';b3.style.height='52px';
-      document.getElementById('bsd').style.opacity='.7';
-      document.getElementById('bbt').style.opacity='.7';
-    },520);
-  },3400);
-
-  const bakeDur=11500;
-  setTimeout(()=>{
-    bst.textContent='BAKING...';
-    startSmoke();startEmbers();startMaillard();
-    animProg(bakeDur);animBread(bakeDur);
-    // AUDIO: sizzle starts
-    startSizzle();
-    // AUDIO: occasional steam puffs
-    [1000,2800,4500,6200,8000].forEach(t=>setTimeout(sndSteam,t));
-    setTimeout(()=>document.getElementById('cdw').classList.add('vis'),2200);
-  },4400);
-
-  // AUDIO: oven spring pop
-  setTimeout(()=>{
-    bst.textContent='OVEN SPRING! 🌡️';
-    sndSpring();
-    document.getElementById('b3').style.height=getBH();
-    document.getElementById('bsc1').style.opacity='1';
-    document.getElementById('bsc2').style.opacity='.62';
-    document.getElementById('bmp1').style.opacity='1';
-    document.getElementById('bmp2').style.opacity='.72';
-  },7000);
-
-  setTimeout(finishBake,17000);
-}
-
-// ---- hook audio into finishBake ----
-function finishBake(){
-  clearInterval(smIv);clearInterval(emIv);
-  // AUDIO: stop sizzle + hum, play done ding
-  stopSizzle();stopHum();
-  sndDone();
-  const bst=document.getElementById('bst');bst.textContent='BREAD IS DONE! 🎉';
-  setTimeout(()=>{
-    document.getElementById('ow').classList.remove('hot');
-    document.getElementById('het').classList.remove('glow');
-    document.getElementById('heb').classList.remove('glow');
-    document.getElementById('fgl').classList.remove('on');
-    document.getElementById('rg').classList.remove('on');
-    document.getElementById('cdw').classList.remove('vis');
-    setTimeout(()=>{
-      showResult();S.baking=false;
-      const btns=[document.getElementById('bbl'),document.getElementById('bbc')];
-      btns.forEach(b=>{b.classList.remove('baking');b.textContent=b.id==='bbc'?'🔥 BAKE':'🔥 FIRE THE OVEN';});
-      bst.textContent='READY TO BAKE';
-      document.getElementById('ltd').style.opacity='0';
-      document.getElementById('ovl').classList.remove('on');
-    },2200);
-  },1300);
-}
-
-// ---- hook crust tap sound on result visual ----
-function showResult(){
-  const star=STARTERS.find(s=>s.id===S.selectedStarter);
-  const h=Math.round(S.water/S.flour*100),total=Math.round(S.flour+S.water+S.salt+S['starter-amt']+S.oil+S.honey);
-  const burnt=S.temp>535&&S['bake-time']>45,raw=S.temp<320||S['bake-time']<8;
-  let r;
-  if(burnt)r={name:'Charcoal Brick',emoji:'🪨',color:'#1a0a02',desc:'Completely carbonized. The Maillard reaction clocked out hours ago. Your smoke detector has submitted a formal complaint. Try cooler and shorter next time.'};
-  else if(raw)r={name:'Raw Dough Blob',emoji:'💧',color:'#d4b070',desc:'Still gummy inside. The crumb has the structural integrity of wet cement. You can use it as a doorstop — a warm, yeasty one. Hotter. Longer. Both.'};
+  if(burnt)r={name:'Charcoal Brick',emoji:'🪨',color:'#1a0a02',desc:'Completely carbonized. The Maillard reaction clocked out hours ago. Your smoke detector has submitted a formal complaint.'};
+  else if(raw)r={name:'Raw Dough Blob',emoji:'💧',color:'#d4b070',desc:'Still gummy inside. The crumb has the structural integrity of wet cement. Hotter. Longer. Both.'};
   else r=detBread();
   document.getElementById('rviz').innerHTML=`
     <div style="width:180px;height:95px;position:relative;cursor:pointer;" onclick="sndCrustTap()" title="Tap the crust!">
@@ -1422,7 +1096,7 @@ function showResult(){
         <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(255,230,150,.26),transparent 58%)"></div>
       </div>
       <div style="font-size:1.9rem;position:absolute;top:-8px;right:0">${r.emoji}</div>
-      <div style="position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);font-size:.44rem;color:rgba(253,246,227,.3);white-space:nowrap;letter-spacing:.1em;">TAP TO HEAR THE CRUST</div>
+      <div style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:.44rem;color:rgba(253,246,227,.3);white-space:nowrap;letter-spacing:.1em;">TAP TO HEAR THE CRUST</div>
     </div>`;
   document.getElementById('rtit').textContent=r.name;
   document.getElementById('rsub').textContent=`${star.name} · ${h}% Hydration`;
@@ -1433,34 +1107,37 @@ function showResult(){
     <div class="sb"><div class="sv">${S.temp}°F</div><div class="sl">BAKE TEMP</div></div>`;
   document.getElementById('ro').classList.add('show');
 }
-
-// ---- starter card click sounds ----
-function pickStar(id){
-  sndClick(660,0.08,0.12);
-  S.selectedStarter=id;
-  document.querySelectorAll('.sc').forEach(c=>c.classList.remove('sel'));
-  document.getElementById('sc-'+id).classList.add('sel');
-  updatePreds();
+function detBread(){
+  const h=S.water/S.flour,hasOil=S.oil>15,hasHoney=S.honey>8;
+  const hiT=S.temp>490,shortT=S['bake-time']<=15;
+  const star=STARTERS.find(s=>s.id===S.selectedStarter);
+  const c=star.name;
+  const isIt=['ischia','napoli','semolina','camaldo'].includes(S.selectedStarter);
+  const TM={
+    boule:{name:'Artisan Sourdough Boule',emoji:'🍞',color:'#9a5a18',desc:`A masterwork. The ear opened dramatically. Open glossy crumb, complex tang from the ${c} culture. That hollow knock at the bottom means everything went right.`},
+    campagne:{name:'Pain de Campagne',emoji:'🥖',color:'#a06820',desc:`A beautiful French country loaf. ${c} lends mild complexity. Medium-open crumb, blistered thin crust. Slather with good butter.`},
+    ciabatta:{name:'Sourdough Ciabatta',emoji:'🫓',color:'#b8782a',desc:`Impossibly open crumb with massive irregular holes. The ${c} culture delivered. The crust crackles like glass.`},
+    focaccia:{name:'Sourdough Focaccia',emoji:'🫓',color:'#c8903a',desc:`Golden, dimpled, olive-oil-soaked perfection. ${isIt?`The ${c} culture`:'This culture'} gave beautiful mild tang. Crispy base, cloud interior.`},
+    hoagie:{name:'Sourdough Hoagie Rolls',emoji:'🥖',color:'#d4a040',desc:'Soft, pillowy rolls with a golden crust and gentle tang. The oil and honey created a tender, slightly sweet crumb. Load them up.'},
+    baguette:{name:'Sourdough Baguette',emoji:'🥖',color:'#b87030',desc:`Shattering thin crust, wildly open irregular crumb. The ${c} culture gives it character. Tear off a piece immediately.`},
+    bagel:{name:'NY Sourdough Bagels',emoji:'🥯',color:'#a06028',desc:'Chewy, dense, beautifully tanned. The SF culture elevates these above any commercial bagel. Always boil in barley malt water first.'},
+    nypizza:{name:'New York Pizza Dough',emoji:'🍕',color:'#8a3a14',desc:`Classic NY slice — thin, foldable, crispy edge with complex sourdough tang. The ${c} culture is perfect here.`},
+    neopizza:{name:'Neapolitan Pizza',emoji:'🍕',color:'#7a3010',desc:`Leopard-spotted, blistered, charred in all the right places. The ${c} culture gives it authenticity money can't buy.`},
+    detroit:{name:'Detroit Pan Pizza',emoji:'🍕',color:'#9a4820',desc:'Square, caramelized edges, crispy-fried bottom, focaccia-soft interior. This is the pizza other pizzas are jealous of.'},
+    taglio:{name:'Roman Pizza al Taglio',emoji:'🍕',color:'#8a4218',desc:'Roman by-the-slice pizza. Crispy bottom, airy mid, complex tang. Cut with scissors. Sell by weight. Eat immediately.'},
+    grissini:{name:'Grissini',emoji:'🧆',color:'#c89040',desc:'Impossibly thin and crackling crispy Italian breadsticks. The Semolina Lievito Madre gives them authentic character.'},
+  };
+  if(S.recipeType&&TM[S.recipeType])return TM[S.recipeType];
+  if(hiT&&shortT&&hasOil)return{name:'Sourdough Pizza Crust',emoji:'🍕',color:'#8a3a14',desc:'Blistered, charred, magnificent. High heat + short time = maximum crust flavor.'};
+  if(hiT&&shortT)return{name:'Crispy Flatbread',emoji:'🫓',color:'#9a4820',desc:'Thin, crackling, intense. The high heat caramelized the crust before the inside could overthink things.'};
+  if(hasOil&&h>=0.85)return{name:'Sourdough Focaccia',emoji:'🫓',color:'#c8903a',desc:'Golden and dimpled. Olive oil pooled in every pocket. Crispy outside, cloud-soft inside.'};
+  if(h>=0.87)return{name:'Wild Ciabatta',emoji:'🫓',color:'#b07828',desc:'Huge irregular holes. The crust crackles like parchment. This is what courage looks like in bread form.'};
+  if(hasOil&&hasHoney&&h<=0.65)return{name:'Sourdough Hoagie Rolls',emoji:'🥖',color:'#d4a040',desc:'Soft, pillowy, slightly sweet. Honey and oil = tender crumb that holds up to the fillings.'};
+  if(h<0.55)return{name:'Sourdough Bagels',emoji:'🥯',color:'#a06028',desc:'Dense, chewy, beautifully tanned. Low hydration = real chew.'};
+  if(h>=0.75)return{name:'Artisan Sourdough Boule',emoji:'🍞',color:'#9a5a18',desc:'A proper artisan loaf. Open crumb, blistered crust. The hollow knock at the bottom means everything went right.'};
+  if(h>=0.65)return{name:'Sourdough Batard',emoji:'🥖',color:'#a86020',desc:'Elegant oblong loaf. Medium-open crumb, thin blistered crust. A beautiful everyday bread.'};
+  return{name:'Rustic Country Loaf',emoji:'🍞',color:'#9a5018',desc:'Honest bread with genuine tang. Good crust, satisfying crumb. Disappears within the hour.'};
 }
-
-// ---- recipe card click ----
-function applyP(idx){
-  sndClick(880,0.07,0.14);
-  const p=RECIPES[idx].preset;
-  S.recipeType=null;
-  Object.keys(p).forEach(k=>{
-    if(k==='starter'){pickStar(p[k]);return;}
-    if(k==='type'){S.recipeType=p[k];return;}
-    S[k]=p[k];
-    const el=document.getElementById(k);
-    if(el){el.value=p[k];updSlider(el);}
-  });
-  setDialDirect('temp',p.temp);
-  setDialDirect('time',p['bake-time']);
-  updateAll();
-}
-
-// ---- close result ----
 function closeResult(){
   sndClick(440,0.1,0.1);
   document.getElementById('ro').classList.remove('show');
@@ -1471,10 +1148,68 @@ function closeResult(){
   document.getElementById('tf').style.height='16%';
   document.getElementById('ltv').textContent='72°F';
 }
+function eio(t){return t<.5?2*t*t:-1+(4-2*t)*t;}
+
+// =======================================
+// AUDIO ENGINE
+// =======================================
+let AC=null,masterGain=null,sizzleNode=null,humNode=null;
+function getAC(){
+  if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();masterGain=AC.createGain();masterGain.gain.value=0.72;masterGain.connect(AC.destination);}
+  if(AC.state==='suspended')AC.resume();
+  return AC;
+}
+function makeNoise(dur=1){
+  const ac=getAC(),frames=ac.sampleRate*dur,buf=ac.createBuffer(1,frames,ac.sampleRate),d=buf.getChannelData(0);
+  for(let i=0;i<frames;i++)d[i]=Math.random()*2-1;
+  return buf;
+}
+function sndClick(pitch=880,dur=0.06,vol=0.18){
+  try{const ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=pitch;g.gain.setValueAtTime(vol,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+dur);o.connect(g);g.connect(masterGain);o.start();o.stop(ac.currentTime+dur+0.01);}catch(e){}
+}
+function sndDialTick(){
+  try{const ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.type='triangle';o.frequency.value=1200+Math.random()*400;g.gain.setValueAtTime(0.08,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.04);o.connect(g);g.connect(masterGain);o.start();o.stop(ac.currentTime+0.05);}catch(e){}
+}
+let lastDialTick=0;
+function maybySndDialTick(){const now=Date.now();if(now-lastDialTick<80)return;lastDialTick=now;sndDialTick();}
+function maybeSndDialTick(){maybySndDialTick();}
+let lastSliderSnd=0;
+function sndSlider(){
+  const now=Date.now();if(now-lastSliderSnd<120)return;lastSliderSnd=now;
+  try{const ac=getAC(),nb=makeNoise(0.08),src=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();src.buffer=nb;f.type='bandpass';f.frequency.value=800+Math.random()*400;f.Q.value=3;g.gain.setValueAtTime(0.06,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.08);src.connect(f);f.connect(g);g.connect(masterGain);src.start();src.stop(ac.currentTime+0.09);}catch(e){}
+}
+function sndFireBtn(){
+  try{const ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(180,ac.currentTime);o.frequency.exponentialRampToValueAtTime(40,ac.currentTime+0.25);g.gain.setValueAtTime(0.5,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.3);o.connect(g);g.connect(masterGain);o.start();o.stop(ac.currentTime+0.32);const nb=makeNoise(0.06),src=ac.createBufferSource(),gn=ac.createGain(),f=ac.createBiquadFilter();src.buffer=nb;f.type='highpass';f.frequency.value=2000;gn.gain.setValueAtTime(0.2,ac.currentTime);gn.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.06);src.connect(f);f.connect(gn);gn.connect(masterGain);src.start();src.stop(ac.currentTime+0.07);}catch(e){}
+}
+function sndDoorClunk(){
+  try{const ac=getAC(),nb=makeNoise(0.3),src=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();src.buffer=nb;f.type='lowpass';f.frequency.value=300;g.gain.setValueAtTime(0.0,ac.currentTime);g.gain.linearRampToValueAtTime(0.55,ac.currentTime+0.01);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.28);src.connect(f);f.connect(g);g.connect(masterGain);src.start();src.stop(ac.currentTime+0.3);const o=ac.createOscillator(),og=ac.createGain();o.type='sine';o.frequency.value=320;og.gain.setValueAtTime(0.12,ac.currentTime+0.01);og.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.35);o.connect(og);og.connect(masterGain);o.start(ac.currentTime+0.01);o.stop(ac.currentTime+0.36);}catch(e){}
+}
+function sndElementOn(){
+  try{const ac=getAC();for(let i=0;i<6;i++){setTimeout(()=>{try{const nb=makeNoise(0.06),src=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();src.buffer=nb;f.type='bandpass';f.frequency.value=600+Math.random()*1200;f.Q.value=1.5;g.gain.setValueAtTime(0.0,ac.currentTime);g.gain.linearRampToValueAtTime(0.15+Math.random()*0.1,ac.currentTime+0.01);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.06);src.connect(f);f.connect(g);g.connect(masterGain);src.start();src.stop(ac.currentTime+0.07);}catch(e){}},i*120+Math.random()*80);}}catch(e){}
+}
+function startHum(tgt){
+  try{stopHum();const ac=getAC();humNode=ac.createGain();humNode.gain.value=0;[60,120,180,240].forEach((f,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.type=i===0?'sawtooth':'sine';o.frequency.value=f+Math.random()*4;g.gain.value=i===0?0.18:0.06/(i+1);o.connect(g);g.connect(humNode);o.start();});const nb=makeNoise(2),src=ac.createBufferSource(),ng=ac.createGain(),nf=ac.createBiquadFilter();src.buffer=nb;src.loop=true;nf.type='lowpass';nf.frequency.value=200;ng.gain.value=0.04;src.connect(nf);nf.connect(ng);ng.connect(humNode);src.start();humNode.connect(masterGain);humNode.gain.linearRampToValueAtTime(Math.min(0.35,0.1+(tgt-300)/500*0.25),ac.currentTime+2.5);}catch(e){}
+}
+function stopHum(){try{if(humNode){humNode.gain.linearRampToValueAtTime(0,(AC||{currentTime:0}).currentTime+1.5);setTimeout(()=>{try{humNode.disconnect();}catch(e){}humNode=null;},2000);}}catch(e){}}
+function startSizzle(){
+  try{stopSizzle();const ac=getAC();sizzleNode=ac.createGain();sizzleNode.gain.value=0;const nb=makeNoise(3),src=ac.createBufferSource();src.buffer=nb;src.loop=true;const f1=ac.createBiquadFilter(),f2=ac.createBiquadFilter();f1.type='bandpass';f1.frequency.value=1800;f1.Q.value=0.5;f2.type='highpass';f2.frequency.value=1200;src.connect(f1);f1.connect(f2);f2.connect(sizzleNode);sizzleNode.connect(masterGain);src.start();(function wobble(){if(!sizzleNode)return;try{sizzleNode.gain.linearRampToValueAtTime(0.08+Math.random()*0.14,ac.currentTime+0.1+Math.random()*0.2);}catch(e){}setTimeout(wobble,80+Math.random()*120);})();}catch(e){}
+}
+function stopSizzle(){try{if(sizzleNode){sizzleNode.gain.linearRampToValueAtTime(0,(AC||{currentTime:0}).currentTime+1.2);setTimeout(()=>{try{sizzleNode.disconnect();}catch(e){}sizzleNode=null;},2000);}}catch(e){}}
+function sndSpring(){
+  try{const ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(200,ac.currentTime);o.frequency.exponentialRampToValueAtTime(600,ac.currentTime+0.15);o.frequency.exponentialRampToValueAtTime(300,ac.currentTime+0.35);g.gain.setValueAtTime(0.3,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.5);o.connect(g);g.connect(masterGain);o.start();o.stop(ac.currentTime+0.52);const nb=makeNoise(0.12),src=ac.createBufferSource(),gn=ac.createGain(),f=ac.createBiquadFilter();src.buffer=nb;f.type='bandpass';f.frequency.value=2500;f.Q.value=2;gn.gain.setValueAtTime(0.25,ac.currentTime+0.1);gn.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.22);src.connect(f);f.connect(gn);gn.connect(masterGain);src.start(ac.currentTime+0.1);src.stop(ac.currentTime+0.23);}catch(e){}
+}
+function sndDone(){
+  try{const ac=getAC();[523,659,784,1046].forEach((freq,i)=>{setTimeout(()=>{try{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=freq;g.gain.setValueAtTime(0.0,ac.currentTime);g.gain.linearRampToValueAtTime(0.28,ac.currentTime+0.01);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+1.2);o.connect(g);g.connect(masterGain);o.start();o.stop(ac.currentTime+1.3);const o2=ac.createOscillator(),g2=ac.createGain();o2.type='sine';o2.frequency.value=freq*2;g2.gain.setValueAtTime(0.06,ac.currentTime);g2.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.8);o2.connect(g2);g2.connect(masterGain);o2.start();o2.stop(ac.currentTime+0.9);}catch(e){}},i*180);});}catch(e){}
+}
+function sndCrustTap(){
+  try{const ac=getAC(),nb=makeNoise(0.08),src=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();src.buffer=nb;f.type='bandpass';f.frequency.value=900;f.Q.value=4;g.gain.setValueAtTime(0.0,ac.currentTime);g.gain.linearRampToValueAtTime(0.3,ac.currentTime+0.005);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.12);src.connect(f);f.connect(g);g.connect(masterGain);src.start();src.stop(ac.currentTime+0.14);const o=ac.createOscillator(),og=ac.createGain();o.type='sine';o.frequency.value=280;og.gain.setValueAtTime(0.15,ac.currentTime+0.005);og.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.25);o.connect(og);og.connect(masterGain);o.start(ac.currentTime+0.005);o.stop(ac.currentTime+0.27);}catch(e){}
+}
+function sndSteam(){
+  try{const ac=getAC(),nb=makeNoise(0.5),src=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();src.buffer=nb;f.type='highpass';f.frequency.value=3000;g.gain.setValueAtTime(0.0,ac.currentTime);g.gain.linearRampToValueAtTime(0.18,ac.currentTime+0.05);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.5);src.connect(f);f.connect(g);g.connect(masterGain);src.start();src.stop(ac.currentTime+0.55);}catch(e){}
+}
 
 init();
 document.querySelectorAll('input[type=range]').forEach(el=>updSlider(el));
-// Re-init dials with audio-enhanced version
 initDials();
 </script>
 </body>
