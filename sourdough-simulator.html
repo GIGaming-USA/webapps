@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARTISAN BREAD FORGE — 3D Sourdough Simulator</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Space+Mono:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap');
+:root{--ember:#ff4500;--amber:#ff8c00;--gold:#ffd700;--cream:#fdf6e3;--bg:#0d0a06;--panel:#0f0804;--border:rgba(255,140,0,.15);}
+*{margin:0;padding:0;box-sizing:border-box;}html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);font-family:'Space Mono',monospace;color:var(--cream);
+  background-image:radial-gradient(ellipse at 20% 80%,rgba(139,69,19,.12) 0%,transparent 55%),radial-gradient(ellipse at 80% 20%,rgba(255,69,0,.07) 0%,transparent 55%);}
+
+/* HEADER */
+.hdr{text-align:center;padding:12px 20px 8px;border-bottom:1px solid var(--border);background:rgba(10,5,0,.7);position:relative;z-index:10;}
+.hdr h1{font-family:'Playfair Display',serif;font-size:clamp(1.2rem,2.8vw,2rem);font-weight:900;letter-spacing:.12em;
+  background:linear-gradient(135deg,#ffd700,#ff8c00,#ff4500);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 16px rgba(255,140,0,.5));}
+.hdr p{font-family:'Crimson Pro',serif;font-style:italic;color:rgba(253,246,227,.42);font-size:.72rem;letter-spacing:.18em;}
+
+/* LAYOUT */
+.app{display:grid;grid-template-columns:280px 1fr 255px;height:calc(100vh - 58px);overflow:hidden;}
+
+/* SIDE PANELS */
+.pl,.pr{background:var(--panel);overflow-y:auto;padding:12px;scrollbar-width:thin;scrollbar-color:var(--amber) transparent;}
+.pl{border-right:1px solid var(--border);}
+.pr{border-left:1px solid var(--border);}
+.sec{font-family:'Playfair Display',serif;font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;color:var(--amber);
+  margin-bottom:9px;padding-bottom:4px;border-bottom:1px solid rgba(255,140,0,.18);display:flex;align-items:center;gap:6px;}
+.sec::before{content:'◆';font-size:.42rem;color:var(--ember);}
+
+/* Starter cards */
+.sc{background:rgba(255,140,0,.04);border:1px solid rgba(255,140,0,.1);border-radius:5px;padding:8px 9px;margin-bottom:6px;cursor:pointer;transition:all .16s;position:relative;overflow:hidden;}
+.sc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--gold),var(--ember));opacity:0;transition:.16s;}
+.sc:hover{border-color:rgba(255,140,0,.3);background:rgba(255,140,0,.07);}
+.sc.sel{border-color:var(--amber);background:rgba(255,140,0,.1);}.sc.sel::before{opacity:1;}
+.sc-n{font-weight:700;font-size:.6rem;color:var(--gold);}.sc-o{font-family:'Crimson Pro',serif;font-style:italic;font-size:.65rem;color:rgba(253,246,227,.42);}
+.sc-t{font-size:.54rem;color:rgba(253,246,227,.28);margin-top:2px;line-height:1.4;}
+
+/* Ingredient rows */
+.ir{margin-bottom:12px;}
+.il{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
+.in{font-size:.6rem;color:var(--cream);}.iv{font-size:.65rem;color:var(--gold);font-weight:700;}.iu{font-size:.48rem;color:rgba(253,246,227,.36);margin-left:1px;}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:linear-gradient(90deg,var(--ember) var(--pct,50%),rgba(255,255,255,.07) var(--pct,50%));border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle,var(--gold),var(--amber));box-shadow:0 0 6px rgba(255,200,0,.5);cursor:pointer;transition:transform .14s;}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3);}
+.ut{display:flex;gap:3px;margin-top:3px;}.ub{font-size:.48rem;padding:2px 5px;border:1px solid rgba(255,140,0,.22);background:transparent;color:rgba(253,246,227,.4);border-radius:3px;cursor:pointer;transition:all .13s;font-family:'Space Mono',monospace;}
+.ub.act{background:rgba(255,140,0,.16);color:var(--gold);border-color:var(--amber);}
+.hm{margin-top:5px;height:4px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden;}
+.hf{height:100%;background:linear-gradient(90deg,#3366ff,#00aaff);border-radius:2px;transition:width .4s;box-shadow:0 0 5px rgba(0,150,255,.4);}
+.hl{display:flex;justify-content:space-between;font-size:.48rem;color:rgba(253,246,227,.35);margin-top:2px;}
+.pred{background:rgba(255,140,0,.05);border:1px solid rgba(255,140,0,.1);border-radius:4px;padding:8px;margin-top:7px;font-size:.55rem;color:rgba(253,246,227,.48);line-height:1.65;}
+.pred strong{color:var(--gold);}
+.bake-btn-l{width:100%;margin-top:10px;padding:12px;background:linear-gradient(135deg,#cc3700,#ff6600,#ff8c00);border:none;border-radius:6px;color:#fff;
+  font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;letter-spacing:.13em;cursor:pointer;
+  box-shadow:0 4px 16px rgba(255,69,0,.35),inset 0 1px 0 rgba(255,255,255,.16);transition:all .2s;text-transform:uppercase;position:relative;overflow:hidden;}
+.bake-btn-l::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.1),transparent);pointer-events:none;}
+.bake-btn-l:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(255,69,0,.52);}
+.bake-btn-l.baking{animation:pfr .8s ease-in-out infinite;cursor:not-allowed;}
+@keyframes pfr{0%,100%{box-shadow:0 4px 16px rgba(255,69,0,.35);}50%{box-shadow:0 4px 36px rgba(255,69,0,.82),0 0 50px rgba(255,140,0,.32);}}
+
+/* Recipe cards */
+.rc{background:rgba(255,140,0,.03);border:1px solid rgba(255,140,0,.09);border-radius:6px;padding:9px;margin-bottom:7px;cursor:pointer;transition:all .16s;}
+.rc:hover{border-color:rgba(255,140,0,.3);background:rgba(255,140,0,.07);transform:translateX(-2px);}
+.re{font-size:1.1rem;margin-bottom:3px;display:block;}.rn{font-family:'Playfair Display',serif;font-size:.76rem;color:var(--gold);margin-bottom:2px;}
+.rd{font-family:'Crimson Pro',serif;font-style:italic;font-size:.66rem;color:rgba(253,246,227,.38);line-height:1.35;}
+.diff{display:inline-block;font-size:.48rem;padding:2px 5px;border-radius:8px;margin-top:4px;letter-spacing:.08em;text-transform:uppercase;}
+.easy{background:rgba(80,200,80,.12);color:#80c080;border:1px solid rgba(80,200,80,.16);}
+.medium{background:rgba(255,165,0,.12);color:#ffa050;border:1px solid rgba(255,165,0,.16);}
+.hard{background:rgba(255,60,60,.12);color:#ff8060;border:1px solid rgba(255,60,60,.16);}
+
+/* ===== OVEN VIEWPORT ===== */
+.ov-vp{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 45%,#180900 0%,#070300 100%);overflow:hidden;}
+.rg{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(255,80,0,0) 30%,transparent);pointer-events:none;transition:background 2s;z-index:0;}
+.rg.on{background:radial-gradient(ellipse at center,rgba(255,80,0,.1) 25%,rgba(255,40,0,.02) 80%);}
+.hl-lines{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.hl-l{position:absolute;width:2px;background:linear-gradient(180deg,transparent,rgba(255,140,0,.07),transparent);animation:hr linear infinite;opacity:0;bottom:0;}
+@keyframes hr{0%{transform:translateY(100%);opacity:0;}25%{opacity:.7;}80%{opacity:.25;}100%{transform:translateY(-100%);opacity:0;}}
+
+.ltd{position:absolute;top:12px;left:50%;transform:translateX(-50%);text-align:center;opacity:0;transition:opacity .5s;pointer-events:none;z-index:6;}
+.ltd-l{font-size:.48rem;color:var(--amber);letter-spacing:.18em;}
+.ltd-v{font-family:'Playfair Display',serif;font-size:1.55rem;color:var(--ember);text-shadow:0 0 16px rgba(255,69,0,.65);}
+
+/* ===== TRUE 3D OVEN BOX ===== */
+.oven-wrap{
+  perspective:1200px;perspective-origin:50% 38%;
+  width:580px;height:460px;position:relative;z-index:2;flex-shrink:0;
+}
+.oven-3d{
+  width:520px;height:390px;
+  position:absolute;top:24px;left:30px;
+  transform-style:preserve-3d;
+  transform:rotateX(14deg) rotateY(-7deg);
+}
+
+/* ---- FACES ---- */
+/* depth = 55px */
+.face{position:absolute;transform-style:preserve-3d;}
+.f-front{
+  width:520px;height:390px;
+  background:linear-gradient(160deg,#363636 0%,#232323 45%,#181818 100%);
+  border:1px solid rgba(255,255,255,.045);
+  transform:translateZ(55px);
+  border-radius:10px 10px 4px 4px;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.07),inset 0 -2px 0 rgba(0,0,0,.5);
+}
+.f-top{
+  width:520px;height:55px;
+  background:linear-gradient(180deg,#484848 0%,#2a2a2a 100%);
+  border:1px solid rgba(255,255,255,.07);
+  transform:rotateX(90deg) translateY(-195px) translateZ(195px);
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.1);
+}
+.f-right{
+  width:55px;height:390px;
+  background:linear-gradient(90deg,#1e1e1e,#161616);
+  border:1px solid rgba(255,255,255,.03);
+  transform:rotateY(90deg) translateX(-0px) translateZ(465px);
+  transform-origin:left center;
+}
+.f-left{
+  width:55px;height:390px;
+  background:linear-gradient(90deg,#1e1e1e,#161616);
+  border:1px solid rgba(255,255,255,.03);
+  transform:rotateY(-90deg) translateZ(0px);
+  transform-origin:right center;
+}
+.f-bot{
+  width:520px;height:55px;
+  background:linear-gradient(180deg,#131313,#0a0a0a);
+  transform:rotateX(-90deg) translateY(195px) translateZ(195px);
+}
+.f-back{
+  width:520px;height:390px;
+  background:#0a0a0a;
+  transform:translateZ(0px);
+}
+
+/* top vents */
+.vent{height:5px;background:rgba(0,0,0,.55);border-radius:3px;flex:1;}
+
+/* legs */
+.leg{position:absolute;width:16px;height:32px;background:linear-gradient(180deg,#2e2e2e,#181818);border-radius:0 0 4px 4px;box-shadow:0 5px 10px rgba(0,0,0,.7);}
+.lg-fl{bottom:-32px;left:28px;}.lg-fr{bottom:-32px;right:28px;}
+
+/* side rivet details */
+.rivet{position:absolute;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#555,#222);border:1px solid #111;box-shadow:0 1px 2px rgba(0,0,0,.6);}
+
+/* ---- OVEN WINDOW (inside front face) ---- */
+.ow-wrap{position:absolute;top:26px;left:50%;transform:translateX(-50%);width:368px;height:248px;}
+.ow{width:100%;height:100%;background:radial-gradient(ellipse at 42% 28%,#1e0900 0%,#0b0400 60%,#000 100%);
+  border-radius:11px;border:6px solid #222;
+  box-shadow:inset 0 0 40px rgba(255,100,0,0),inset 0 0 0 2px rgba(255,255,255,.035),0 5px 16px rgba(0,0,0,.85),0 0 0 1px rgba(0,0,0,.9);
+  overflow:hidden;position:relative;transition:box-shadow 1.3s,background 1.3s;}
+.ow.hot{
+  background:radial-gradient(ellipse at 42% 68%,#3e1600 0%,#1c0700 52%,#050200 100%);
+  box-shadow:inset 0 0 80px rgba(255,75,0,.65),inset 0 0 28px rgba(255,155,0,.24),inset 0 0 0 2px rgba(255,180,0,.07),
+    0 0 60px rgba(255,80,0,.22),0 5px 16px rgba(0,0,0,.85);}
+.gl1{position:absolute;width:52%;height:36%;top:4%;left:4%;background:linear-gradient(135deg,rgba(255,255,255,.048) 0%,transparent 70%);border-radius:7px;pointer-events:none;}
+.gl2{position:absolute;width:16%;height:52%;top:7%;right:6%;background:linear-gradient(180deg,rgba(255,255,255,.035) 0%,transparent 100%);border-radius:3px;pointer-events:none;}
+
+/* heating elements */
+.he{position:absolute;height:5px;left:5%;right:5%;border-radius:3px;background:#282828;transition:background 1.3s,box-shadow 1.3s;}
+.he-t{top:6%;}.he-b{bottom:6%;}
+.he.glow{background:linear-gradient(90deg,#b81f00,#ff4500,#ff9200,#ff4500,#b81f00);box-shadow:0 0 20px rgba(255,100,0,.88),0 0 38px rgba(255,69,0,.38);animation:ef 2.4s ease-in-out infinite;}
+@keyframes ef{0%,100%{opacity:1;}48%{opacity:.8;}75%{opacity:.93;}}
+
+/* oven rack */
+.rack-outer{position:absolute;bottom:23%;left:4%;right:4%;height:10px;overflow:visible;}
+.rack-h{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,#444,#888,#444);border-radius:1px;box-shadow:0 1px 3px rgba(0,0,0,.55);}
+.rack-h.tp{top:0;}.rack-h.bt{bottom:0;}
+.rack-v{position:absolute;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#666,#444);border-radius:1px;}
+
+/* glow on floor */
+.fgl{position:absolute;bottom:0;left:5%;right:5%;height:36%;background:radial-gradient(ellipse at center bottom,rgba(255,80,0,.2),transparent 72%);opacity:0;transition:opacity 1.8s;pointer-events:none;animation:fg 2.8s ease-in-out infinite;}
+@keyframes fg{0%,100%{filter:brightness(1);}50%{filter:brightness(1.35);}}
+.fgl.on{opacity:1;}
+
+/* smoke / embers */
+.smc{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.sp{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(210,190,170,.32),transparent);animation:sr linear forwards;pointer-events:none;}
+@keyframes sr{0%{transform:translateY(0) translateX(0) scale(.45);opacity:.5;}30%{opacity:.3;}80%{opacity:.1;}100%{transform:translateY(-220px) translateX(var(--dx,12px)) scale(3);opacity:0;}}
+.ep{position:absolute;width:3px;height:3px;border-radius:50%;animation:ef2 linear forwards;pointer-events:none;}
+@keyframes ef2{0%{opacity:1;}100%{transform:translateY(-260px) translateX(var(--ex,18px));opacity:0;}}
+
+/* condensation */
+.cd-wrap{position:absolute;inset:0;opacity:0;transition:opacity 3s;pointer-events:none;border-radius:6px;overflow:hidden;}
+.cd-wrap.vis{opacity:1;}
+.cd{position:absolute;width:2px;background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.04));border-radius:1px;animation:drp linear infinite;}
+@keyframes drp{0%{height:0;opacity:.72;}78%{opacity:.38;}100%{height:26px;opacity:0;}}
+
+/* oven light */
+.ovl{position:absolute;top:8px;right:24px;width:10px;height:10px;border-radius:50%;background:#ff8c00;box-shadow:0 0 7px #ff8c00,0 0 16px rgba(255,140,0,.42);opacity:0;transition:opacity .5s;}
+.ovl.on{opacity:1;animation:lp 2.2s ease-in-out infinite;}
+@keyframes lp{0%,100%{opacity:1;}50%{opacity:.5;}}
+
+/* thermometer */
+.thm{position:absolute;right:11px;top:50%;transform:translateY(-50%);width:12px;height:62px;}
+.thm-t{width:5px;height:44px;background:rgba(255,255,255,.08);border-radius:3px;margin:0 auto;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.12);}
+.thm-f{position:absolute;bottom:0;left:0;right:0;height:16%;background:linear-gradient(180deg,#ff6600,#ff4500);transition:height 3.8s ease-in-out;box-shadow:0 0 5px rgba(255,100,0,.52);}
+.thm-b{width:10px;height:10px;background:radial-gradient(circle,#ff4500,#cc2200);border-radius:50%;margin:0 auto;box-shadow:0 0 7px rgba(255,69,0,.52);}
+.thm-l{font-size:.4rem;color:rgba(253,246,227,.3);text-align:center;margin-top:1px;}
+
+/* ---- BREAD 3D ---- */
+.bs{position:absolute;bottom:23%;left:50%;transform:translateX(-50%);width:230px;height:130px;display:flex;align-items:flex-end;justify-content:center;}
+.b3{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:165px;height:0;opacity:0;transition:height 3.5s cubic-bezier(.34,1.56,.64,1),opacity .6s;transform-style:preserve-3d;}
+.bb{width:165px;height:100%;background:#c17f3a;border-radius:50% 50% 30% 30%/60% 60% 40% 40%;position:relative;
+  transition:background 5s,filter 5s;
+  box-shadow:inset 0 -13px 24px rgba(0,0,0,.3),inset 0 7px 18px rgba(255,220,150,.16),0 14px 24px rgba(0,0,0,.6);overflow:visible;}
+.bsc{position:absolute;top:13%;left:11%;right:11%;height:4px;background:rgba(0,0,0,.26);border-radius:2px;transform:rotate(-14deg);box-shadow:0 2px 4px rgba(0,0,0,.4);opacity:0;transition:opacity 1.4s;}
+.bsc2{position:absolute;top:29%;left:17%;right:17%;height:3px;background:rgba(0,0,0,.18);border-radius:2px;transform:rotate(-9deg);opacity:0;transition:opacity 1.4s;}
+.bhi{position:absolute;top:8%;left:17%;width:36%;height:26%;background:radial-gradient(ellipse,rgba(255,240,180,.36) 0%,transparent 70%);border-radius:50%;pointer-events:none;}
+.bsh{position:absolute;bottom:0;left:4%;right:4%;height:26%;background:rgba(0,0,0,.26);border-radius:50%;filter:blur(5px);}
+.chov{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 26%,rgba(7,2,0,.88) 100%);border-radius:inherit;opacity:0;transition:opacity 3.5s;pointer-events:none;}
+.bmp{position:absolute;background:radial-gradient(ellipse,rgba(155,85,12,.36) 0%,transparent 70%);border-radius:50%;pointer-events:none;opacity:0;transition:opacity 2.4s;}
+.bsd{position:absolute;bottom:0;right:-10px;width:10px;height:80%;background:linear-gradient(90deg,#a06830,#7a5020);transform-origin:left;border-radius:0 4px 4px 0;opacity:0;transition:opacity 1s,background 5s;}
+.bbt{position:absolute;bottom:-6px;left:4%;width:160px;height:10px;background:linear-gradient(180deg,#8b5520,#5a3510);border-radius:0 0 4px 4px;transform:perspective(100px) rotateX(-30deg);opacity:0;transition:opacity 1s,background 5s;}
+.mb{position:absolute;width:6px;height:6px;border-radius:50%;background:radial-gradient(circle,rgba(175,95,18,.8),transparent);animation:mbp 1s ease-out forwards;pointer-events:none;}
+@keyframes mbp{0%{transform:scale(0);opacity:1;}52%{transform:scale(1.6);opacity:.68;}100%{transform:scale(.35);opacity:0;}}
+
+/* ===== DIAL PANEL ===== */
+.dp{
+  width:580px;flex-shrink:0;
+  background:linear-gradient(180deg,#1d1d1d,#121212);
+  border-top:2px solid #080808;
+  border-radius:0 0 12px 12px;
+  padding:10px 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 10px 35px rgba(0,0,0,.75);
+  position:relative;z-index:2;
+}
+.dg{text-align:center;position:relative;}
+.dl{font-size:.5rem;letter-spacing:.2em;color:rgba(253,246,227,.35);text-transform:uppercase;margin-bottom:5px;}
+.dv{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--ember);text-shadow:0 0 12px rgba(255,69,0,.52);margin-top:4px;}
+.ds{font-size:.44rem;color:rgba(253,246,227,.28);letter-spacing:.1em;}
+
+/* SVG dial */
+.dial-svg{cursor:grab;display:block;margin:0 auto;user-select:none;touch-action:none;}
+.dial-svg:active{cursor:grabbing;}
+
+/* center bake area */
+.bpw{flex:1;margin:0 20px;display:flex;flex-direction:column;align-items:center;gap:5px;}
+.bpb{width:100%;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.bpf{height:100%;width:0%;background:linear-gradient(90deg,var(--ember),var(--gold));box-shadow:0 0 7px var(--amber);transition:width .5s linear;}
+.bst{font-size:.52rem;color:var(--amber);letter-spacing:.13em;text-transform:uppercase;height:13px;}
+.bake-c{padding:9px 24px;background:linear-gradient(135deg,#cc3700,#ff6600,#ff8c00);border:none;border-radius:5px;color:#fff;
+  font-family:'Playfair Display',serif;font-size:.82rem;font-weight:700;letter-spacing:.12em;cursor:pointer;
+  box-shadow:0 3px 14px rgba(255,69,0,.33);transition:all .2s;text-transform:uppercase;}
+.bake-c:hover{transform:translateY(-2px);box-shadow:0 7px 22px rgba(255,69,0,.52);}
+.bake-c.baking{animation:pfr .8s ease-in-out infinite;cursor:not-allowed;}
+
+/* brand badge */
+.brand{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,#1a1a1a,#101010);border:1px solid #2e2e2e;border-radius:4px;padding:4px 14px;white-space:nowrap;}
+.brand span{font-family:'Playfair Display',serif;font-size:.58rem;letter-spacing:.28em;color:rgba(255,255,255,.2);text-transform:uppercase;}
+
+/* RESULT MODAL */
+.ro{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;
+  z-index:1000;opacity:0;pointer-events:none;transition:opacity .5s;backdrop-filter:blur(6px);}
+.ro.show{opacity:1;pointer-events:all;}
+.rc2{background:linear-gradient(135deg,#1b0e04,#110800);border:1px solid rgba(255,140,0,.26);border-radius:14px;
+  padding:30px;max-width:400px;width:90%;text-align:center;
+  box-shadow:0 40px 90px rgba(0,0,0,.9),0 0 50px rgba(255,100,0,.07);
+  transform:scale(.8);transition:transform .5s cubic-bezier(.34,1.56,.64,1);}
+.ro.show .rc2{transform:scale(1);}
+.rv{width:180px;height:95px;margin:0 auto 15px;}
+.rt2{font-family:'Playfair Display',serif;font-size:1.35rem;color:var(--gold);margin-bottom:5px;filter:drop-shadow(0 0 10px rgba(255,200,0,.36));}
+.rs2{font-family:'Crimson Pro',serif;font-style:italic;color:rgba(253,246,227,.42);font-size:.8rem;margin-bottom:13px;}
+.rdsc{font-size:.66rem;color:rgba(253,246,227,.65);line-height:1.78;border-top:1px solid rgba(255,140,0,.12);border-bottom:1px solid rgba(255,140,0,.12);padding:11px 0;margin-bottom:13px;}
+.rst{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:16px;}
+.sb{background:rgba(255,140,0,.05);border:1px solid rgba(255,140,0,.1);border-radius:5px;padding:7px 4px;}
+.sv{font-size:.92rem;color:var(--gold);font-weight:700;}.sl{font-size:.48rem;color:rgba(253,246,227,.32);letter-spacing:.07em;margin-top:1px;}
+.rcl{background:linear-gradient(135deg,#cc3700,#ff6600);border:none;border-radius:5px;color:#fff;font-family:'Space Mono',monospace;font-size:.62rem;padding:9px 24px;cursor:pointer;letter-spacing:.09em;transition:all .2s;}
+.rcl:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(255,69,0,.36);}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>ARTISAN BREAD FORGE</h1>
+  <p>3D Sourdough Simulation Laboratory — Ed Wood Cultures Edition</p>
+</div>
+
+<div class="app">
+
+<!-- LEFT PANEL -->
+<div class="pl">
+  <div class="sec">Sourdough Starter Culture</div>
+  <div id="starters-list"></div>
+
+  <div class="sec" style="margin-top:12px">Ingredients</div>
+
+  <div class="ir">
+    <div class="il"><span class="in">🌾 Bread Flour</span><span class="iv" id="flour-val">400 <span class="iu">g</span></span></div>
+    <input type="range" id="flour" min="100" max="800" value="400" oninput="upI('flour',this)">
+    <div class="ut"><button class="ub act" onclick="setU('flour','g',this)">g</button><button class="ub" onclick="setU('flour','cup',this)">cups</button></div>
+  </div>
+  <div class="ir">
+    <div class="il"><span class="in">💧 Water</span><span class="iv" id="water-val">300 <span class="iu">g</span></span></div>
+    <input type="range" id="water" min="50" max="700" value="300" oninput="upI('water',this)">
+    <div class="ut"><button class="ub act" onclick="setU('water','g',this)">g</button><button class="ub" onclick="setU('water','ml',this)">ml</button><button class="ub" onclick="setU('water','cup',this)">cups</button></div>
+    <div class="hm"><div class="hf" id="hf"></div></div>
+    <div class="hl"><span>Hydration</span><span id="hpct">75%</span></div>
+  </div>
+  <div class="ir">
+    <div class="il"><span class="in">🧂 Salt</span><span class="iv" id="salt-val">9 <span class="iu">g</span></span></div>
+    <input type="range" id="salt" min="0" max="30" value="9" oninput="upI('salt',this)">
+    <div class="ut"><button class="ub act" onclick="setU('salt','g',this)">g</button><button class="ub" onclick="setU('salt','tsp',this)">tsp</button></div>
+  </div>
+  <div class="ir">
+    <div class="il"><span class="in">🥄 Starter</span><span class="iv" id="starter-amt-val">100 <span class="iu">g</span></span></div>
+    <input type="range" id="starter-amt" min="10" max="300" value="100" oninput="upI('starter-amt',this)">
+    <div class="ut"><button class="ub act" onclick="setU('starter-amt','g',this)">g</button><button class="ub" onclick="setU('starter-amt','cup',this)">cups</button></div>
+  </div>
+  <div class="ir">
+    <div class="il"><span class="in">🫒 Olive Oil</span><span class="iv" id="oil-val">0 <span class="iu">g</span></span></div>
+    <input type="range" id="oil" min="0" max="80" value="0" oninput="upI('oil',this)">
+    <div class="ut"><button class="ub act" onclick="setU('oil','g',this)">g</button><button class="ub" onclick="setU('oil','tbsp',this)">tbsp</button></div>
+  </div>
+  <div class="ir">
+    <div class="il"><span class="in">🍯 Honey / Malt</span><span class="iv" id="honey-val">0 <span class="iu">g</span></span></div>
+    <input type="range" id="honey" min="0" max="60" value="0" oninput="upI('honey',this)">
+    <div class="ut"><button class="ub act" onclick="setU('honey','g',this)">g</button><button class="ub" onclick="setU('honey','tbsp',this)">tbsp</button></div>
+  </div>
+
+  <div class="pred"><strong>Shape:</strong> <span id="shape-p">Classic Boule</span><br><strong>Crumb:</strong> <span id="crumb-p">Open, chewy</span></div>
+  <button class="bake-btn-l" id="bbl" onclick="startBake()">🔥 FIRE THE OVEN</button>
+</div>
+
+<!-- CENTER OVEN -->
+<div class="ov-vp" id="ovvp">
+  <div class="rg" id="rg"></div>
+  <div class="hl-lines" id="hll"></div>
+  <div class="ltd" id="ltd"><div class="ltd-l">OVEN TEMP</div><div class="ltd-v" id="ltv">72°F</div></div>
+
+  <div class="oven-wrap">
+    <div class="oven-3d" id="o3d">
+
+      <!-- back face -->
+      <div class="face f-back"></div>
+
+      <!-- top face with vents -->
+      <div class="face f-top">
+        <div style="display:flex;gap:10px;align-items:center;height:100%;padding:0 50px;">
+          <div class="vent"></div><div class="vent"></div><div class="vent"></div>
+          <div class="vent"></div><div class="vent"></div><div class="vent"></div>
+        </div>
+      </div>
+
+      <!-- side faces with rivets -->
+      <div class="face f-right">
+        <div class="rivet" style="top:18%;left:50%;transform:translateX(-50%)"></div>
+        <div class="rivet" style="top:55%;left:50%;transform:translateX(-50%)"></div>
+        <div class="rivet" style="top:82%;left:50%;transform:translateX(-50%)"></div>
+        <div style="position:absolute;top:10%;bottom:10%;left:50%;transform:translateX(-50%);width:3px;background:rgba(255,255,255,.02);border-radius:2px;"></div>
+      </div>
+      <div class="face f-left">
+        <div class="rivet" style="top:18%;left:50%;transform:translateX(-50%)"></div>
+        <div class="rivet" style="top:55%;left:50%;transform:translateX(-50%)"></div>
+        <div class="rivet" style="top:82%;left:50%;transform:translateX(-50%)"></div>
+      </div>
+      <div class="face f-bot"></div>
+
+      <!-- FRONT FACE — main visual -->
+      <div class="face f-front">
+
+        <!-- Oven window -->
+        <div class="ow-wrap">
+          <div class="ow" id="ow">
+            <div class="gl1"></div><div class="gl2"></div>
+            <div class="he he-t" id="het"></div>
+            <div class="he he-b" id="heb"></div>
+            <div class="fgl" id="fgl"></div>
+
+            <!-- Rack -->
+            <div class="rack-outer" id="rack-outer">
+              <div class="rack-h tp"></div>
+              <div class="rack-h bt"></div>
+            </div>
+            <div style="position:absolute;bottom:23%;left:4%;right:4%;height:2px;background:linear-gradient(90deg,#484848,#888,#484848);border-radius:1px;box-shadow:0 1px 3px rgba(0,0,0,.55);"></div>
+
+            <!-- Bread -->
+            <div class="bs" id="bstage">
+              <div class="b3" id="b3">
+                <div class="bb" id="bbd">
+                  <div class="bsc" id="bsc1"></div>
+                  <div class="bsc2" id="bsc2"></div>
+                  <div class="bhi"></div><div class="bsh"></div>
+                  <div class="chov" id="chov"></div>
+                  <div class="bmp" id="bmp1" style="width:44px;height:23px;top:17%;left:7%"></div>
+                  <div class="bmp" id="bmp2" style="width:34px;height:17px;top:31%;right:11%"></div>
+                </div>
+                <div class="bsd" id="bsd"></div>
+                <div class="bbt" id="bbt"></div>
+              </div>
+            </div>
+
+            <div class="cd-wrap" id="cdw"></div>
+            <div class="smc" id="smc"></div>
+            <div class="thm"><div class="thm-t"><div class="thm-f" id="tf"></div></div><div class="thm-b"></div><div class="thm-l">°F</div></div>
+            <div class="ovl" id="ovl"></div>
+          </div>
+        </div>
+
+        <!-- brand plate -->
+        <div class="brand"><span>Bread Forge Pro</span></div>
+
+        <!-- legs -->
+        <div class="leg lg-fl"></div>
+        <div class="leg lg-fr"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DIAL PANEL -->
+  <div class="dp">
+    <!-- TEMP DIAL -->
+    <div class="dg">
+      <div class="dl">Temperature</div>
+      <svg class="dial-svg" id="dtsvg" width="96" height="96" viewBox="0 0 96 96" style="touch-action:none;">
+        <defs>
+          <linearGradient id="dg1" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ff4500"/><stop offset="50%" stop-color="#ff8c00"/><stop offset="100%" stop-color="#ffd700"/>
+          </linearGradient>
+          <radialGradient id="kg1" cx="38%" cy="33%">
+            <stop offset="0%" stop-color="#484848"/><stop offset="100%" stop-color="#1e1e1e"/>
+          </radialGradient>
+        </defs>
+        <g id="tt"></g>
+        <circle fill="none" stroke="#0e0e0e" stroke-width="7" cx="48" cy="48" r="36" stroke-dasharray="226.2" stroke-dashoffset="56.5" transform="rotate(135 48 48)"/>
+        <circle fill="none" stroke="url(#dg1)" stroke-width="7" stroke-linecap="round" cx="48" cy="48" r="36" id="ta" stroke-dasharray="226.2" stroke-dashoffset="226.2" transform="rotate(135 48 48)"/>
+        <circle fill="url(#kg1)" stroke="#181818" stroke-width="1.5" cx="48" cy="48" r="28"/>
+        <circle fill="#1c1c1c" stroke="#111" stroke-width="1" cx="48" cy="48" r="19"/>
+        <circle id="td" fill="#ffd700" cx="48" cy="24" r="3.2" style="filter:drop-shadow(0 0 3px rgba(255,200,0,.7))"/>
+        <line x1="40" y1="48" x2="56" y2="48" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="44" y1="41" x2="52" y2="55" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="52" y1="41" x2="44" y2="55" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div class="dv" id="dtv">450°F</div>
+      <div class="ds">drag or scroll</div>
+    </div>
+
+    <!-- CENTER -->
+    <div class="bpw">
+      <div class="bst" id="bst">READY TO BAKE</div>
+      <div class="bpb"><div class="bpf" id="bpf"></div></div>
+      <button class="bake-c" id="bbc" onclick="startBake()">🔥 BAKE</button>
+    </div>
+
+    <!-- TIME DIAL -->
+    <div class="dg">
+      <div class="dl">Duration</div>
+      <svg class="dial-svg" id="dmsvg" width="96" height="96" viewBox="0 0 96 96" style="touch-action:none;">
+        <defs>
+          <linearGradient id="dg2" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#3366ff"/><stop offset="100%" stop-color="#00ddff"/>
+          </linearGradient>
+        </defs>
+        <g id="tm"></g>
+        <circle fill="none" stroke="#0e0e0e" stroke-width="7" cx="48" cy="48" r="36" stroke-dasharray="226.2" stroke-dashoffset="56.5" transform="rotate(135 48 48)"/>
+        <circle fill="none" stroke="url(#dg2)" stroke-width="7" stroke-linecap="round" cx="48" cy="48" r="36" id="ma" stroke-dasharray="226.2" stroke-dashoffset="226.2" transform="rotate(135 48 48)"/>
+        <circle fill="url(#kg1)" stroke="#181818" stroke-width="1.5" cx="48" cy="48" r="28"/>
+        <circle fill="#1c1c1c" stroke="#111" stroke-width="1" cx="48" cy="48" r="19"/>
+        <circle id="md" fill="#00aaff" cx="48" cy="24" r="3.2" style="filter:drop-shadow(0 0 3px rgba(0,170,255,.7))"/>
+        <line x1="40" y1="48" x2="56" y2="48" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="44" y1="41" x2="52" y2="55" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="52" y1="41" x2="44" y2="55" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div class="dv" id="dmv" style="color:#00aaff;text-shadow:0 0 12px rgba(0,170,255,.5)">45 min</div>
+      <div class="ds">drag or scroll</div>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="pr">
+  <div class="sec">Recipe Presets</div>
+  <div id="recipes-list"></div>
+</div>
+
+</div>
+
+<!-- RESULT MODAL -->
+<div class="ro" id="ro">
+  <div class="rc2">
+    <div class="rv" id="rviz"></div>
+    <div class="rt2" id="rtit">Classic Sourdough Boule</div>
+    <div class="rs2" id="rsub">SF Culture · 75% Hydration</div>
+    <div class="rdsc" id="rdsc">—</div>
+    <div class="rst" id="rst"></div>
+    <button class="rcl" onclick="closeResult()">BAKE ANOTHER LOAF</button>
+  </div>
+</div>
+
+<script>
+// =======================================
+// DATA
+// =======================================
+const STARTERS=[
+  {id:'sf',      name:'San Francisco Sourdough', origin:'San Francisco, CA (1849)',           notes:'The gold-rush classic. Lactobacillus sanfranciscensis. Sharply tangy, blistered crumb, legendary.',            color:'#d4a84b'},
+  {id:'ischia',  name:'Ischia Island',           origin:'Island of Ischia, Italy (Ed Wood)', notes:"Ed Wood's prized Italian island culture. Fruity, mild lactic tang. Exceptional for ciabatta and Neapolitan.", color:'#e8c060'},
+  {id:'napoli',  name:'Napoli (Neapolitan)',      origin:'Naples, Italy (Ed Wood)',           notes:"Classic Neapolitan culture. Mild acidity, sweet, floral notes. The pizza & focaccia culture.",              color:'#e0a040'},
+  {id:'camaldo', name:'Camaldoli Monastery',      origin:'Tuscany, Italy (1400s)',            notes:'Ancient Benedictine monastery culture. Mild, nutty, complex. One of the oldest sourdoughs in Europe.',       color:'#c8903a'},
+  {id:'semolina',name:'Semolina Lievito Madre',  origin:'Sicily, Italy',                     notes:'Italian mother dough. Stiff culture. Mild lactic tang. Used for panettone, ciabatta & grissini.',            color:'#f0c860'},
+  {id:'yukon',   name:'Yukon Sourdough',         origin:'Yukon, Canada (1898)',              notes:'Gold Rush era prospector culture. Robust and hearty. Mild sour with wheaty character.',                      color:'#bf7d2f'},
+  {id:'oregon',  name:"Carl's Oregon Trail",      origin:'Oregon, USA (1847)',                notes:"Pioneer-era culture kept alive for 175+ years. Mild, sweet, extremely versatile.",                            color:'#d09040'},
+  {id:'czech',   name:'Czech Dark Rye',           origin:'Bohemia, Czech Republic',           notes:'Rye-based culture. Deeply earthy, sour, and pungent. Dense country loaves.',                                color:'#804828'},
+];
+
+const RECIPES=[
+  // CLASSIC LOAVES
+  {emoji:'🍞',name:'Classic SF Boule',        diff:'medium',desc:'The quintessential sourdough. Open crumb, blistered crust, sharp 1849 culture tang.',
+   preset:{flour:450,water:338,salt:10,'starter-amt':90,oil:0,honey:0,temp:480,'bake-time':45,starter:'sf',type:'boule'}},
+  {emoji:'🥖',name:'Pain de Campagne',        diff:'medium',desc:"French country loaf. Camaldoli's mild complexity, medium-open crumb, rustic blistered crust.",
+   preset:{flour:400,water:300,salt:9,'starter-amt':80,oil:0,honey:0,temp:460,'bake-time':40,starter:'camaldo',type:'campagne'}},
+  {emoji:'🫓',name:'Ischia Ciabatta',         diff:'hard',  desc:"Ed Wood's Ischia island culture. Impossibly open crumb, razor-thin crust, fruity tang.",
+   preset:{flour:500,water:455,salt:11,'starter-amt':120,oil:32,honey:0,temp:478,'bake-time':34,starter:'ischia',type:'ciabatta'}},
+  {emoji:'🫓',name:'Roman Focaccia',          diff:'easy',  desc:'Napoli culture. Dimpled, oil-pooled. Throw on rosemary and coarse salt. Crispy base, cloud interior.',
+   preset:{flour:500,water:430,salt:12,'starter-amt':140,oil:65,honey:0,temp:432,'bake-time':28,starter:'napoli',type:'focaccia'}},
+  {emoji:'🥖',name:'Hoagie Rolls',            diff:'easy',  desc:'Soft, chewy sourdough sub rolls. Honey gives subtle sweetness. Perfect for cold cuts and Italian beef.',
+   preset:{flour:400,water:240,salt:9,'starter-amt':80,oil:25,honey:18,temp:400,'bake-time':25,starter:'oregon',type:'hoagie'}},
+  {emoji:'🥖',name:'Sourdough Baguette',      diff:'hard',  desc:'Long ferment, slashed deeply. Shattering crust, wildly open irregular crumb. Camaldoli culture.',
+   preset:{flour:500,water:360,salt:11,'starter-amt':60,oil:0,honey:0,temp:488,'bake-time':28,starter:'camaldo',type:'baguette'}},
+  {emoji:'🥯',name:'NY Sourdough Bagels',     diff:'hard',  desc:'Low hydration. Boiled in barley malt water, baked fierce. SF tang makes these extraordinary.',
+   preset:{flour:500,water:268,salt:11,'starter-amt':100,oil:0,honey:22,temp:500,'bake-time':26,starter:'sf',type:'bagel'}},
+  // PIZZA
+  {emoji:'🍕',name:'New York Slice',          diff:'medium',desc:'Cold-fermented 72hrs. High-protein flour. Thin, crispy edge, foldable center. Hold it right.',
+   preset:{flour:500,water:325,salt:12,'starter-amt':40,oil:20,honey:8,temp:550,'bake-time':14,starter:'sf',type:'nypizza'}},
+  {emoji:'🍕',name:'Neapolitan Pizza',        diff:'hard',  desc:"00 flour, 65% hydration. Napoli culture. Leopard-spotted blistered crust. 90-second bake energy.",
+   preset:{flour:500,water:325,salt:11,'starter-amt':30,oil:0,honey:0,temp:550,'bake-time':10,starter:'napoli',type:'neopizza'}},
+  {emoji:'🍕',name:'Detroit Pan Pizza',       diff:'easy',  desc:'Square pan. Crispy-fried bottom, focaccia-soft interior. Wisconsin brick cheese to the edges.',
+   preset:{flour:500,water:375,salt:11,'starter-amt':100,oil:45,honey:5,temp:478,'bake-time':22,starter:'oregon',type:'detroit'}},
+  {emoji:'🍕',name:'Roman Pizza al Taglio',   diff:'medium',desc:'By-the-slice Roman style. High hydration, olive oil, crispy base. Semolina Lievito Madre.',
+   preset:{flour:500,water:412,salt:11,'starter-amt':80,oil:40,honey:0,temp:462,'bake-time':25,starter:'semolina',type:'taglio'}},
+  // SPECIALTY
+  {emoji:'🧆',name:'Grissini',               diff:'easy',  desc:'Italian thin crispy breadsticks. Semolina Lievito Madre. Crackling, light, utterly addictive.',
+   preset:{flour:400,water:220,salt:9,'starter-amt':60,oil:30,honey:0,temp:425,'bake-time':18,starter:'semolina',type:'grissini'}},
+  {emoji:'🫓',name:'Focaccia Pull-Apart Rolls',diff:'easy', desc:'Individual dimpled buns. Oiled, golden. Ischia culture adds fruity tang. Disappear immediately.',
+   preset:{flour:450,water:380,salt:10,'starter-amt':120,oil:55,honey:0,temp:428,'bake-time':22,starter:'ischia',type:'focaccia'}},
+];
+
+// =======================================
+// STATE
+// =======================================
+let S={
+  flour:400,water:300,salt:9,'starter-amt':100,oil:0,honey:0,
+  temp:450,'bake-time':45,selectedStarter:'sf',recipeType:null,
+  units:{flour:'g',water:'g',salt:'g','starter-amt':'g',oil:'g',honey:'g'},
+  baking:false,
+};
+let smIv=null,emIv=null;
+
+// =======================================
+// INIT
+// =======================================
+function init(){
+  renderStarters();renderRecipes();
+  buildRack();buildHL();buildCond();buildDialTicks();
+  initDials();updateAll();
+}
+
+function renderStarters(){
+  document.getElementById('starters-list').innerHTML=
+    STARTERS.map(s=>`<div class="sc ${s.id===S.selectedStarter?'sel':''}" onclick="pickStar('${s.id}')" id="sc-${s.id}">
+      <div class="sc-n">${s.name}</div><div class="sc-o">${s.origin}</div><div class="sc-t">${s.notes}</div></div>`).join('');
+}
+function renderRecipes(){
+  document.getElementById('recipes-list').innerHTML=
+    RECIPES.map((r,i)=>`<div class="rc" onclick="applyP(${i})">
+      <span class="re">${r.emoji}</span><div class="rn">${r.name}</div>
+      <div class="rd">${r.desc}</div><span class="diff ${r.diff}">${r.diff}</span></div>`).join('');
+}
+
+function buildRack(){
+  const w=document.getElementById('rack-outer');
+  for(let i=0;i<16;i++){
+    const b=document.createElement('div');b.className='rack-v';
+    b.style.left=(3+i*(94/15))+'%';w.appendChild(b);
+  }
+}
+function buildHL(){
+  const c=document.getElementById('hll');
+  for(let i=0;i<16;i++){
+    const l=document.createElement('div');l.className='hl-l';
+    l.style.left=(2+Math.random()*96)+'%';l.style.width=(1+Math.random()*2)+'px';
+    l.style.height=(45+Math.random()*120)+'px';
+    l.style.animationDuration=(3+Math.random()*5.5)+'s';l.style.animationDelay=(Math.random()*6)+'s';
+    c.appendChild(l);
+  }
+}
+function buildCond(){
+  const c=document.getElementById('cdw');
+  for(let i=0;i<20;i++){
+    const d=document.createElement('div');d.className='cd';
+    d.style.left=(2+Math.random()*96)+'%';d.style.top=(2+Math.random()*55)+'%';
+    d.style.animationDuration=(1+Math.random()*3)+'s';d.style.animationDelay=(Math.random()*4.5)+'s';
+    c.appendChild(d);
+  }
+}
+
+// =======================================
+// DIALS
+// =======================================
+const CIRC=2*Math.PI*36; // 226.2
+const D_MIN=135,D_SWP=270;
+
+function buildDialTicks(){
+  buildTicks('tt',300,550,25,[300,350,400,450,500,550]);
+  buildTicks('tm',8,90,6,[10,20,30,40,50,60,70,80,90]);
+}
+function buildTicks(gid,vmin,vmax,step,majs){
+  const g=document.getElementById(gid);
+  for(let v=vmin;v<=vmax;v+=step){
+    const t=(v-vmin)/(vmax-vmin);
+    const ang=(D_MIN+t*D_SWP)*Math.PI/180;
+    const isMaj=majs.includes(v);
+    const r1=isMaj?38:39.5,r2=43;
+    const l=document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1',48+r1*Math.cos(ang));l.setAttribute('y1',48+r1*Math.sin(ang));
+    l.setAttribute('x2',48+r2*Math.cos(ang));l.setAttribute('y2',48+r2*Math.sin(ang));
+    l.setAttribute('stroke',isMaj?'rgba(255,255,255,.32)':'rgba(255,255,255,.16)');
+    l.setAttribute('stroke-width',isMaj?'1.5':'1');
+    g.appendChild(l);
+  }
+}
+
+function dv2arc(v,vmin,vmax){
+  const t=Math.max(0,Math.min(1,(v-vmin)/(vmax-vmin)));
+  return CIRC-(t*CIRC*D_SWP/360);
+}
+function updDial(which,v){
+  if(which==='temp'){
+    const off=dv2arc(v,300,550);
+    document.getElementById('ta').setAttribute('stroke-dashoffset',off);
+    const ang=(D_MIN+(v-300)/250*D_SWP)*Math.PI/180;
+    document.getElementById('td').setAttribute('cx',48+23*Math.cos(ang));
+    document.getElementById('td').setAttribute('cy',48+23*Math.sin(ang));
+    document.getElementById('dtv').textContent=v+'°F';
+  } else {
+    const off=dv2arc(v,8,90);
+    document.getElementById('ma').setAttribute('stroke-dashoffset',off);
+    const ang=(D_MIN+(v-8)/82*D_SWP)*Math.PI/180;
+    document.getElementById('md').setAttribute('cx',48+23*Math.cos(ang));
+    document.getElementById('md').setAttribute('cy',48+23*Math.sin(ang));
+    document.getElementById('dmv').textContent=v+' min';
+  }
+}
+
+function initDials(){
+  makeDial('dtsvg','temp',300,550,5);
+  makeDial('dmsvg','time',8,90,1);
+  updDial('temp',S.temp);
+  updDial('time',S['bake-time']);
+}
+function makeDial(svgId,which,vmin,vmax,step){
+  const svg=document.getElementById(svgId);
+  let drag=false,sx=0,sy=0,sv=0;
+  function clamp(v){return Math.max(vmin,Math.min(vmax,Math.round(v/step)*step));}
+  function cur(){return which==='temp'?S.temp:S['bake-time'];}
+  function set(v){
+    const c=clamp(v);
+    if(which==='temp'){S.temp=c;}else{S['bake-time']=c;}
+    S.recipeType=null;
+    updDial(which,c);updatePreds();
+  }
+  svg.addEventListener('mousedown',e=>{drag=true;sx=e.clientX;sy=e.clientY;sv=cur();e.preventDefault();});
+  window.addEventListener('mousemove',e=>{
+    if(!drag)return;
+    const range=vmax-vmin;
+    const delta=(e.clientX-sx)-(e.clientY-sy);
+    set(sv+delta/160*range);
+  });
+  window.addEventListener('mouseup',()=>{drag=false;});
+  svg.addEventListener('touchstart',e=>{drag=true;sx=e.touches[0].clientX;sy=e.touches[0].clientY;sv=cur();e.preventDefault();},{passive:false});
+  window.addEventListener('touchmove',e=>{
+    if(!drag)return;
+    const range=vmax-vmin;
+    const delta=(e.touches[0].clientX-sx)-(e.touches[0].clientY-sy);
+    set(sv+delta/160*range);
+  });
+  window.addEventListener('touchend',()=>{drag=false;});
+  svg.addEventListener('wheel',e=>{
+    e.preventDefault();
+    const s=which==='temp'?5:1;
+    set(cur()+(e.deltaY<0?s:-s));
+  },{passive:false});
+}
+function setDialDirect(which,v){
+  if(which==='temp'){S.temp=v;}else{S['bake-time']=v;}
+  updDial(which,v);
+}
+
+// =======================================
+// INGREDIENTS
+// =======================================
+function upI(id,el){
+  S[id]=parseFloat(el.value);S.recipeType=null;
+  updSlider(el);updDisp(id);updatePreds();updateHyd();
+}
+function updSlider(el){
+  const p=((el.value-el.min)/(el.max-el.min)*100).toFixed(1)+'%';
+  el.style.setProperty('--pct',p);
+}
+function updDisp(id){
+  const el=document.getElementById(id+'-val');if(!el)return;
+  const u=S.units[id]||'g',g=S[id];
+  let d;
+  if(u==='cup')d=(g/128).toFixed(2)+' <span class="iu">cups</span>';
+  else if(u==='ml')d=g.toFixed(0)+' <span class="iu">ml</span>';
+  else if(u==='tsp')d=(g/4.8).toFixed(1)+' <span class="iu">tsp</span>';
+  else if(u==='tbsp')d=(g/14.4).toFixed(1)+' <span class="iu">tbsp</span>';
+  else d=g+' <span class="iu">g</span>';
+  el.innerHTML=d;
+}
+function setU(id,u,btn){
+  S.units[id]=u;
+  btn.parentNode.querySelectorAll('.ub').forEach(b=>b.classList.remove('act'));btn.classList.add('act');updDisp(id);
+}
+function updateHyd(){
+  const h=S.water/S.flour,p=Math.round(h*100);
+  document.getElementById('hpct').textContent=p+'%';
+  document.getElementById('hf').style.width=Math.min(100,Math.max(0,(p-40)*2.5))+'%';
+}
+function updateAll(){
+  ['flour','water','salt','starter-amt','oil','honey'].forEach(id=>{
+    const el=document.getElementById(id);if(el)updSlider(el);updDisp(id);
+  });
+  updateHyd();updatePreds();
+}
+function pickStar(id){
+  S.selectedStarter=id;
+  document.querySelectorAll('.sc').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('sc-'+id).classList.add('sel');
+  updatePreds();
+}
+function applyP(idx){
+  const p=RECIPES[idx].preset;
+  S.recipeType=null;
+  Object.keys(p).forEach(k=>{
+    if(k==='starter'){pickStar(p[k]);return;}
+    if(k==='type'){S.recipeType=p[k];return;}
+    S[k]=p[k];
+    const el=document.getElementById(k);
+    if(el){el.value=p[k];updSlider(el);}
+  });
+  setDialDirect('temp',p.temp);
+  setDialDirect('time',p['bake-time']);
+  updateAll();
+}
+
+// =======================================
+// PREDICTIONS
+// =======================================
+function updatePreds(){
+  const h=S.water/S.flour,hasOil=S.oil>15,hasHoney=S.honey>8;
+  const hiT=S.temp>490,shortT=S['bake-time']<=15;
+  if(S.recipeType){
+    const L={boule:'Artisan Boule',campagne:'Pain de Campagne',ciabatta:'Ciabatta',focaccia:'Focaccia',
+      hoagie:'Hoagie Rolls',nypizza:'NY Pizza',neopizza:'Neapolitan Pizza',detroit:'Detroit Pan Pizza',
+      taglio:'Pizza al Taglio',bagel:'Sourdough Bagels',baguette:'Sourdough Baguette',grissini:'Grissini'};
+    document.getElementById('shape-p').textContent=L[S.recipeType]||S.recipeType;
+    document.getElementById('crumb-p').textContent='Preset active — adjust freely';
+    return;
+  }
+  let shape,crumb;
+  if(hiT&&shortT){shape='Pizza / Flatbread';crumb='Thin, blistered, charred';}
+  else if(hasOil&&h>=0.85){shape='Focaccia';crumb='Open, airy, oil-pooled';}
+  else if(h>=0.87){shape='Ciabatta';crumb='Massive holes, thin crust';}
+  else if(h>=0.75){shape='Artisan Boule';crumb='Open, chewy, blistered';}
+  else if(h>=0.65){shape='Batard / Baguette';crumb='Medium-open, tender';}
+  else if(hasOil&&hasHoney){shape='Soft Rolls / Hoagie';crumb='Tender, slightly sweet';}
+  else if(h<0.55){shape='Bagels / Dense Roll';crumb='Tight, chewy, dense';}
+  else{shape='Country Loaf';crumb='Medium crumb structure';}
+  document.getElementById('shape-p').textContent=shape;
+  document.getElementById('crumb-p').textContent=crumb;
+}
+
+// =======================================
+// BAKE
+// =======================================
+function startBake(){
+  if(S.baking)return;S.baking=true;
+  const btns=[document.getElementById('bbl'),document.getElementById('bbc')];
+  btns.forEach(b=>{b.classList.add('baking');b.textContent=b.id==='bbc'?'⏳ BAKING...':'⏳ BAKING...';});
+
+  const ow=document.getElementById('ow'),het=document.getElementById('het'),heb=document.getElementById('heb');
+  const fgl=document.getElementById('fgl'),rg=document.getElementById('rg'),ovl=document.getElementById('ovl');
+  const bst=document.getElementById('bst'),ltd=document.getElementById('ltd'),ltv=document.getElementById('ltv');
+  const tf=document.getElementById('tf');
+
+  bst.textContent='PREHEATING...';ltd.style.opacity='1';ovl.classList.add('on');
+  setTimeout(()=>{ow.classList.add('hot');het.classList.add('glow');heb.classList.add('glow');fgl.classList.add('on');rg.classList.add('on');},380);
+
+  let curT=72;const tgt=S.temp,ph=Date.now();
+  (function at(){
+    const p=Math.min(1,(Date.now()-ph)/3400);
+    curT=72+(tgt-72)*eio(p);ltv.textContent=Math.round(curT)+'°F';
+    tf.style.height=Math.min(92,10+(curT-72)/(tgt-72)*78)+'%';
+    if(p<1)requestAnimationFrame(at);
+  })();
+
+  setTimeout(()=>{
+    bst.textContent='LOADING DOUGH...';
+    const b3=document.getElementById('b3');b3.style.opacity='0';b3.style.height='0';
+    const bb=document.getElementById('bbd');bb.style.background='#d4b070';bb.style.filter='none';
+    setTimeout(()=>{
+      b3.style.opacity='1';b3.style.height='52px';
+      document.getElementById('bsd').style.opacity='.7';
+      document.getElementById('bbt').style.opacity='.7';
+    },520);
+  },3400);
+
+  const bakeDur=11500;
+  setTimeout(()=>{
+    bst.textContent='BAKING...';
+    startSmoke();startEmbers();startMaillard();
+    animProg(bakeDur);animBread(bakeDur);
+    setTimeout(()=>document.getElementById('cdw').classList.add('vis'),2200);
+  },4400);
+
+  setTimeout(()=>{
+    bst.textContent='OVEN SPRING! 🌡️';
+    document.getElementById('b3').style.height=getBH();
+    document.getElementById('bsc1').style.opacity='1';
+    document.getElementById('bsc2').style.opacity='.62';
+    document.getElementById('bmp1').style.opacity='1';
+    document.getElementById('bmp2').style.opacity='.72';
+  },7000);
+
+  setTimeout(finishBake,17000);
+}
+
+function getBH(){
+  const h=S.water/S.flour;
+  if(h>0.86)return'50px';if(h>0.75)return'64px';if(h<0.55)return'36px';return'58px';
+}
+
+function animProg(dur){
+  const s=Date.now(),bar=document.getElementById('bpf');
+  (function t(){const p=Math.min(100,(Date.now()-s)/dur*100);bar.style.width=p+'%';if(p<100)requestAnimationFrame(t);})();
+}
+
+function animBread(dur){
+  const s=Date.now(),bb=document.getElementById('bbd'),bsd=document.getElementById('bsd'),bbt=document.getElementById('bbt'),chov=document.getElementById('chov');
+  const burnt=S.temp>535&&S['bake-time']>45,dark=S.temp>478||S['bake-time']>52;
+  (function t(){
+    const p=Math.min(1,(Date.now()-s)/dur);
+    let bc,sc;
+    if(p<0.28){bc=lerp('#d4b070','#c8903a',p/0.28);sc=lerp('#b8904a','#a07030',p/0.28);}
+    else if(p<0.68){bc=lerp('#c8903a','#b06820',(p-.28)/.40);sc=lerp('#a07030','#7a4a10',(p-.28)/.40);}
+    else{const ec=dark?'#7a3a08':'#9a5a18';bc=lerp('#b06820',ec,(p-.68)/.32);sc=lerp('#7a4a10','#4a2a06',(p-.68)/.32);
+      bbt.style.background='linear-gradient(180deg,#582808,#381804)';
+      if(burnt)chov.style.opacity=((p-.68)/.32*.72).toString();}
+    bb.style.background=bc;bsd.style.background=sc;
+    if(p>0.48)bb.style.filter=`drop-shadow(0 0 ${p*20}px rgba(180,78,8,${p*.36}))`;
+    if(p<1)requestAnimationFrame(t);
+  })();
+}
+
+function lerp(a,b,t){
+  const ah=parseInt(a.slice(1),16),bh=parseInt(b.slice(1),16);
+  const ar=(ah>>16)&255,ag=(ah>>8)&255,ab=ah&255;
+  const br=(bh>>16)&255,bg=(bh>>8)&255,bb=bh&255;
+  return`rgb(${Math.round(ar+(br-ar)*t)},${Math.round(ag+(bg-ag)*t)},${Math.round(ab+(bb-ab)*t)})`;
+}
+
+function startSmoke(){
+  const c=document.getElementById('smc');
+  smIv=setInterval(()=>{
+    for(let i=0;i<2;i++){
+      const p=document.createElement('div');p.className='sp';
+      const sz=22+Math.random()*36;p.style.width=sz+'px';p.style.height=sz+'px';
+      p.style.left=(26+Math.random()*48)+'%';p.style.bottom=(30+Math.random()*24)+'%';
+      p.style.setProperty('--dx',(Math.random()-.5)*75+'px');
+      p.style.animationDuration=(3.5+Math.random()*3.5)+'s';
+      c.appendChild(p);setTimeout(()=>p.remove(),7000);
+    }
+  },480);
+}
+function startEmbers(){
+  const c=document.getElementById('smc');
+  emIv=setInterval(()=>{
+    if(Math.random()>.4)return;
+    const e=document.createElement('div');e.className='ep';
+    e.style.left=(22+Math.random()*56)+'%';e.style.bottom='22%';
+    e.style.setProperty('--ex',(Math.random()-.5)*48+'px');
+    e.style.animationDuration=(1+Math.random()*2.2)+'s';
+    e.style.background=Math.random()>.5?'#ffd700':'#ff8c00';
+    c.appendChild(e);setTimeout(()=>e.remove(),3400);
+  },330);
+}
+function startMaillard(){
+  const bb=document.getElementById('bbd');
+  const bi=setInterval(()=>{
+    const b=document.createElement('div');b.className='mb';
+    b.style.left=(10+Math.random()*80)+'%';b.style.top=(10+Math.random()*80)+'%';
+    bb.appendChild(b);setTimeout(()=>b.remove(),1000);
+  },640);
+  setTimeout(()=>clearInterval(bi),12500);
+}
+
+function finishBake(){
+  clearInterval(smIv);clearInterval(emIv);
+  const bst=document.getElementById('bst');bst.textContent='BREAD IS DONE! 🎉';
+  setTimeout(()=>{
+    document.getElementById('ow').classList.remove('hot');
+    document.getElementById('het').classList.remove('glow');
+    document.getElementById('heb').classList.remove('glow');
+    document.getElementById('fgl').classList.remove('on');
+    document.getElementById('rg').classList.remove('on');
+    document.getElementById('cdw').classList.remove('vis');
+    setTimeout(()=>{
+      showResult();S.baking=false;
+      const btns=[document.getElementById('bbl'),document.getElementById('bbc')];
+      btns.forEach(b=>{b.classList.remove('baking');b.textContent=b.id==='bbc'?'🔥 BAKE':'🔥 FIRE THE OVEN';});
+      bst.textContent='READY TO BAKE';
+      document.getElementById('ltd').style.opacity='0';
+      document.getElementById('ovl').classList.remove('on');
+    },2200);
+  },1300);
+}
+
+function showResult(){
+  const star=STARTERS.find(s=>s.id===S.selectedStarter);
+  const h=Math.round(S.water/S.flour*100),total=Math.round(S.flour+S.water+S.salt+S['starter-amt']+S.oil+S.honey);
+  const burnt=S.temp>535&&S['bake-time']>45,raw=S.temp<320||S['bake-time']<8;
+  let r;
+  if(burnt)r={name:'Charcoal Brick',emoji:'🪨',color:'#1a0a02',desc:'Completely carbonized. The Maillard reaction clocked out hours ago. Your smoke detector has submitted a formal complaint. Try cooler and shorter next time.'};
+  else if(raw)r={name:'Raw Dough Blob',emoji:'💧',color:'#d4b070',desc:'Still gummy inside. The crumb has the structural integrity of wet cement. You can use it as a doorstop — a warm, yeasty one. Hotter. Longer. Both.'};
+  else r=detBread();
+  document.getElementById('rviz').innerHTML=`
+    <div style="width:180px;height:95px;position:relative;">
+      <div style="width:166px;height:${h>75?84:63}px;background:${r.color||'#8b4513'};
+        border-radius:${h>84?'44%':'50%'} ${h>84?'44%':'50%'} 30% 30%/62% 62% 38% 38%;
+        position:absolute;bottom:0;left:7px;
+        box-shadow:inset 0 -11px 22px rgba(0,0,0,.42),0 11px 22px rgba(0,0,0,.56);overflow:hidden;">
+        <div style="position:absolute;top:13%;left:9%;right:9%;height:4px;background:rgba(0,0,0,.23);border-radius:2px;transform:rotate(-13deg)"></div>
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(255,230,150,.26),transparent 58%)"></div>
+      </div>
+      <div style="font-size:1.9rem;position:absolute;top:-8px;right:0">${r.emoji}</div>
+    </div>`;
+  document.getElementById('rtit').textContent=r.name;
+  document.getElementById('rsub').textContent=`${star.name} · ${h}% Hydration`;
+  document.getElementById('rdsc').textContent=r.desc;
+  document.getElementById('rst').innerHTML=`
+    <div class="sb"><div class="sv">${h}%</div><div class="sl">HYDRATION</div></div>
+    <div class="sb"><div class="sv">${total}g</div><div class="sl">TOTAL DOUGH</div></div>
+    <div class="sb"><div class="sv">${S.temp}°F</div><div class="sl">BAKE TEMP</div></div>`;
+  document.getElementById('ro').classList.add('show');
+}
+
+function detBread(){
+  const h=S.water/S.flour,hasOil=S.oil>15,hasHoney=S.honey>8;
+  const hiT=S.temp>490,shortT=S['bake-time']<=15;
+  const star=STARTERS.find(s=>s.id===S.selectedStarter);
+  const isIt=['ischia','napoli','semolina','camaldo'].includes(S.selectedStarter);
+  const c=star.name;
+  const TM={
+    boule:{name:'Artisan Sourdough Boule',emoji:'🍞',color:'#9a5a18',
+      desc:`A masterwork. The ear opened dramatically. Open glossy crumb, complex tang from the ${c} culture. Tap the bottom — that hollow knock means everything went right.`},
+    campagne:{name:'Pain de Campagne',emoji:'🥖',color:'#a06820',
+      desc:`A beautiful French country loaf. ${c} lends mild complexity. Medium-open crumb, blistered thin crust. Slather with good butter.`},
+    ciabatta:{name:'Sourdough Ciabatta',emoji:'🫓',color:'#b8782a',
+      desc:`Impossibly open crumb with massive irregular holes — proper ciabatta. The high hydration and ${c} culture delivered. The crust crackles like glass.`},
+    focaccia:{name:'Sourdough Focaccia',emoji:'🫓',color:'#c8903a',
+      desc:`Golden, dimpled, olive-oil-soaked perfection. ${isIt?`The ${c} culture`:'This culture'} gave a beautiful mild tang cutting through the richness. Crispy base, cloud interior.`},
+    hoagie:{name:'Sourdough Hoagie Rolls',emoji:'🥖',color:'#d4a040',
+      desc:`Soft, pillowy rolls with a golden crust and gentle tang. The oil and honey created a tender, slightly sweet crumb. Load them up with Italian beef or cold cuts.`},
+    baguette:{name:'Sourdough Baguette',emoji:'🥖',color:'#b87030',
+      desc:`Shattering thin crust, wildly open irregular crumb. The scores bloomed exactly right. The ${c} culture gives it character. Tear off a piece immediately.`},
+    bagel:{name:'NY Sourdough Bagels',emoji:'🥯',color:'#a06028',
+      desc:`Chewy, dense, beautifully tanned. The SF culture's sharpness elevates these above any commercial bagel you've had. Always boil in barley malt water first.`},
+    nypizza:{name:'New York Pizza Dough',emoji:'🍕',color:'#8a3a14',
+      desc:`Classic NY slice — thin, foldable, crispy edge with complex sourdough tang underneath. The ${c} culture's sharpness is perfect here. Don't cut it with scissors.`},
+    neopizza:{name:'Neapolitan Pizza',emoji:'🍕',color:'#7a3010',
+      desc:`Leopard-spotted, blistered, charred in all the right places. The ${c} culture gives it authenticity money can't buy. Finish in 90 seconds. Use a real tomato.`},
+    detroit:{name:'Detroit Pan Pizza',emoji:'🍕',color:'#9a4820',
+      desc:`Square, caramelized edges, crispy-fried bottom, focaccia-soft interior. This is the pizza other pizzas are jealous of. Put the cheese all the way to the edges.`},
+    taglio:{name:'Roman Pizza al Taglio',emoji:'🍕',color:'#8a4218',
+      desc:`Roman by-the-slice pizza. Crispy bottom, airy mid, complex tang from the Semolina Lievito Madre. Cut with scissors. Sell by weight. Eat immediately.`},
+    grissini:{name:'Grissini',emoji:'🧆',color:'#c89040',
+      desc:`Impossibly thin and crackling crispy Italian breadsticks. The Semolina Lievito Madre gives them authentic character. You cannot eat just one.`},
+  };
+  if(S.recipeType&&TM[S.recipeType])return TM[S.recipeType];
+
+  // Fallback ratio logic
+  if(hiT&&shortT&&hasOil)return{name:'Sourdough Pizza Crust',emoji:'🍕',color:'#8a3a14',desc:'Blistered, charred, blistered spots. High heat + short time = maximum crust flavor. The tang underneath is magnificent.'};
+  if(hiT&&shortT)return{name:'Crispy Flatbread',emoji:'🫓',color:'#9a4820',desc:'Thin, crackling, intense. The high heat caramelized the crust before the inside could overthink things.'};
+  if(hasOil&&h>=0.85)return{name:'Sourdough Focaccia',emoji:'🫓',color:'#c8903a',desc:'Golden and dimpled. Olive oil pooled in every pocket. Crispy outside, cloud-soft inside.'};
+  if(h>=0.87)return{name:'Wild Ciabatta',emoji:'🫓',color:'#b07828',desc:'Huge irregular holes. The crust crackles like parchment when you break it. This is what courage looks like in bread form.'};
+  if(hasOil&&hasHoney&&h<=0.65)return{name:'Sourdough Hoagie Rolls',emoji:'🥖',color:'#d4a040',desc:'Soft, pillowy, slightly sweet. Honey and oil = tender crumb that holds up to the fillings.'};
+  if(h<0.55)return{name:'Sourdough Bagels',emoji:'🥯',color:'#a06028',desc:'Dense, chewy, beautifully tanned. Low hydration = real chew. Next time boil in barley malt water first.'};
+  if(h>=0.75)return{name:'Artisan Sourdough Boule',emoji:'🍞',color:'#9a5a18',desc:'A proper artisan loaf. Open crumb, blistered crust. The hollow knock at the bottom means everything went right.'};
+  if(h>=0.65)return{name:'Sourdough Batard',emoji:'🥖',color:'#a86020',desc:'Elegant oblong loaf. Medium-open crumb, thin blistered crust. A beautiful everyday bread.'};
+  return{name:'Rustic Country Loaf',emoji:'🍞',color:'#9a5018',desc:'Honest bread with genuine tang. Good crust, satisfying crumb. This is the kind of loaf that disappears within the hour.'};
+}
+
+function closeResult(){
+  document.getElementById('ro').classList.remove('show');
+  const b3=document.getElementById('b3');b3.style.height='0';b3.style.opacity='0';
+  ['bsc1','bsc2','bmp1','bmp2','chov','bsd','bbt'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.opacity='0';});
+  document.getElementById('bpf').style.width='0';
+  document.getElementById('smc').innerHTML='';
+  document.getElementById('tf').style.height='16%';
+  document.getElementById('ltv').textContent='72°F';
+}
+
+function eio(t){return t<.5?2*t*t:-1+(4-2*t)*t;}
+
+init();
+document.querySelectorAll('input[type=range]').forEach(el=>updSlider(el));
+</script>
+</body>
+</html>
