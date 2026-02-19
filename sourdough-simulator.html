@@ -197,17 +197,40 @@ input[type=range]::-webkit-slider-thumb{
 @keyframes pfr{0%,100%{box-shadow:0 4px 18px rgba(255,69,0,.38);}50%{box-shadow:0 4px 36px rgba(255,69,0,.82),0 0 50px rgba(255,140,0,.32);}}
 
 /* ===== RECIPE CARDS ===== */
-.rc{background:rgba(255,140,0,.03);border:1px solid rgba(255,140,0,.09);border-radius:10px;
-  padding:13px;margin-bottom:10px;cursor:pointer;transition:all .16s;display:flex;gap:12px;align-items:flex-start;}
-.rc:active{background:rgba(255,140,0,.09);transform:scale(.98);}
+.rc{
+  background:rgba(255,140,0,.03);border:1px solid rgba(255,140,0,.09);border-radius:10px;
+  padding:14px;margin-bottom:10px;cursor:pointer;transition:all .16s;
+  display:flex;gap:12px;align-items:flex-start;
+  position:relative;overflow:hidden;
+}
+.rc::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--gold),var(--ember));
+  opacity:0;transition:.18s;
+}
+.rc:hover::before,.rc:active::before{opacity:1;}
+.rc:active{background:rgba(255,140,0,.08);transform:scale(.985);}
 .re{font-size:1.6rem;line-height:1;flex-shrink:0;margin-top:2px;}
-.rc-body{flex:1;}
-.rn{font-family:'Playfair Display',serif;font-size:.85rem;color:var(--gold);margin-bottom:3px;}
-.rd{font-family:'Crimson Pro',serif;font-style:italic;font-size:.72rem;color:rgba(253,246,227,.38);line-height:1.38;}
-.diff{display:inline-block;font-size:.5rem;padding:3px 7px;border-radius:10px;margin-top:5px;letter-spacing:.08em;text-transform:uppercase;}
+.rc-body{flex:1;min-width:0;}
+.rn{font-family:'Playfair Display',serif;font-size:.88rem;font-weight:700;color:var(--gold);margin-bottom:3px;letter-spacing:.02em;}
+.rd{
+  font-family:'Crimson Pro',serif;font-style:italic;font-size:.72rem;
+  color:rgba(253,246,227,.42);line-height:1.52;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.rc-meta{display:flex;align-items:center;gap:6px;margin-top:7px;}
+.diff{display:inline-block;font-size:.46rem;padding:3px 7px;border-radius:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;}
 .easy{background:rgba(80,200,80,.12);color:#80c080;border:1px solid rgba(80,200,80,.16);}
 .medium{background:rgba(255,165,0,.12);color:#ffa050;border:1px solid rgba(255,165,0,.16);}
-.hard{background:rgba(255,60,60,.12);color:#ff8060;border:1px solid rgba(255,60,60,.16);}
+.hard{background:rgba(255,60,60,.12);color:#ff7050;border:1px solid rgba(255,60,60,.2);}
+/* hydration pill */
+.rc-hyd{
+  font-size:.46rem;padding:3px 7px;border-radius:10px;letter-spacing:.08em;
+  background:rgba(100,180,255,.08);color:rgba(140,200,255,.7);
+  border:1px solid rgba(100,180,255,.14);
+}
+/* star badge for Michelin-level */
+.rc-star{font-size:.64rem;opacity:.55;margin-left:auto;}
 
 /* ===== OVEN TAB ===== */
 .oven-pane{
@@ -428,14 +451,15 @@ input[type=range]::-webkit-slider-thumb{
 }
 .rip-sec::after{content:'';flex:1;height:1px;background:rgba(255,140,0,.12);}
 
-/* ingredient rows */
 .rip-ing-row{
   display:flex;justify-content:space-between;align-items:baseline;
   padding:4px 0;
   border-bottom:1px solid rgba(255,255,255,.04);
 }
 .rip-ing-row:last-child{border-bottom:none;}
-.rip-ing-name{font-size:.62rem;color:rgba(253,246,227,.65);}
+.rip-ing-row.rip-ing-hi .rip-ing-name{color:var(--amber);opacity:.75;}
+.rip-ing-row.rip-ing-hi .rip-ing-val{color:var(--gold);}
+.rip-ing-name{font-size:.62rem;color:rgba(253,246,227,.55);}
 .rip-ing-val{
   font-size:.7rem;font-weight:700;color:var(--cream);
   font-family:'Space Mono',monospace;
@@ -758,28 +782,63 @@ const STARTERS=[
 ];
 
 const RECIPES=[
-  {emoji:'🍞',name:'Classic SF Boule',        diff:'medium',desc:'The quintessential sourdough. Open crumb, blistered crust, sharp 1849 culture tang.',
-   preset:{flour:450,water:338,salt:10,'starter-amt':90,oil:0,honey:0,temp:480,'bake-time':45,starter:'sf',type:'boule'}},
-  {emoji:'🫓',name:'Ischia Ciabatta',         diff:'hard',  desc:"Ed Wood's Ischia island culture. Impossibly open crumb, razor-thin crust, fruity tang.",
-   preset:{flour:500,water:455,salt:11,'starter-amt':120,oil:32,honey:0,temp:478,'bake-time':34,starter:'ischia',type:'ciabatta'}},
-  {emoji:'🫓',name:'Roman Focaccia',          diff:'easy',  desc:'Ischia culture. Dimpled, oil-pooled. Throw on rosemary and coarse salt. Crispy base, cloud interior.',
-   preset:{flour:500,water:430,salt:12,'starter-amt':140,oil:65,honey:0,temp:432,'bake-time':28,starter:'ischia',type:'focaccia'}},
-  {emoji:'🥖',name:'Sourdough Baguette',      diff:'hard',  desc:'Long ferment, slashed deeply. Shattering crust, wildly open irregular crumb. SF culture.',
-   preset:{flour:500,water:360,salt:11,'starter-amt':60,oil:0,honey:0,temp:488,'bake-time':28,starter:'sf',type:'baguette'}},
-  {emoji:'🥯',name:'NY Sourdough Bagels',     diff:'hard',  desc:'Low hydration. Boiled in barley malt water, baked fierce. SF tang makes these extraordinary.',
-   preset:{flour:500,water:268,salt:11,'starter-amt':100,oil:0,honey:22,temp:500,'bake-time':26,starter:'sf',type:'bagel'}},
-  {emoji:'🍕',name:'New York Slice',          diff:'medium',desc:'Cold-fermented 72hrs. High-protein flour. Thin, crispy edge, foldable center.',
-   preset:{flour:500,water:325,salt:12,'starter-amt':40,oil:20,honey:8,temp:550,'bake-time':14,starter:'sf',type:'nypizza'}},
-  {emoji:'🍕',name:'Neapolitan Pizza',        diff:'hard',  desc:"00 flour, 65% hydration. Ischia island culture. Leopard-spotted blistered crust. 90-second bake energy.",
-   preset:{flour:500,water:325,salt:11,'starter-amt':30,oil:0,honey:0,temp:550,'bake-time':10,starter:'ischia',type:'neopizza'}},
-  {emoji:'🍕',name:'Detroit Pan Pizza',       diff:'easy',  desc:'Square pan. Crispy-fried bottom, focaccia-soft interior. Wisconsin brick cheese to the edges.',
-   preset:{flour:500,water:375,salt:11,'starter-amt':100,oil:45,honey:5,temp:478,'bake-time':22,starter:'ischia',type:'detroit'}},
-  {emoji:'🍕',name:'Roman Pizza al Taglio',   diff:'medium',desc:'By-the-slice Roman style. High hydration, olive oil, crispy base. Ischia culture.',
-   preset:{flour:500,water:412,salt:11,'starter-amt':80,oil:40,honey:0,temp:462,'bake-time':25,starter:'ischia',type:'taglio'}},
-  {emoji:'🧆',name:'Grissini',               diff:'easy',  desc:'Italian thin crispy breadsticks. Ischia culture. Crackling, light, utterly addictive.',
-   preset:{flour:400,water:220,salt:9,'starter-amt':60,oil:30,honey:0,temp:425,'bake-time':18,starter:'ischia',type:'grissini'}},
-  {emoji:'🫓',name:'Focaccia Pull-Apart Rolls',diff:'easy', desc:'Individual dimpled buns. Oiled, golden. Ischia culture adds fruity tang. Disappear immediately.',
-   preset:{flour:450,water:380,salt:10,'starter-amt':120,oil:55,honey:0,temp:428,'bake-time':22,starter:'ischia',type:'focaccia'}},
+
+  // ════════════════════════════════════
+  // BREADS
+  // ════════════════════════════════════
+
+  {emoji:'🍞', name:'San Francisco Country Boule', diff:'hard',
+   desc:'78% hydration · 90% bread flour + 10% T85 whole wheat · 20% levain · 36-hr cold retard at 38°F. Extended autolyse 45 min. Coil-fold 4× every 30 min. Ear scores 120°. Shattering mahogany crust, translucent open crumb. Inspiration: Tartine, Acme Bread.',
+   preset:{flour:450, water:351, salt:10, 'starter-amt':90, oil:0, honey:0, temp:500, 'bake-time':46, starter:'sf', type:'boule'}},
+
+  {emoji:'🥖', name:'Sourdough Baguette de Tradition', diff:'hard',
+   desc:'72% hydration · 100% T65 French flour · 25% levain · 48-hr cold retard. Bassinage technique — hold back 5% water, incorporate after gluten window. Bake on stone with 14 min of injected steam. Five grigne cuts at 30°. Translucent crumb cells, crust shatters like porcelain.',
+   preset:{flour:500, water:360, salt:10, 'starter-amt':125, oil:0, honey:0, temp:490, 'bake-time':26, starter:'sf', type:'baguette'}},
+
+  {emoji:'🫓', name:'Ischia Ciabatta Vera', diff:'hard',
+   desc:'91% hydration · Tipo 00 Caputo Nuvola · 15% levain · No kneading. Build dough in bassino, stretch-and-fold 6× over 4 hrs. Single cold proof 18 hrs. Divide with oiled bench scraper — never degas. Bake on 550°F stone with steam. Crust shatters. Crumb: irregular 2–3 cm cells.',
+   preset:{flour:500, water:455, salt:10, 'starter-amt':75, oil:20, honey:0, temp:480, 'bake-time':32, starter:'ischia', type:'ciabatta'}},
+
+  // ════════════════════════════════════
+  // FOCACCIA
+  // ════════════════════════════════════
+
+  {emoji:'🫓', name:'Focaccia di Recco col Formaggio', diff:'medium',
+   desc:'85% hydration · Tipo 00 flour · 26% levain · DOP Ligurian extra-virgin olive oil. Three-stage oil fold during bulk. Stretch to 3 mm on oiled tray — thin enough to read text through. Fill with stracchino or crescenza. Blistered top, crisp-lacquered base.',
+   preset:{flour:500, water:425, salt:11, 'starter-amt':130, oil:72, honey:0, temp:500, 'bake-time':18, starter:'ischia', type:'focaccia'}},
+
+  // ════════════════════════════════════
+  // PIZZA
+  // ════════════════════════════════════
+
+  {emoji:'🍕', name:'Vera Pizza Napoletana DOC', diff:'hard',
+   desc:'62% hydration · Caputo Pizzeria 00 · 5% levain · 48-hr cold ferment at 39°F. Salt at 3% of flour — dissolved before adding levain. Ball at 280 g. Stretch by hand only — no rolling pin. Bake 850°F floor, 60–90 sec. Leopard-spotted cornizione, char-kissed floor. AVPN standard.',
+   preset:{flour:500, water:310, salt:15, 'starter-amt':25, oil:0, honey:0, temp:550, 'bake-time':10, starter:'ischia', type:'neopizza'}},
+
+  {emoji:'🍕', name:'New York Coal-Oven Pie', diff:'medium',
+   desc:'65% hydration · King Arthur Sir Lancelot high-gluten · 7% levain · 72-hr cold ferment, 3 stretch-and-folds. 18" hand-tossed. Bake on 1" baking steel preheated 1 hr. Dock crust edge. Foldable slice, leopard-spotted bottom, NY tang from SF culture. Finish under broiler 90 sec.',
+   preset:{flour:500, water:325, salt:12, 'starter-amt':35, oil:18, honey:10, temp:550, 'bake-time':14, starter:'sf', type:'nypizza'}},
+
+  {emoji:'🍕', name:'Roman Pizza al Taglio', diff:'medium',
+   desc:'80% hydration · Type 1 stone-ground flour + 20% semolina rimacinata · 16% levain · Extra-virgin olive oil at 8%. Bake in oiled blue-steel tray. Crisp parchment-thin base, cloud-like interior. Sliced with scissors to order. As served at Bonci Pizzarium, Rome.',
+   preset:{flour:450, water:360, salt:11, 'starter-amt':72, oil:36, honey:0, temp:460, 'bake-time':25, starter:'ischia', type:'taglio'}},
+
+  {emoji:'🍕', name:'Detroit Red Top', diff:'medium',
+   desc:'75% hydration · Bread flour + 5% semolina · 18% levain · Olive oil 9%. Wisconsin brick cheese pressed wall-to-wall — caramelises against blue-steel sides. Ladle sauce on top after bake. Lacey, crispy cheese skirt. Pillowy open interior. As perfected at Buddy\'s, Detroit.',
+   preset:{flour:500, water:375, salt:11, 'starter-amt':90, oil:45, honey:0, temp:480, 'bake-time':22, starter:'ischia', type:'detroit'}},
+
+  // ════════════════════════════════════
+  // SPECIALTY
+  // ════════════════════════════════════
+
+  {emoji:'🥯', name:'Montréal Sourdough Bagel', diff:'hard',
+   desc:'53% hydration · Unbleached bread flour · 16% levain · 6% honey · Hand-rolled thin (not thick like NY). Cold-proof 12 hrs. Boil in honey water 45 sec per side. Bake on maple planks in wood-fired oven. Dense, chewy, slightly sweet. Sesame or poppy. St-Viateur method.',
+   preset:{flour:500, water:265, salt:10, 'starter-amt':80, oil:0, honey:30, temp:500, 'bake-time':22, starter:'sf', type:'bagel'}},
+
+  {emoji:'🧆', name:'Grissini Stirati Torinesi', diff:'easy',
+   desc:'44% hydration · Tipo 00 flour · 12.5% levain · DOP extra-virgin olive oil 9%. Hand-stretched to 60 cm, paper-thin — never rolled. Ancient Turinese court bread, dating to 1679. Bake dry at low heat. Shatters into ivory shards at the table. Served at Ristorante Del Cambio, Turin.',
+   preset:{flour:400, water:176, salt:8, 'starter-amt':50, oil:36, honey:0, temp:420, 'bake-time':20, starter:'ischia', type:'grissini'}},
+
 ];
 
 // =======================================
@@ -869,10 +928,21 @@ function renderStarters(){
 }
 function renderRecipes(){
   document.getElementById('recipes-list').innerHTML=
-    RECIPES.map((r,i)=>`<div class="rc" onclick="applyP(${i})">
-      <span class="re">${r.emoji}</span>
-      <div class="rc-body"><div class="rn">${r.name}</div><div class="rd">${r.desc}</div><span class="diff ${r.diff}">${r.diff}</span></div>
-      </div>`).join('');
+    RECIPES.map((r,i)=>{
+      const hyd=Math.round(r.preset.water/r.preset.flour*100);
+      return `<div class="rc" onclick="applyP(${i})">
+        <span class="re">${r.emoji}</span>
+        <div class="rc-body">
+          <div class="rn">${r.name}</div>
+          <div class="rd">${r.desc}</div>
+          <div class="rc-meta">
+            <span class="diff ${r.diff}">${r.diff}</span>
+            <span class="rc-hyd">${hyd}% hydration</span>
+            <span class="rc-star">⭐</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
 }
 
 function buildRack(){
@@ -1069,93 +1139,118 @@ function applyP(idx){
 
 // Equipment definitions by recipe type
 const EQUIPMENT={
+
   boule:[
-    {ic:'🧺',name:'Banneton / Proofing Basket',desc:'Coiled cane basket that gives the boule its shape and flour-dusted rings during final proof.',req:'yes'},
-    {ic:'🫕',name:'Dutch Oven',desc:'Cast iron pot with lid. Creates a steam chamber for maximum oven spring and blistered crust.',req:'yes'},
-    {ic:'🪃',name:'Lame / Bread Scorer',desc:'Curved razor blade for slashing the ear. A sharp knife works in a pinch.',req:'yes'},
-    {ic:'⚖️',name:'Kitchen Scale',desc:'Baking by weight is non-negotiable for consistent results.',req:'yes'},
+    {ic:'🧺', name:'Round Banneton (750 g)',       req:'yes', desc:'9" coiled cane banneton dusted with rice flour. Gives the boule its signature spiral rings and maintains shape during 36-hr cold retard.'},
+    {ic:'🫕', name:'Enameled Cast Iron Dutch Oven', req:'yes', desc:'5.5 qt Le Creuset or Lodge. Lid trapped steam for first 20 min replaces a deck oven. Preheat 45 min at 500°F before loading.'},
+    {ic:'🪃', name:'Wire Lame',                    req:'yes', desc:'Curved blade on a stiff wire. A flat lame will drag — the curve lets you undercut the ear at 30–45° for the iconic bloom.'},
+    {ic:'🌡️', name:'Probe Thermometer',            req:'yes', desc:'Pull the loaf at 208°F internal. Under 205°F = gummy crumb. Over 212°F = dry. Thermapen or equivalent.'},
+    {ic:'⚖️', name:'0.1 g Precision Scale',        req:'yes', desc:'Levain percentage and salt must be exact. A 1 g error on salt in a 450 g loaf changes flavour noticeably.'},
+    {ic:'🫙', name:'Cambro 6-qt Container',         req:'nice', desc:'Straight-sided container lets you track dough rise visually. Mark start height with a rubber band.'},
   ],
-  campagne:[
-    {ic:'🧺',name:'Banneton / Proofing Basket',desc:'Oval banneton gives the batard its form during cold retard.',req:'yes'},
-    {ic:'🫕',name:'Dutch Oven or Combo Cooker',desc:'Traps steam for the initial bake phase. Flip the combo cooker and use the shallow side as a lid.',req:'yes'},
-    {ic:'🪃',name:'Lame',desc:'For the classic curved score that opens into a dramatic ear.',req:'yes'},
-  ],
-  ciabatta:[
-    {ic:'🫙',name:'Proofing Box or Humid Environment',desc:'High-hydration dough needs covered bulk ferment to prevent skin forming.',req:'yes'},
-    {ic:'🧴',name:'Bench Scraper',desc:'Essential for folding and dividing the wet dough without deflating.',req:'yes'},
-    {ic:'🍳',name:'Baking Stone or Steel',desc:'Preheated surface gives explosive bottom heat for open crumb.',req:'yes'},
-    {ic:'💧',name:'Steam Injection or Lava Rocks',desc:'Steam in the first 15 min keeps crust pliable for maximum spring.',req:'nice'},
-  ],
-  focaccia:[
-    {ic:'🟫',name:'Sheet Pan (half or full)',desc:'Generously oiled. The pan shape defines the focaccia.',req:'yes'},
-    {ic:'🫙',name:'Covered Container for Bulk',desc:'High-hydration dough needs covered fermentation.',req:'yes'},
-    {ic:'🧴',name:'Olive Oil',desc:'Pools in the dimples. Use good oil — it\'s a main ingredient, not a lubricant.',req:'yes'},
-  ],
-  hoagie:[
-    {ic:'🍳',name:'Baking Sheet with Steam Pan',desc:'Rolls bake on a sheet with a pan of boiling water for crust development.',req:'yes'},
-    {ic:'🧴',name:'Bench Scraper',desc:'For portioning the roll dough cleanly.',req:'yes'},
-  ],
+
   baguette:[
-    {ic:'🥖',name:'Baguette Pan or Couche',desc:'Linen couche or perforated baguette pan holds the long shape during final proof.',req:'yes'},
-    {ic:'🍳',name:'Baking Stone + Steam',desc:'Stone preheated 45+ min. Steam for first 12 min is critical.',req:'yes'},
-    {ic:'🪃',name:'Lame',desc:'Multiple diagonal slashes at a shallow 30° angle.',req:'yes'},
-    {ic:'🧊',name:'Steam Source',desc:'Cast iron pan with boiling water, or lava rocks. Steam defines baguette crust.',req:'yes'},
+    {ic:'🧵', name:'Linen Couche',                 req:'yes', desc:'Stiff baker\'s linen holds baguette shape during final 45-min proof without sticking. Dust heavily with bench flour.'},
+    {ic:'🪨', name:'Baking Stone (1" thick)',       req:'yes', desc:'½" steel or 1" cordierite stone preheated 1 hr minimum. Thermal mass drives bottom crust and explosive spring.'},
+    {ic:'🧊', name:'Steam Source',                 req:'yes', desc:'Cast iron skillet on lowest rack with lava rocks. Pour 1 cup boiling water at load. Steam for exactly 14 min — vent at 12 min.'},
+    {ic:'🪃', name:'Straight Razor Lame',          req:'yes', desc:'Flat lame at 30° for 5 parallel cuts on each baguette. Cut in one swift motion — hesitation tears dough.'},
+    {ic:'🥖', name:'Baguette Transfer Peel',       req:'yes', desc:'Thin wooden peel to roll baguettes off the couche directly onto stone without deflating.'},
+    {ic:'🌡️', name:'Infrared Thermometer',        req:'nice', desc:'Verify stone surface is 500°F+. Surface temp drops ~30°F per minute with the door open.'},
   ],
-  bagel:[
-    {ic:'🫕',name:'Large Pot for Boiling',desc:'Bagels must be boiled in barley malt or baking soda water before baking. Non-negotiable.',req:'yes'},
-    {ic:'🍳',name:'Baking Sheet',desc:'With parchment. Bagels go straight from boil to sheet to oven.',req:'yes'},
-    {ic:'⚖️',name:'Kitchen Scale',desc:'Low-hydration dough is precise work — weigh every piece.',req:'yes'},
+
+  ciabatta:[
+    {ic:'🪣', name:'Large Flat Tub (dough tray)',  req:'yes', desc:'Wide, shallow container for slap-and-fold. High hydration demands surface area for folding, not a bowl.'},
+    {ic:'🧴', name:'Metal Bench Scraper',          req:'yes', desc:'Dividing 91% hydration dough requires a sharp scraper. Never use your hands — the dough will tear.'},
+    {ic:'🪨', name:'Baking Steel',                 req:'yes', desc:'½" steel preheated 1 hr. Greater thermal conductivity than stone — floor temp recovery is essential.'},
+    {ic:'💧', name:'Steam Pan + Boiling Water',    req:'yes', desc:'Heavy steam first 10 min keeps crust extensible for full spring. Ventilate completely for final 20 min to crisp.'},
+    {ic:'🍞', name:'Bread Boards (flip boards)',   req:'nice', desc:'Flip-board method transfers slack pieces from linen to peel without losing gas — essential at 91% hydration.'},
   ],
-  nypizza:[
-    {ic:'🍳',name:'Pizza Stone or Steel',desc:'Preheated 1 hour at max temp. Steel conducts heat better than stone for NY crust.',req:'yes'},
-    {ic:'🍕',name:'Pizza Peel',desc:'Wooden peel for launching, metal peel for retrieving.',req:'yes'},
-    {ic:'🌡️',name:'Oven Thermometer',desc:'Home ovens lie. Know your actual temp.',req:'nice'},
+
+  focaccia:[
+    {ic:'🟫', name:'Blue Steel Sheet Pan (18×13")', req:'yes', desc:'Blue steel seasons like cast iron and conducts heat for a lacquered, crispy base. Avoid non-stick — it steams.'},
+    {ic:'🫒', name:'DOP Liguria Extra-Virgin Oil',  req:'yes', desc:'The oil is not garnish — it\'s structural. Pool 40 g in the pan before dough, 30 g on top before dimpling.'},
+    {ic:'🌡️', name:'Oven Thermometer',            req:'yes', desc:'Focaccia di Recco bakes at 500°F. Domestic ovens undershoot by 25–50°F. Verify with a hanging thermometer.'},
+    {ic:'🫙', name:'Plastic Wrap + Spray Bottle', req:'nice', desc:'Keep surface misted during ambient proof. Any skin formation means uneven dimpling and tearing.'},
   ],
+
   neopizza:[
-    {ic:'🍳',name:'Pizza Stone / Steel (or Ooni)',desc:'Must reach 750°F+ for authentic Neapolitan. A dedicated pizza oven is ideal.',req:'yes'},
-    {ic:'🍕',name:'Pizza Peel',desc:'Thin peel for launching. You have ~90 seconds per pie.',req:'yes'},
-    {ic:'🌡️',name:'Infrared Thermometer',desc:'Check your stone surface. You need 700°F minimum.',req:'yes'},
+    {ic:'🔥', name:'Wood-Fired or Gas Pizza Oven', req:'yes', desc:'Ooni Karu, Gozney Dome, or wood-fired brick. Floor must reach 850°F. Standard home ovens max at 550°F — insufficient.'},
+    {ic:'🍕', name:'12" Wooden Launch Peel',       req:'yes', desc:'Semolina-dusted. Shape and dress the pie on the peel. Shake to confirm it\'s loose before launching. You have 90 seconds.'},
+    {ic:'🌡️', name:'Infrared Thermometer',        req:'yes', desc:'Check floor temp before every pie. Temp drops 50–80°F per bake. Reheat 3 min between pies.'},
+    {ic:'🔄', name:'Metal Turning Peel',           req:'yes', desc:'8" turning peel to rotate pie every 20 seconds for even leoparding. Essential — no other tool does this.'},
+    {ic:'⚖️', name:'Digital Scale (0.1 g)',       req:'yes', desc:'280 g dough balls. Salt at 3% of flour, dissolved in water before levain. Precision is the difference.'},
   ],
-  detroit:[
-    {ic:'🟫',name:'Detroit-Style Pan (8×10 or 9×13)',desc:'Blue steel or anodized aluminum pan. The crispy caramelized cheese edges come from pan contact.',req:'yes'},
-    {ic:'🧴',name:'Olive or Vegetable Oil',desc:'Coat the pan generously. The bottom fries, not bakes.',req:'yes'},
+
+  nypizza:[
+    {ic:'⬛', name:'Baking Steel (½")',            req:'yes', desc:'Preheat on top rack at 550°F for 1 hour. The steel absorbs broiler heat and delivers it to the crust bottom.'},
+    {ic:'🍕', name:'16" Wooden Pizza Peel',        req:'yes', desc:'Dust with fine semolina — never flour, which burns. Shake loose before launching onto steel.'},
+    {ic:'🌡️', name:'Infrared Thermometer',        req:'yes', desc:'Steel surface needs to be 550–600°F. Check after preheating. Reload time between pies is 8 min minimum.'},
+    {ic:'🔥', name:'Broiler',                     req:'nice', desc:'After 8 min, switch to broil for 60–90 sec for char blisters on the top. Watch constantly — burns in seconds.'},
   ],
+
   taglio:[
-    {ic:'🟫',name:'Sheet Pan (rimmed)',desc:'Roman-style bakes in a generously oiled rectangular pan.',req:'yes'},
-    {ic:'✂️',name:'Kitchen Scissors',desc:'Traditional Roman method for cutting al taglio portions.',req:'yes'},
+    {ic:'🟫', name:'Blue Steel Baking Pan (18×13")', req:'yes', desc:'Generously oiled blue steel. Roman al taglio bakes in thin rectangular sheets — the pan IS the crust mold.'},
+    {ic:'✂️', name:'Heavy Kitchen Scissors',       req:'yes', desc:'Traditional tool for cutting al taglio portions. Scissors preserve crust structure; a knife compresses.'},
+    {ic:'🫒', name:'Good Olive Oil',               req:'yes', desc:'Coat pan with 30 g oil before dough. Surface dimples hold the same again on top. Cheap oil makes it greasy.'},
+    {ic:'🌡️', name:'Oven Thermometer',            req:'nice', desc:'Al taglio bakes at 460°F. Consistent temp critical for even crisp base without burning top.'},
   ],
+
+  detroit:[
+    {ic:'🟫', name:'Lloyd Detroit Pan (8×10")',    req:'yes', desc:'Blue steel, 2" tall sides. The specific geometry creates the caramelized cheese "frico" edge. No substitute.'},
+    {ic:'🧀', name:'Wisconsin Brick Cheese',       req:'yes', desc:'Placed edge-to-edge touching the pan walls. It melts, flows down, and fries against the steel into lacy crisp skirts.'},
+    {ic:'🫒', name:'Vegetable or Olive Oil (heavy)', req:'yes', desc:'3 tablespoons in the pan before dough. The base fries in this oil — it\'s not greasing, it\'s cooking medium.'},
+    {ic:'🌡️', name:'Oven Thermometer',            req:'nice', desc:'Bake at 480°F. Verify — an uneven oven causes one corner to burn while the other is raw.'},
+  ],
+
+  bagel:[
+    {ic:'🫕', name:'Large Stainless Stockpot',    req:'yes', desc:'8 qt minimum. Water with 1 tbsp barley malt syrup + 1 tsp baking soda. Rolling boil. 45 sec per side — timing defines chew.'},
+    {ic:'🪵', name:'Maple Wood Planks',            req:'yes', desc:'Authentic Montréal bagels bake directly on wood planks in 450°F+ oven. Planks impart subtle smokiness and even heat.'},
+    {ic:'⚖️', name:'Scale (per-piece weighing)',  req:'yes', desc:'Each bagel ball = exactly 100 g. Weight consistency = even boiling time = uniform chew. No guessing.'},
+    {ic:'🌡️', name:'Instant-Read Thermometer',   req:'nice', desc:'Bagels are done at 190°F internal. Under-bake = doughy core even with perfect exterior colour.'},
+  ],
+
   grissini:[
-    {ic:'🍳',name:'Baking Sheets (multiple)',desc:'Grissini bake in large batches on flat sheets.',req:'yes'},
-    {ic:'🧴',name:'Olive Oil',desc:'Rolled in olive oil before baking for crunch and flavor.',req:'yes'},
+    {ic:'🍳', name:'Multiple Baking Sheets',       req:'yes', desc:'At least 3 sheets. Grissini bake in shifts — rotating sheets every 5 min ensures even crunch across all 30+ sticks.'},
+    {ic:'🫒', name:'DOP Extra-Virgin Olive Oil',   req:'yes', desc:'Rolled in oil before hand-stretching. The oil coats each stick for an even, lacquered, shattering crust.'},
+    {ic:'📏', name:'Bench Ruler',                  req:'nice', desc:'Target 60 cm per stick. Hand-stretch in one smooth pull from the centre outward — never roll with a pin.'},
   ],
+
 };
-// Default for unknown types
+
 const EQ_DEFAULT=[
-  {ic:'⚖️',name:'Kitchen Scale',desc:'Weigh all ingredients for consistent results.',req:'yes'},
-  {ic:'🫕',name:'Dutch Oven',desc:'Creates steam for open crumb and blistered crust.',req:'nice'},
+  {ic:'⚖️', name:'Kitchen Scale', req:'yes', desc:'All professional baking is by weight. Volume measuring is not acceptable at this level.'},
+  {ic:'🫕', name:'Dutch Oven',    req:'nice', desc:'Creates steam environment for oven spring and blistered crust development.'},
 ];
 
 function showRecipePanel(idx){
   const r=RECIPES[idx];
   const p=r.preset;
   const star=STARTERS.find(s=>s.id===p.starter);
+  const starName = star ? star.name : '—';
   document.getElementById('rip-emoji').textContent=r.emoji;
   document.getElementById('rip-name').textContent=r.name;
-  document.getElementById('rip-culture').textContent=star?star.name+' culture':'';
+  document.getElementById('rip-culture').textContent=starName;
 
-  // Ingredients
+  // Ingredients — calculate totals and hydration
+  const totalFlour = p.flour + p['starter-amt'] * 0.5; // rough baker's % base
+  const hyd = Math.round(p.water / p.flour * 100);
+  const totalDough = p.flour + p.water + p.salt + p['starter-amt'] + (p.oil||0) + (p.honey||0);
+
   const ings=[
-    {label:'Flour',   v:p.flour,      unit:'g'},
-    {label:'Water',   v:p.water,      unit:'g'},
-    {label:'Salt',    v:p.salt,       unit:'g'},
-    {label:'Starter', v:p['starter-amt'], unit:'g'},
-    p.oil   > 0 ? {label:'Oil',   v:p.oil,   unit:'g'} : null,
-    p.honey > 0 ? {label:'Honey', v:p.honey, unit:'g'} : null,
-    {label:'Hydration',v:Math.round(p.water/p.flour*100), unit:'%'},
+    {label:'Bread Flour',  v:p.flour,            unit:'g',  highlight:false},
+    {label:'Water',        v:p.water,             unit:'g',  highlight:false},
+    {label:'Sea Salt',     v:p.salt,              unit:'g',  highlight:false},
+    {label:'Levain',       v:p['starter-amt'],    unit:'g',  highlight:false},
+    p.oil   > 0 ? {label:'Olive Oil',   v:p.oil,   unit:'g', highlight:false} : null,
+    p.honey > 0 ? {label:'Honey',       v:p.honey, unit:'g', highlight:false} : null,
+    {label:'Hydration',    v:hyd,                 unit:'%',  highlight:true},
+    {label:'Total Dough',  v:totalDough,           unit:'g',  highlight:true},
+    {label:'Bake Temp',    v:p.temp,              unit:'°F', highlight:true},
+    {label:'Bake Time',    v:p['bake-time'],      unit:'min',highlight:true},
   ].filter(Boolean);
 
   document.getElementById('rip-ings').innerHTML=ings.map(i=>
-    `<div class="rip-ing-row">
+    `<div class="rip-ing-row${i.highlight?' rip-ing-hi':''}">
       <span class="rip-ing-name">${i.label}</span>
       <span class="rip-ing-val">${i.v}<span class="rip-ing-unit">${i.unit}</span></span>
     </div>`
