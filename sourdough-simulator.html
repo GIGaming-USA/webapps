@@ -275,6 +275,19 @@ input[type=range]::-webkit-slider-thumb{
   background:rgba(255,255,255,.05);
   border:1px solid rgba(255,255,255,.1);
 }
+/* steps list in popup */
+.rip-steps{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;}
+.rip-step{display:flex;align-items:flex-start;gap:11px;}
+.rip-step-n{
+  flex-shrink:0;width:24px;height:24px;border-radius:50%;
+  background:rgba(255,140,0,.15);border:1px solid rgba(255,140,0,.3);
+  color:var(--amber);font-size:.7rem;font-weight:700;font-family:'Space Mono',monospace;
+  display:flex;align-items:center;justify-content:center;margin-top:1px;
+}
+.rip-step-t{
+  font-size:.88rem;color:rgba(253,246,227,.84);line-height:1.65;
+  font-family:'Crimson Pro',serif;
+}
 .rc-meta{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;}
 .diff{
   display:inline-block;font-size:.75rem;padding:5px 11px;
@@ -666,7 +679,12 @@ input[type=range]::-webkit-slider-thumb{
             <div id="rip-uses" class="rip-uses" style="display:none"></div>
             <div id="rip-ings"></div>
 
-            <div style="margin-top:12px;">
+            <div style="margin-top:14px;">
+              <div class="rip-sec">How to Make It</div>
+              <ol class="rip-steps" id="rip-steps"></ol>
+            </div>
+
+            <div style="margin-top:14px;">
               <div class="rip-sec">Equipment</div>
               <div class="rip-eq-list" id="rip-eq"></div>
             </div>
@@ -859,7 +877,8 @@ const RECIPES=[
 
   {emoji:'🍞', name:'Classic Rustic Sourdough', diff:'medium', chef:'Every baker who ever lived',
    uses:'Eat fresh with butter · toast · dip in soup · the sandwich loaf that tastes like bread should taste',
-   desc:'75% hydration · 100% bread flour · 20% levain · The loaf. Stretch-and-fold 4× over 2 hrs. Shape. Overnight cold proof at 38°F. Bake covered 20 min then uncovered 24 min. Good ear, open crumb, hollow knock at the bottom.',
+   desc:'75% hydration · 100% bread flour · 20% levain · The loaf. No tricks, just flour, water, salt, starter.',
+   steps:['Feed levain 8–12 hrs before mixing. It should be domed, bubbly, pass the float test.','Combine flour and water, mix until no dry bits. Rest 30 min (autolyse).','Add levain and salt. Squeeze through fingers until fully incorporated.','Bulk ferment 4–5 hrs at 78°F. Perform 4 stretch-and-folds in the first 2 hrs, every 30 min.','Pre-shape into a round. Rest 20 min seam-up on the counter.','Final shape: flip, drag toward you to build tension. Place seam-up into floured banneton.','Cold retard overnight (8–16 hrs) in the fridge at 38°F.','Preheat Dutch oven in oven at 475°F for 45 min.','Flip loaf onto parchment, score one confident ear cut at 30–45°.','Bake covered 20 min. Remove lid, bake 24 more min until deep mahogany. Pull at 208°F internal.','Cool on a wire rack at least 1 hr before cutting. The crumb is still baking inside.'],
    preset:{flour:450, water:338, salt:9, 'starter-amt':90, oil:0, honey:0, temp:475, 'bake-time':44, starter:'sf', type:'boule'}},
 
   // ════════════════════════════════════
@@ -868,32 +887,38 @@ const RECIPES=[
 
   {emoji:'🍞', name:'San Francisco Country Boule', diff:'hard', chef:'Chad Robertson · Tartine Bakery, SF',
    uses:'The showpiece loaf · thick slices with good butter · cheese boards · gifts · eat at the table not over the sink',
-   desc:'78% hydration · 90% bread flour + 10% T85 whole wheat · 20% levain · 36-hr cold retard at 38°F. Autolyse 45 min. Coil-fold 4× every 30 min. Score at 120°. Shattering mahogany crust, translucent open crumb.',
+   desc:'78% hydration · 90% bread flour + 10% T85 whole wheat · 20% levain · 36-hr cold retard.',
+   steps:['Mix levain with water, add flours, autolyse 45 min. Salt goes in after.','Bulk ferment 4 hrs at 80°F. Coil-fold 4× every 30 min for first 2 hrs.','Watch the dough, not the clock — bulk is done when 30% rise, domed, jiggly.','Pre-shape loosely. Bench rest 20–30 min uncovered.','Final shape tight. Load into rice-floured banneton seam-up.','Cold retard 16–36 hrs at 38°F. The long cold proof builds the SF tang.','Preheat Dutch oven 1 hr at 500°F — extremely hot.','Score with curved lame at 30°, undercut the ear at 45° for the bloom.','Bake covered 20 min. Vent lid slightly, bake 25 more min. Deep mahogany crust.','Pull at 208–210°F internal. Cool 2 hrs minimum — resist.'],
    preset:{flour:450, water:351, salt:9, 'starter-amt':90, oil:0, honey:0, temp:500, 'bake-time':46, starter:'sf', type:'boule'}},
 
   {emoji:'🥖', name:'Pain de Campagne', diff:'medium', chef:'Lionel Poilâne · Boulangerie Poilâne, Paris',
    uses:'Every meal for a week · stays fresh 5 days · excellent with hard cheese, charcuterie, and salted butter · the French family loaf',
-   desc:'76% hydration · 80% T65 bread flour + 20% whole rye · 22% levain · 12-hr ambient bulk at 65°F. Scored with a cross. Baked in a wood-fired stone oven. Mildly sour, nutty rye notes, extraordinary keeping quality.',
+   desc:'76% hydration · 80% T65 bread flour + 20% whole rye · 22% levain · 12-hr ambient bulk.',
+   steps:['Mix T65 and rye flour with water. Autolyse 30 min.','Add levain, mix 5 min. Add salt, mix 3 more min.','Bulk ferment 12 hrs at 65°F overnight — no folds needed at this cool temp.','Dough should be 50–75% larger, domed, smell mildly sour.','Shape into a large miche (round). Place seam-up in oval banneton dusted with rice flour.','Cold proof 8–12 hrs at 38°F.','Preheat Dutch oven or combo cooker at 480°F for 1 hr.','Score a deep cross or the letter of your bakery. Load straight from fridge.','Bake covered 25 min. Uncover, bake 27 more min until deeply coloured.','Pull at 210°F — rye starches need higher temp to fully gelatinize. Cool 2 hrs.'],
    preset:{flour:400, water:304, salt:9, 'starter-amt':88, oil:0, honey:0, temp:480, 'bake-time':52, starter:'sf', type:'campagne'}},
 
   {emoji:'🥖', name:'Sourdough Baguette de Tradition', diff:'hard', chef:'Éric Kayser · Maison Kayser, Paris',
-   uses:'Tear off chunks at dinner · baguette sandwiches (jambon-beurre) · dip in olive oil · the bread that defines a meal',
-   desc:'72% hydration · 100% T65 French flour · 25% levain · 48-hr cold retard. Bassinage — hold back 5% water, add after gluten development. Five grigne cuts at 30°. Translucent crumb cells, porcelain crust.',
+   uses:'Tear off chunks at dinner · jambon-beurre sandwich · dip in olive oil · the bread that defines a French meal',
+   desc:'72% hydration · 100% T65 French flour · 25% levain · 48-hr cold retard. Bassinage technique.',
+   steps:['Mix flour with 95% of the water (hold 5% back). Autolyse 30 min.','Add levain, mix 3 min. Add salt and remaining water (bassinage) — incorporate slowly.','Bulk ferment 3 hrs at 75°F. Letter-fold 3×.','Divide into 320 g pieces. Pre-shape loosely into cylinders. Rest 20 min.','Final shape: roll from center outward with both hands, taper the ends. 60 cm long.','Load into linen couche heavily dusted with flour. Cold retard 48 hrs at 38°F.','Preheat baking stone 1 hr minimum at 490°F. Cast iron pan on bottom rack.','Transfer baguettes to peel. Five grigne cuts at 30°, one fluid motion per cut.','Slide onto stone. Pour 250 ml boiling water into cast iron pan. Bake 14 min with steam.','Vent steam, bake 12 more min until golden. Crust should shatter like porcelain on cooling.'],
    preset:{flour:500, water:360, salt:10, 'starter-amt':125, oil:0, honey:0, temp:490, 'bake-time':26, starter:'sf', type:'baguette'}},
 
   {emoji:'🍞', name:'Sourdough Pullman Loaf', diff:'medium', chef:'Peter Reinhart · Johnson & Wales University',
-   uses:'The best toast of your life · sandwiches · French toast · croutons · anything that needs sliced bread that actually tastes like something',
-   desc:'68% hydration · 100% bread flour · 18% levain · 6% olive oil, 4% honey. Lidded Pullman pan creates square crumb. Tight, pillowy, pillowy structure. Stays fresh 5 days — the acid slows staling.',
+   uses:'The best toast of your life · sandwiches · French toast · croutons · anything that needs real sliced bread',
+   desc:'68% hydration · 100% bread flour · 18% levain · 6% olive oil, 4% honey. Lidded Pullman pan.',
+   steps:['Mix flour, water, levain, oil, and honey. Knead 8 min until smooth.','Add salt, knead 2 more min. Dough should be tacky but not sticky.','Bulk ferment 4 hrs at 78°F. Fold twice in first hour.','Shape into a tight log the length of your Pullman pan.','Place seam-down in buttered Pullman pan. Cover with lid.','Cold proof overnight or proof at room temp 3–4 hrs until dough touches the lid.','Bake with lid on at 390°F for 35 min. Remove lid, bake 5 more min to set top colour.','Pull at 200°F internal. The square crumb won\'t form properly if under-baked.','Cool completely in the pan 10 min, then on a wire rack 1 hr before slicing.'],
    preset:{flour:500, water:340, salt:10, 'starter-amt':90, oil:30, honey:20, temp:390, 'bake-time':40, starter:'sf', type:'pullman'}},
 
   {emoji:'🫓', name:'Sourdough English Muffins', diff:'medium', chef:'Nancy Silverton · La Brea Bakery, Los Angeles',
-   uses:'Eggs benedict · smear with butter and jam · toasted with avocado · the nooks catch everything · a weekend breakfast staple',
-   desc:'75% hydration · bread flour · 20% levain · 6% honey. Griddle-baked on dry cast iron 6 min per side. Cold-proof overnight. Famous nooks-and-crannies from the SF bubble structure. Split with a fork — never cut.',
+   uses:'Eggs benedict · smear with butter and jam · toasted with avocado · the nooks catch everything',
+   desc:'75% hydration · bread flour · 20% levain · 6% honey. Griddle-baked. Never cut — split with a fork.',
+   steps:['Mix flour, water, levain, honey. Shaggy mix only — don\'t over-develop.','Rest 30 min. Add salt, fold 6 times. Dough will be slack.','Bulk ferment 4 hrs at 78°F with 3 stretch-and-folds.','Pour into cornmeal-dusted parchment-lined pan 1" deep.','Cold proof overnight 8–12 hrs.','Using a ring cutter or glass, punch out rounds. Place on cornmeal-dusted parchment.','Proof at room temp 1 hr. They will puff slightly.','Cook on dry cast iron griddle over medium-low heat, 6 min per side. No oil.','Internal temp 200°F. They should feel light and hollow when tapped.','Cool 10 min. Split with a fork along the equator — never cut. Toast immediately.'],
    preset:{flour:400, water:300, salt:8, 'starter-amt':80, oil:0, honey:24, temp:380, 'bake-time':14, starter:'sf', type:'muffin'}},
 
   {emoji:'🥨', name:'Sourdough Soft Pretzels', diff:'medium', chef:'Peter Scheer · The Publican, Chicago',
-   uses:'Beer snack · serve with whole-grain mustard or cheese sauce · parties · game day · a better pretzel than any ballpark has ever seen',
-   desc:'58% hydration · bread flour · 15% levain · 5% olive oil. Dipped in 4% baked-baking-soda bath before baking. Deep mahogany lacquer, chewy interior. Finish with coarse pretzel salt.',
+   uses:'Beer snack · whole-grain mustard or cheese sauce · game day · parties',
+   desc:'58% hydration · bread flour · 15% levain · 5% olive oil. Lye bath = mahogany lacquer.',
+   steps:['Mix flour, water, levain, oil. Knead 8 min — this is a stiff, workable dough.','Add salt, knead 2 min more. Dough should be smooth and elastic.','Bulk ferment 3 hrs at 78°F. One fold at 1 hr.','Divide into 100 g pieces. Roll each into a 60 cm rope, thicker in the center.','Form pretzel shape: U, cross the ends twice, fold back down.','Refrigerate uncovered 30 min to develop a slight skin — crucial for the lye to adhere.','Make lye bath: dissolve baked baking soda in water to 4% solution. Do NOT use bare skin — wear gloves.','Dip each pretzel 30 sec, place on parchment-lined sheet pan.','Slash once across the thick part. Top with coarse pretzel salt.','Bake at 450°F for 16–18 min until deep mahogany. Serve hot.'],
    preset:{flour:500, water:290, salt:8, 'starter-amt':75, oil:25, honey:0, temp:450, 'bake-time':18, starter:'sf', type:'pretzel'}},
 
   // ════════════════════════════════════
@@ -901,18 +926,21 @@ const RECIPES=[
   // ════════════════════════════════════
 
   {emoji:'🫓', name:'Ischia Ciabatta Vera', diff:'hard', chef:'Gabriele Bonci · Pizzarium, Rome',
-   uses:'Dipped in olive oil · bruschetta base · panino with mortadella · split and filled with anything · the slipper-shaped bread that soaks up everything',
-   desc:'91% hydration · Tipo 00 Caputo Nuvola · 15% levain · 4% olive oil. No kneading. Stretch-and-fold 6× over 4 hrs. 18-hr cold proof. Divide with oiled scraper — never degas. Steam-bake on 550°F stone. Irregular 2–3 cm crumb cells.',
+   uses:'Dipped in olive oil · bruschetta · panino with mortadella · split and filled · soaks up everything',
+   desc:'91% hydration · Tipo 00 Caputo Nuvola · 15% levain · No kneading. Radical hydration.',
+   steps:['Mix flour, water, levain in a wide flat tub. No kneading — just combine.','Add olive oil and salt. Fold 4× immediately to incorporate.','Slap-and-fold technique: stretch dough up, slap it down, rotate 90°. Repeat 6× over 4 hrs.','Bulk is done when dough is pillowy, full of bubbles, and has doubled.','Generously oil work surface. Pour dough out — don\'t degas.','Using an oiled bench scraper, divide into rectangles. Do not shape — just cut.','Cold proof divided pieces on parchment 18 hrs at 38°F.','Preheat baking steel or thick stone 1 hr at 480°F with a steam pan below.','Pour boiling water into steam pan. Load ciabatta directly onto steel using flip boards.','Bake 12 min with steam, 20 min without. Crust should sound hollow. Cool 30 min.'],
    preset:{flour:500, water:455, salt:10, 'starter-amt':75, oil:20, honey:0, temp:480, 'bake-time':32, starter:'ischia', type:'ciabatta'}},
 
   {emoji:'🫓', name:'Pane di Altamura DOP', diff:'hard', chef:'Traditional · Antico Forno Fiore, Altamura',
-   uses:'Eat with olio nuovo and salt · pasta al forno · southern Italian antipasto · keep it a week and it only gets better',
-   desc:'65% hydration · 100% semola rimacinata di grano duro (re-milled durum wheat) · 20% levain. The only bread with EU DOP status. Double-scored X. Dense amber crumb, nutty, golden crust. Keeps 2 weeks.',
+   uses:'Eat with olio nuovo and salt · pasta al forno · southern Italian antipasto · keeps a week',
+   desc:'65% hydration · 100% semola rimacinata di grano duro · 20% levain. EU DOP bread.',
+   steps:['Use only semola rimacinata — re-milled durum wheat. Not coarse semolina. Not all-purpose.','Mix semolina and warm water. Autolyse 30 min — durum takes longer to hydrate than wheat.','Add levain and salt. Knead 10 min — durum dough is denser and less extensible.','Bulk ferment 4 hrs at 78°F with 3 folds.','Shape into a round then flip to create a flat top (cappello del prete). Proof seam-up.','Cold retard 8–12 hrs.','Preheat Dutch oven or combo cooker 1 hr at 470°F.','Score a deep double-X — this is part of the DOP specification.','Bake covered 25 min. Uncover, bake 30 more min. Crust will be amber-gold, very thick.','Must reach 210°F internal — durum starches gelatinize at a higher temperature than wheat.'],
    preset:{flour:500, water:325, salt:11, 'starter-amt':100, oil:0, honey:0, temp:470, 'bake-time':55, starter:'ischia', type:'altamura'}},
 
   {emoji:'🫓', name:'Schiacciata Toscana', diff:'easy', chef:'Marco Stagi · Buca Mario, Florence',
-   uses:'Street snack · aperitivo with wine · tear and share before dinner · wrap around prosciutto and figs · the Florentine version of a flatbread',
-   desc:"60% hydration · Tipo 00 flour · 14% levain · 12% DOP Tuscan extra-virgin olive oil. Rolled thin, coarse salt and rosemary pressed in. Stone-floor baked. Shatters at the pull.",
+   uses:'Street snack · aperitivo · tear and share before dinner · wrap around prosciutto and figs',
+   desc:'60% hydration · Tipo 00 flour · 14% levain · 12% DOP Tuscan olive oil. Thin, crispy, shattering.',
+   steps:['Mix flour, water, levain. Rest 20 min. Add salt and olive oil. Fold to incorporate.','Bulk ferment 3–4 hrs. Two folds.','Generously oil a baking stone or heavy sheet pan.','Pour dough onto oiled surface, press flat with your hands to 1 cm thick.','Drizzle generously with more olive oil (the oil IS the recipe).','Proof uncovered 45 min at room temp until slightly puffed.','Press coarse salt and fresh rosemary sprigs into the surface — press deep so they fuse.','Preheat oven with stone or pan inside at 460°F for at least 30 min.','Bake on hot stone or pan 18–20 min until deep golden and blistered.','Serve immediately — schiacciata does not wait. It shatters and crisps as it cools.'],
    preset:{flour:500, water:300, salt:9, 'starter-amt':70, oil:60, honey:0, temp:460, 'bake-time':20, starter:'ischia', type:'schiacciata'}},
 
   // ════════════════════════════════════
@@ -920,13 +948,15 @@ const RECIPES=[
   // ════════════════════════════════════
 
   {emoji:'🫓', name:'Focaccia Genovese', diff:'medium', chef:'Sergio Rossi · Antico Forno Revello, Camogli',
-   uses:'Breakfast dipped in caffelatte · tear apart at the table before pasta · olive oil and sea salt · sandwich bread · the Ligurian morning ritual',
-   desc:"80% hydration · Tipo 00 flour · 24% levain · 13% DOP Taggiasca olive oil. Dimpled with full hand. Oil floods every dimple. Baked in blue steel pan. 2 cm tall, pillowy interior, lacquered base.",
+   uses:'Breakfast dipped in caffelatte · tear apart before pasta · olive oil and sea salt · sandwich bread',
+   desc:'80% hydration · Tipo 00 flour · 24% levain · 13% DOP Taggiasca olive oil. 2 cm tall.',
+   steps:['Mix flour, water, levain. Rest 30 min. Add salt and half the olive oil. Fold to combine.','Bulk ferment 4 hrs. Three coil-folds, every 45 min.','Pour 30 g olive oil into blue steel pan. Transfer dough, flip once to coat both sides.','Rest 30 min at room temp. Dimple aggressively with all fingers — right to the pan.','Pour remaining 35 g olive oil over top. It should pool in the dimples.','Proof 45 min–1 hr until dough has relaxed and filled the pan.','Preheat oven to 440°F. Bake 22–25 min until deeply golden.','Bottom should be lacquered and crisp — lift a corner to check before pulling.','Sprinkle flaked sea salt immediately out of the oven. Eat warm.'],
    preset:{flour:500, water:400, salt:11, 'starter-amt':120, oil:65, honey:0, temp:440, 'bake-time':25, starter:'ischia', type:'focaccia'}},
 
   {emoji:'🫓', name:'Focaccia di Recco col Formaggio', diff:'medium', chef:'Manuelina Restaurant · Recco, Liguria (est. 1885)',
-   uses:'Cut into squares, serve immediately · wine pairing with Vermentino · the cheese melts inside and blisters on top · eaten hot, not warm',
-   desc:'Two sheets of Tipo 00 dough at 85% hydration · 26% levain · 14% DOP Ligurian olive oil. Bottom sheet stretched to 3 mm. Filled with stracchino or crescenza. Top sheet draped and sealed. Bake at 500°F, 18 min.',
+   uses:'Cut into squares, serve immediately · wine with Vermentino · cheese blisters on top · eaten hot',
+   desc:'Two paper-thin Tipo 00 sheets · stracchino cheese · 14% DOP Ligurian olive oil. 18 min at 500°F.',
+   steps:['Divide dough in half. One half is the base, one is the lid.','Generously oil a 18×13" baking pan.','Stretch the base sheet on the back of your hands until paper-thin — literally 2–3 mm. You should see your hands through it.','Lay base sheet into pan, letting it drape over the edges.','Tear stracchino or crescenza into pieces and dot across the base sheet.','Stretch the lid sheet the same way. Lay it gently over the cheese.','Press edges together to seal. Trim excess.','Brush top with olive oil. Pierce the top sheet all over with a fork to vent steam.','Bake at 500°F for 15–18 min until blistered, golden, and cheese is bubbling through.','Cut with a wheel or scissors. Serve within 3 minutes — it dies when it cools.'],
    preset:{flour:500, water:425, salt:11, 'starter-amt':130, oil:72, honey:0, temp:500, 'bake-time':18, starter:'ischia', type:'focaccia'}},
 
   // ════════════════════════════════════
@@ -934,28 +964,33 @@ const RECIPES=[
   // ════════════════════════════════════
 
   {emoji:'🍕', name:'Vera Pizza Napoletana DOC', diff:'hard', chef:'Enzo Coccia · La Notizia, Naples',
-   uses:'The only pizza · topped with San Marzano DOP, fior di latte, fresh basil · eaten immediately · never reheated · fold in four (a libretto) and eat walking',
-   desc:'62% hydration · Caputo Pizzeria 00 · 5% levain · 3% salt. 48-hr cold ferment at 39°F. Balls at 280 g. Hand-stretched only. Bake 850°F floor 60–90 sec. Leopard-spotted cornicione, char-kissed base. AVPN certified.',
+   uses:'The only pizza · San Marzano DOP + fior di latte + fresh basil · eaten immediately · folded in four',
+   desc:'62% hydration · Caputo Pizzeria 00 · 5% levain · 3% salt. 48-hr cold ferment. 850°F, 90 sec.',
+   steps:['Dissolve salt in water first. Then add levain. Add flour gradually — mix until shaggy.','Knead 10–15 min until smooth, elastic, passes windowpane. Dough temp should be 25°C.','Bulk ferment 2 hrs at room temp.','Ball into 280 g dough balls. Place in tightly covered dough trays. Cold ferment 48 hrs at 39°F.','Take balls out 2 hrs before baking to come to room temp.','Heat wood-fired oven or Ooni/Gozney until stone floor reads 850°F (infrared gun required).','Flour the work surface. Flatten ball with fingertips from center outward — never a rolling pin.','Stretch by draping over knuckles, rotating. Target 30 cm, 3 mm thick, 1 cm cornicione.','Dress on the peel: sauce first, then torn mozzarella, then basil after baking.','Semolina-dust the peel. Shake to confirm loose. Launch in one decisive push.','Rotate every 20–25 sec with turning peel. Total bake 60–90 sec. Leopard cornicione = correct.'],
    preset:{flour:1000, water:620, salt:30, 'starter-amt':50, oil:0, honey:0, temp:550, 'bake-time':10, starter:'ischia', type:'neopizza'}},
 
   {emoji:'🍕', name:'New York Coal-Oven Pie', diff:'medium', chef:'Patsy Grimaldi · Grimaldi\'s, Brooklyn',
-   uses:'Friday night pizza · the foldable slice · pepperoni and fresh mozzarella · feed a crowd · never cut with scissors, always a wheel',
-   desc:'65% hydration · King Arthur Sir Lancelot high-gluten flour · 7% levain · 3.6% olive oil · 2% honey. 72-hr cold ferment. 18" hand-tossed. Bake on ½" baking steel 1 hr preheated. Finish under broiler 90 sec.',
+   uses:'Friday night pizza · the foldable slice · pepperoni and fresh mozzarella · feeds a crowd',
+   desc:'65% hydration · Sir Lancelot high-gluten flour · 7% levain · 72-hr cold ferment. Baking steel.',
+   steps:['Mix flour, water, levain, oil, honey. Knead 8 min. Add salt, knead 2 more.','Dough should be smooth, tacky, strong. Ball tightly.','Cold ferment 72 hrs in the fridge. The long ferment is everything.','Remove 2 hrs before baking. Ball into 550 g portions for an 18" pie.','Place baking steel on top rack of oven. Preheat at 550°F for 1 full hour.','On a semolina-dusted peel, stretch by hand — toss if confident, knuckle-stretch if not.','Sauce the pie: crushed San Marzano, thin layer. Tear fresh mozzarella evenly.','Shake the peel to confirm dough is loose. No hesitation on the launch.','Bake on steel 8 min. Switch to broil, 60–90 sec for top char. Watch it every second.','Cut with a wheel. The slice should fold in half under its own weight — that\'s NY style.'],
    preset:{flour:500, water:325, salt:12, 'starter-amt':35, oil:18, honey:10, temp:550, 'bake-time':14, starter:'sf', type:'nypizza'}},
 
   {emoji:'🍕', name:'Roman Pizza al Taglio', diff:'medium', chef:'Gabriele Bonci · Pizzarium Bonci, Rome',
-   uses:'Cut with scissors and sell by weight · lunch on the go · top with potato and rosemary, or zucchini blossoms · the Roman street food',
-   desc:'80% hydration · Type 1 stone-ground flour + 20% semolina rimacinata · 16% levain · 8% extra-virgin olive oil. Bake in oiled blue-steel tray. Crisp base, cloud interior.',
+   uses:'Cut with scissors by weight · lunch on the go · potato and rosemary · zucchini blossoms',
+   desc:'80% hydration · Type 1 stone-ground flour + 20% semolina · 16% levain · 8% olive oil.',
+   steps:['Mix flours and water. Autolyse 30 min. Add levain and salt. Mix 5 min.','Add olive oil gradually, fold in completely.','Bulk ferment 4 hrs at 78°F with 4 coil-folds.','Generously oil a blue steel 18×13" pan. Transfer dough — do not degas.','Stretch gently from center outward. If it snaps back, rest 15 min and try again.','Top with toppings of choice BEFORE the final proof.','Proof 45 min–1 hr until puffed and bubbly at edges.','Bake at 460°F for 22–25 min until bottom is crisp (lift corner to check).','Cut into rectangles with heavy kitchen scissors. Weigh portions to serve.','Best eaten within 20 min — the crust softens as it sits.'],
    preset:{flour:450, water:360, salt:11, 'starter-amt':72, oil:36, honey:0, temp:460, 'bake-time':25, starter:'ischia', type:'taglio'}},
 
   {emoji:'🍕', name:'Detroit Red Top', diff:'medium', chef:'Shawn Randazzo · Buddy\'s Pizza, Detroit',
-   uses:'The square pizza · feed 4–6 people · pepperoni, brick cheese, sauce on top · a party · a snowstorm · any occasion that calls for the best pan pizza ever made',
-   desc:"75% hydration · bread flour + 5% semolina · 18% levain · 9% olive oil. Wisconsin brick cheese edge-to-edge fries against the steel into lacy skirts. Sauce ladled on top after bake. Buddy's method, 1946.",
+   uses:'The square pizza · feeds 4–6 · pepperoni + brick cheese + sauce on top · a party, a snowstorm',
+   desc:'75% hydration · bread flour + 5% semolina · 18% levain · 9% olive oil. Cheese wall-to-wall.',
+   steps:['Mix flour, semolina, water, levain, oil. Knead 5 min. Add salt. Knead 3 more.','Oil the Lloyd Detroit pan generously — 3 tbsp minimum. This is a cooking medium, not just grease.','Place dough in pan. Press out to fill corners. If it springs back, rest 20 min.','Cold proof overnight, or proof at room temp 2 hrs until visibly puffed.','Place cubed Wisconsin brick cheese edge-to-edge, all the way to the pan walls. This is essential.','Add pepperoni if desired now — under the cheese so it doesn\'t burn.','Bake at 480°F for 15 min. Edges should be caramelizing against the pan sides.','Spoon sauce in 3 stripes down the top (never spread — keep it chunky).','Bake 7 more min until cheese is deep golden. The frico (crispy cheese skirt) should be fully set.','Rest in pan 5 min. Use a spatula to release the frico edge. Cut with a wheel into squares.'],
    preset:{flour:500, water:375, salt:11, 'starter-amt':90, oil:45, honey:0, temp:480, 'bake-time':22, starter:'ischia', type:'detroit'}},
 
   {emoji:'🍕', name:'Piadina Romagnola', diff:'easy', chef:'Traditional · Casina del Bosco, Rimini',
-   uses:'Filled with squacquerone and prosciutto · served with a salad · fold and eat like a taco · quick lunch · the flatbread that replaced sandwiches in Romagna',
-   desc:'50% hydration · Tipo 00 flour · 10% levain · 8% olive oil. Rolled to 3 mm. Griddle-baked on terracotta or cast iron 2 min per side. Flexible, slightly charred.',
+   uses:'Filled with squacquerone + prosciutto · fold like a taco · quick lunch · Romagna street food',
+   desc:'50% hydration · Tipo 00 flour · 10% levain · 8% olive oil. Griddle-baked flatbread.',
+   steps:['Mix flour, water, levain, olive oil. Knead 5 min into a smooth, stiff dough.','Add salt. Knead 2 more min. Dough should be firm, like pasta dough.','Rest covered 1–2 hrs at room temp.','Divide into 100 g rounds. Roll each to 2–3 mm — uniformly thin.','Heat a terracotta testo or cast iron skillet over medium-high with no oil.','Cook 2 min per side until lightly charred and flexible. Small air bubbles are correct.','Fill immediately while hot: squacquerone, prosciutto crudo, wild rocket.','Fold in half or in quarters. Eat with hands. Immediately.'],
    preset:{flour:500, water:250, salt:10, 'starter-amt':50, oil:40, honey:0, temp:450, 'bake-time':12, starter:'ischia', type:'piadina'}},
 
   // ════════════════════════════════════
@@ -963,18 +998,21 @@ const RECIPES=[
   // ════════════════════════════════════
 
   {emoji:'🥯', name:'Montréal Sourdough Bagel', diff:'hard', chef:'Myer Lewkowicz · St-Viateur Bagel, Montréal (est. 1957)',
-   uses:'Smoked salmon and cream cheese · toasted with butter · a Sunday morning · better than any NY bagel and Montréalers will tell you so',
-   desc:'53% hydration · unbleached bread flour · 16% levain · 6% honey. Hand-rolled thin. Cold-proof 12 hrs. Boil in honey water 45 sec per side. Bake on maple planks. Dense, chewy, slightly sweet. Sesame or poppy.',
+   uses:'Smoked salmon and cream cheese · toasted with butter · a Sunday morning · thinner and sweeter than NY',
+   desc:'53% hydration · bread flour · 16% levain · 6% honey. Boiled in honey water. Baked on maple planks.',
+   steps:['Mix flour, water, levain, honey. Knead 10 min — this is a stiff dough, arm workout required.','Add salt. Knead 3 more min until very smooth and elastic.','Bulk ferment 3 hrs at 78°F.','Divide into 100 g balls. Each ball becomes one bagel — weigh every single one.','Roll each ball into a 25 cm rope, taper the ends, wrap around your hand, roll to seal.','Cold proof overnight 12 hrs uncovered on a parchment-lined tray — the skin firms up.','Bring a large pot of water to a rolling boil with 2 tbsp honey and 1 tsp baking soda.','Boil 45 sec per side. Dip in sesame or poppy seeds immediately after boiling.','Place on maple wood planks. Bake at 500°F for 20–22 min, rotating halfway.','They should be dense, slightly sweet, and chewy throughout — different from an NY bagel by design.'],
    preset:{flour:500, water:265, salt:10, 'starter-amt':80, oil:0, honey:30, temp:500, 'bake-time':22, starter:'sf', type:'bagel'}},
 
   {emoji:'🧆', name:'Grissini Stirati Torinesi', diff:'easy', chef:'Traditional · Ristorante Del Cambio, Turin (est. 1757)',
-   uses:'On the table before dinner with antipasto · wrapped in prosciutto crudo · alongside cheese · nibble with Barolo · the breadstick that replaced all other breadsticks',
-   desc:'44% hydration · Tipo 00 flour · 12.5% levain · 9% DOP extra-virgin olive oil. Hand-stretched to 60 cm — never rolled. Bake at 420°F until bone dry. Shatters into ivory shards.',
+   uses:'On the table before dinner · wrapped in prosciutto · alongside cheese · nibble with Barolo',
+   desc:'44% hydration · Tipo 00 flour · 12.5% levain · 9% DOP olive oil. Hand-stretched 60 cm.',
+   steps:['Mix flour, water, levain, olive oil. Knead 5 min — stiff but pliable dough.','Add salt. Knead 2 more min.','Bulk ferment 2–3 hrs at room temp.','Pat dough into a flat rectangle 1 cm thick on an oiled surface.','Cut into 1 cm wide strips with a bench scraper or knife.','For each strip: hold one end, grip the other, stretch in one smooth pull to 60 cm. No sawing back and forth.','Place on parchment-lined baking sheets without touching.','Bake at 420°F for 18–22 min — rotating at 10 min — until bone dry and ivory-golden.','They must be completely dry all the way through. If they bend, bake 5 more min.','Cool on the sheet. Store in a tall vase on the table. They shatter into pieces — that is correct.'],
    preset:{flour:400, water:176, salt:8, 'starter-amt':50, oil:36, honey:0, temp:420, 'bake-time':20, starter:'ischia', type:'grissini'}},
 
   {emoji:'🫓', name:'Sourdough Crackers', diff:'easy', chef:'Josey Baker · The Mill, San Francisco',
-   uses:'Cheese boards · hummus and dips · snacking straight from the pan · soup · what to do with leftover discard that makes everyone ask for the recipe',
-   desc:'45% hydration · 70% bread flour + 30% whole wheat · 50% levain discard · 10% olive oil. Rolled to 1–2 mm, docked, baked dry. SF culture at peak tang.',
+   uses:'Cheese boards · hummus and dips · snacking · soup · best use of leftover discard',
+   desc:'45% hydration · 70% bread flour + 30% whole wheat · 50% levain discard · 10% olive oil.',
+   steps:['Use levain discard — this recipe is designed for it. The tang is the point.','Mix discard, flour, olive oil, salt. Knead 3 min into a stiff dough.','Rest 30 min covered.','Divide in half. Roll each half between two sheets of parchment until 1–2 mm thin.','The thinner the cracker, the crispier. Aim for translucent at the thin spots.','Remove top parchment. Score into cracker-sized pieces with a bench scraper or knife.','Dock every cm² with a fork or docker — undocked crackers bubble and break.','Bake at 375°F on flat sheet pans for 18–22 min, rotating at 10 min.','Watch carefully at 15 min — they go from golden to burnt quickly.','Cool completely before breaking apart. They crisp further as they cool.'],
    preset:{flour:300, water:135, salt:7, 'starter-amt':150, oil:30, honey:0, temp:375, 'bake-time':22, starter:'sf', type:'cracker'}},
 
   // ════════════════════════════════════
@@ -982,28 +1020,33 @@ const RECIPES=[
   // ════════════════════════════════════
 
   {emoji:'🥐', name:'Sourdough Brioche', diff:'hard', chef:'Joël Robuchon · Jamin, Paris',
-   uses:'French toast · brioche buns for wagyu burgers · eat a thick slice plain with nothing on it · bread-and-butter pudding · the bread that makes everything else taste worse by comparison',
-   desc:'Bread flour · 20% levain · water 12%, eggs 30%, butter 40%, honey 8%, salt 2%. Mix flour/levain/water/eggs to windowpane. Rest 30 min cold. Add cold butter in 20 pieces over 20 min. Cold-proof overnight. Pull at 190°F internal.',
+   uses:'French toast · brioche buns for wagyu burgers · bread-and-butter pudding · eat thick slices plain',
+   desc:'Bread flour · 20% levain · eggs 30%, butter 40%, honey 8%. Cold butter added in pieces.',
+   steps:['Mix flour, levain, water, eggs, honey in stand mixer on medium 5 min.','Increase to medium-high. Mix until dough passes windowpane — 10–15 min.','Dough temp must stay below 26°C (79°F). If it gets warm, refrigerate 15 min.','Add cold butter (14°C/57°F) one cube at a time on medium speed. Wait until each cube is fully absorbed before adding the next. Takes 20 min.','Add salt with the last butter cube.','Mix until silky, glossy, pulls cleanly from the bowl.','Bulk ferment 2 hrs at room temp, then refrigerate overnight.','Shape cold — cold dough is far easier to work with.','Place in buttered brioche moulds or Pullman pan.','Proof at 78°F for 4–6 hrs until doubled. Apply egg wash.','Bake at 375°F for 25–28 min. Pull at 190°F — do not guess on this one.'],
    preset:{flour:500, water:60, salt:10, 'starter-amt':100, oil:0, honey:40, eggs:150, butter:200, milk:50, temp:375, 'bake-time':28, starter:'sf', type:'brioche'}},
 
   {emoji:'🍞', name:'Sourdough Challah', diff:'medium', chef:'Uri Scheft · Lehamim Bakery, Tel Aviv',
-   uses:'Shabbat dinner · French toast on Saturday morning · tear off pieces around the table · honey on Rosh Hashanah · the most beautiful bread you will ever bake',
-   desc:'Bread flour · 18% levain · water 20%, eggs 25%, olive oil 12%, honey 10%, salt 1.8%. Six-strand braid. Double egg wash. Cold-proof 8 hrs. Golden bronze lacquer, pillowy crumb.',
+   uses:'Shabbat dinner · French toast Saturday morning · tear off pieces around the table · honey on Rosh Hashanah',
+   desc:'Bread flour · 18% levain · eggs 25%, oil 12%, honey 10%. Six-strand braid. Double egg wash.',
+   steps:['Mix flour, water, levain, eggs, oil, honey. Knead 8 min until smooth.','Add salt. Knead 2 more min. Dough should be silky, slightly tacky.','Bulk ferment 3–4 hrs at 78°F.','Divide into 6 equal strands — weigh them. Each should be the same.','Roll each strand to 40 cm, slightly tapered at ends.','Six-strand braid: lay strands side by side, pinch at top. Number 1–6. Move 6 over 1, 2 over 6, 1 over 3, 5 over 1, 6 over 4. Repeat. Pinch at bottom.','Place on parchment-lined half sheet pan.','Egg wash #1 (yolk + water). Cold proof 8 hrs.','Egg wash #2 immediately before baking. This is the two-coat lacquer.','Bake at 375°F for 30–32 min until deep golden. Pull at 190°F internal.'],
    preset:{flour:500, water:100, salt:9, 'starter-amt':90, oil:60, honey:50, eggs:125, butter:0, milk:0, temp:375, 'bake-time':32, starter:'sf', type:'challah'}},
 
   {emoji:'🎂', name:'Panettone Milanese', diff:'hard', chef:'Roy Shvartzapel · From Roy, San Francisco',
-   uses:'Christmas morning · sliced thick with mascarpone · panettone French toast · gifted in a tall box · paired with a glass of Moscato d\'Asti · a project you start 3 days before Christmas',
-   desc:'Manitoba 00 flour · 30% lievito madre (stiff levain) · eggs 40%, butter 45%, honey 5%, sugar 20%, salt 1.6%, milk 10%. Three-stage build over 36 hrs. Hung upside-down after baking. Pull at 201°F internal.',
+   uses:'Christmas morning · sliced with mascarpone · gifted in a tall box · Moscato d\'Asti · a 3-day project',
+   desc:'Manitoba 00 · 30% lievito madre · eggs 40%, butter 45%. Three-stage build. Hung upside-down.',
+   steps:['Refresh lievito madre 3× over 12 hrs. It must be strong — panettone cannot tolerate a weak starter.','First dough (sera): mix flour, water, levain, egg yolks, sugar, honey. Develop gluten completely before adding butter. Ferment overnight at 82°F until tripled.','Second dough (mattina): add more flour, egg yolks, sugar, salt to first dough. Mix until strong. Add softened butter in pieces. Mix until silky.','Add candied fruits and raisins on lowest speed — fold in gently.','First proof in mould at 82°F until dough domes 1 cm above the mould top — 6–8 hrs.','Score the top with a cross. Place a small knob of butter in the center of the cross.','Bake at 340°F for 45–50 min. Pull at 201°F internal — not a degree less.','IMMEDIATELY upon removing from oven, pierce the base with two long skewers and hang upside-down over a deep pot.','Hang at least 3 hours — the crumb collapses without this step.','Rest 24 hrs before cutting. Wrap in cellophane to preserve the cloud-like interior.'],
    preset:{flour:500, water:0, salt:8, 'starter-amt':150, oil:0, honey:25, eggs:200, butter:225, milk:50, temp:340, 'bake-time':50, starter:'ischia', type:'panettone'}},
 
   {emoji:'⭐', name:'Pandoro di Verona', diff:'hard', chef:'Domenico Melegatti · Pasticceria Melegatti, Verona (est. 1894)',
-   uses:'Christmas Eve dessert · dusted in vanilla sugar at the table · sliced horizontal into star-shaped rings · served with zabaione · the Veronese answer to panettone',
-   desc:'Soft wheat 00 flour · 25% lievito madre · eggs 50%, butter 50%, sugar 22%, honey 4%, vanilla, salt 1.4%, milk 6%. Five dough builds. Star mould. Hang upside-down 2 hrs. Pull at 200°F.',
+   uses:'Christmas Eve · vanilla sugar dusted at the table · sliced into stars · zabaione · the Veronese answer',
+   desc:'Soft wheat 00 · 25% lievito madre · eggs 50%, butter 50%. Five builds. Inverted after baking.',
+   steps:['Refresh lievito madre 3× over 12 hrs until very active and sweet-smelling.','Build 1: Mix levain, flour, egg yolks, sugar. Develop until windowpane. Let triple — 4 hrs.','Build 2: Add more flour, egg yolks, honey, vanilla. Develop again. Let double — 3 hrs.','Build 3: Add remaining flour and egg yolks. Add butter in small pieces only after full gluten development. Let double.','Build 4: Add salt and final butter. This dough is now extremely extensible and glossy.','Build 5: Final mixing and incorporation. Dough should stretch into a thin membrane.','Load into buttered, floured 750 g pandoro star mould.','Proof at 82°F for 5–7 hrs until dough domes above the mould rim.','Bake at 340°F for 50–55 min. Pull at 200°F internal.','Invert onto skewers immediately. Hang 2 hrs. Dust with vanilla icing sugar to serve.'],
    preset:{flour:500, water:0, salt:7, 'starter-amt':125, oil:0, honey:20, eggs:250, butter:250, milk:30, temp:340, 'bake-time':55, starter:'ischia', type:'pandoro'}},
 
   {emoji:'🥐', name:'Sourdough Croissant Dough', diff:'hard', chef:'Cédric Grolet · Le Meurice, Paris',
-   uses:'Plain croissants · pain au chocolat · almond croissants · kouign-amann · any laminated pastry · the dough you make Saturday morning to bake Sunday morning',
-   desc:'T45 French flour · 15% levain · water 24%, milk 16%, eggs 10%, dry butter (84% fat) 45%, sugar 8%, salt 2%. 27 layers via 3 double folds. 30 min cold rest between each fold. Butter block at 14°C.',
+   uses:'Plain croissants · pain au chocolat · almond croissants · kouign-amann · bake Sunday morning',
+   desc:'T45 flour · 15% levain · butter 45% lamination, 27 layers via 3 double folds. Rest between each.',
+   steps:['Mix flour, milk, water, levain, eggs, sugar. Knead 5 min — just enough to combine. Dough should be slightly under-developed (it develops more during lamination).','Add salt. Knead 1 min. Shape into a square, refrigerate overnight.','Make the beurrage: pound 84%-fat butter into a 17×17 cm square at 14°C. It should be pliable but cold.','Roll détrempe to 34×17 cm. Place beurrage on one half. Fold dough over to enclose. Pinch edges shut.','First double fold: roll to 60×20 cm. Fold both ends to the center, then fold in half again (4 layers). Refrigerate 30 min.','Second double fold: same as above. Refrigerate 30 min.','Third double fold: same. Refrigerate 30 min minimum — or overnight.','Roll to 4 mm thick. Cut triangles 8×25 cm for croissants. Roll from base to tip without pressing.','Place on parchment-lined baking sheet (sheet pan is correct here — you need the flat surface for lamination integrity).','Proof at 75°F for 2–3 hrs until visibly puffed and "honeycomb" layers visible.','Egg wash twice (yolk + cream). Bake at 390°F for 18–22 min. Layers should be visible in cross-section.'],
    preset:{flour:500, water:120, salt:10, 'starter-amt':75, oil:0, honey:40, eggs:50, butter:225, milk:80, temp:390, 'bake-time':22, starter:'sf', type:'croissant'}},
 
 ];
@@ -1398,9 +1441,9 @@ const EQUIPMENT={
   ],
 
   schiacciata:[
-    {ic:'🟫', name:'Sheet Pan or Pizza Stone',     req:'yes', desc:'Bake directly on a hot stone for the crispest base, or in a lightly oiled sheet pan for easier handling.'},
-    {ic:'🫒', name:'Good Olive Oil (generous)',    req:'yes', desc:'Drench the dough before baking — 30 g on top minimum. Schiacciata is not subtle with oil.'},
-    {ic:'🧂', name:'Fleur de Sel + Fresh Rosemary', req:'yes', desc:'Finish immediately before baking. Press rosemary into the scored dough so it fuses, not just sits on top.'},
+    {ic:'🪨', name:'Baking Stone or Steel',          req:'yes', desc:'Preheat a thick cordierite stone or ½" baking steel at 460°F for 30+ min. Schiacciata needs immediate bottom heat to shatter-crisp — a cold pan gives you steamed flatbread.'},
+    {ic:'🫒', name:'Good Olive Oil (generous)',       req:'yes', desc:'Drench the dough before baking — 30 g on top minimum. Schiacciata is not subtle with oil.'},
+    {ic:'🧂', name:'Fleur de Sel + Fresh Rosemary',  req:'yes', desc:'Finish immediately before baking. Press rosemary into the dough so it fuses, not just sits on top.'},
   ],
 
   neopizza:[
@@ -1544,6 +1587,16 @@ function showRecipePanel(idx){
       <span class="rip-ing-val">${i.v}<span class="rip-ing-unit">${i.unit}</span></span>
     </div>`
   ).join('');
+
+  // Steps
+  const stepsEl = document.getElementById('rip-steps');
+  if(r.steps && r.steps.length){
+    stepsEl.innerHTML = r.steps.map((s,i)=>`<li class="rip-step"><span class="rip-step-n">${i+1}</span><span class="rip-step-t">${s}</span></li>`).join('');
+    stepsEl.parentElement.style.display='block';
+  } else {
+    stepsEl.innerHTML='';
+    stepsEl.parentElement.style.display='none';
+  }
 
   // Equipment
   const eq=(p.type&&EQUIPMENT[p.type])||EQ_DEFAULT;
