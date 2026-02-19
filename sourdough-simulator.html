@@ -361,6 +361,65 @@ input[type=range]::-webkit-slider-thumb{
 .bake-c:active{transform:scale(.96);}
 .bake-c.baking{animation:pfr .8s ease-in-out infinite;cursor:not-allowed;}
 
+/* ===== RECIPE INFO PANEL (above dial panel) ===== */
+.rip{
+  width:100%;flex-shrink:0;
+  background:rgba(10,5,0,.85);
+  border-top:1px solid rgba(255,140,0,.1);
+  overflow:hidden;
+  max-height:0;
+  transition:max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s;
+  opacity:0;
+}
+.rip.open{max-height:160px;opacity:1;}
+.rip-inner{
+  padding:10px 16px 10px;
+  display:flex;gap:12px;align-items:flex-start;
+}
+/* recipe name + emoji header */
+.rip-head{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:8px;
+}
+.rip-emoji{font-size:1.2rem;line-height:1;flex-shrink:0;}
+.rip-name{
+  font-family:'Playfair Display',serif;font-size:.82rem;font-weight:700;
+  color:var(--gold);letter-spacing:.04em;
+}
+.rip-culture{
+  font-family:'Crimson Pro',serif;font-style:italic;
+  font-size:.65rem;color:rgba(253,246,227,.4);margin-left:auto;flex-shrink:0;
+}
+/* ingredient pills row */
+.rip-ings{
+  display:flex;flex-wrap:wrap;gap:5px;
+}
+.rip-pill{
+  background:rgba(255,140,0,.07);
+  border:1px solid rgba(255,140,0,.14);
+  border-radius:5px;
+  padding:4px 7px;
+  display:flex;flex-direction:column;align-items:center;
+  min-width:44px;
+}
+.rip-pv{
+  font-size:.72rem;font-weight:700;color:var(--cream);line-height:1.1;
+}
+.rip-pk{
+  font-size:.44rem;color:rgba(253,246,227,.35);letter-spacing:.06em;
+  text-transform:uppercase;margin-top:1px;
+}
+/* clear recipe button */
+.rip-clear{
+  flex-shrink:0;align-self:center;margin-left:auto;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+  border-radius:6px;color:rgba(253,246,227,.3);
+  font-size:.55rem;padding:5px 9px;cursor:pointer;
+  font-family:'Space Mono',monospace;
+  transition:all .15s;min-height:32px;
+}
+.rip-clear:active{background:rgba(255,60,60,.15);border-color:rgba(255,60,60,.3);color:#ff8080;}
+
 /* ===== RESULT MODAL ===== */
 .ro{
   position:fixed;inset:0;
@@ -476,6 +535,21 @@ input[type=range]::-webkit-slider-thumb{
         </div><!-- /oven-3d-outer -->
         </div><!-- /oven-scale-wrap -->
       </div><!-- /ov-inner -->
+
+      <!-- RECIPE INFO PANEL -->
+      <div class="rip" id="rip">
+        <div class="rip-inner">
+          <div style="flex:1;min-width:0;">
+            <div class="rip-head">
+              <span class="rip-emoji" id="rip-emoji">🍞</span>
+              <span class="rip-name" id="rip-name">—</span>
+              <span class="rip-culture" id="rip-culture">—</span>
+            </div>
+            <div class="rip-ings" id="rip-ings"></div>
+          </div>
+          <button class="rip-clear" onclick="clearRecipe()" title="Clear recipe">✕</button>
+        </div>
+      </div>
 
       <!-- DIAL PANEL -->
       <div class="dp">
@@ -658,6 +732,7 @@ const RECIPES=[
 let S={
   flour:400,water:300,salt:9,'starter-amt':100,oil:0,honey:0,
   temp:450,'bake-time':45,selectedStarter:'sf',recipeType:null,
+  activeRecipeIdx:null,
   units:{flour:'g',water:'g',salt:'g','starter-amt':'g',oil:'g',honey:'g'},
   baking:false,
 };
@@ -827,7 +902,15 @@ function makeDial(svgId,which,vmin,vmax,step){
     const prev=cur(),c=clamp(v);
     if(which==='temp'){S.temp=c;}else{S['bake-time']=c;}
     S.recipeType=null;
-    if(c!==prev)maybeSndDialTick();
+    if(c!==prev){
+      maybeSndDialTick();
+      // Hide recipe panel on manual dial adjustment
+      if(S.activeRecipeIdx!=null){
+        S.activeRecipeIdx=null;
+        document.getElementById('rip').classList.remove('open');
+        requestAnimationFrame(scaleOven);
+      }
+    }
     updDial(which,c);updatePreds();
   }
   // Mouse
@@ -913,6 +996,7 @@ function applyP(idx){
   sndClick(880,0.07,0.14);
   const p=RECIPES[idx].preset;
   S.recipeType=null;
+  S.activeRecipeIdx=idx;
   Object.keys(p).forEach(k=>{
     if(k==='starter'){pickStar(p[k]);return;}
     if(k==='type'){S.recipeType=p[k];return;}
@@ -923,8 +1007,46 @@ function applyP(idx){
   setDialDirect('temp',p.temp);
   setDialDirect('time',p['bake-time']);
   updateAll();
+  showRecipePanel(idx);
   // Switch to oven tab after brief delay so user sees preset applied
   setTimeout(()=>switchTab('oven'),400);
+}
+
+function showRecipePanel(idx){
+  const r=RECIPES[idx];
+  const p=r.preset;
+  const star=STARTERS.find(s=>s.id===p.starter);
+  document.getElementById('rip-emoji').textContent=r.emoji;
+  document.getElementById('rip-name').textContent=r.name;
+  document.getElementById('rip-culture').textContent=star?star.name.split(' ')[0]+' culture':'';
+
+  // Build ingredient pills — only show non-zero values
+  const ings=[
+    {k:'flour',  label:'Flour',   v:p.flour,   unit:'g'},
+    {k:'water',  label:'Water',   v:p.water,   unit:'g'},
+    {k:'salt',   label:'Salt',    v:p.salt,    unit:'g'},
+    {k:'starter-amt',label:'Starter',v:p['starter-amt'],unit:'g'},
+    p.oil   > 0 ? {k:'oil',  label:'Oil',   v:p.oil,   unit:'g'} : null,
+    p.honey > 0 ? {k:'honey',label:'Honey', v:p.honey, unit:'g'} : null,
+    {k:'temp',   label:'Temp',    v:p.temp,    unit:'°F'},
+    {k:'time',   label:'Time',    v:p['bake-time'],unit:'min'},
+  ].filter(Boolean);
+
+  document.getElementById('rip-ings').innerHTML=ings.map(i=>
+    `<div class="rip-pill"><span class="rip-pv">${i.v}<span style="font-size:.5rem;opacity:.6">${i.unit}</span></span><span class="rip-pk">${i.label}</span></div>`
+  ).join('');
+
+  document.getElementById('rip').classList.add('open');
+  // Re-scale oven so it accounts for the new panel height
+  requestAnimationFrame(scaleOven);
+}
+
+function clearRecipe(){
+  sndClick(440,0.06,0.08);
+  S.activeRecipeIdx=null;
+  S.recipeType=null;
+  document.getElementById('rip').classList.remove('open');
+  requestAnimationFrame(scaleOven);
 }
 
 // =======================================
