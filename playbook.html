@@ -238,14 +238,14 @@ let longPressTimer=null;
 const cv=document.getElementById('fieldCanvas'),cx=cv.getContext('2d');
 function mkPlay(n){return{name:n||'Play '+(plays.length+1),formation:'',type:'Pass',notes:'',players:[...defOff(),...defDef()].map(p=>({...p,origX:p.x,origY:p.y,route:null}))}}
 function P(){return plays[cpIdx]}
-function dismissOB(){const el=document.getElementById('onboard');el.classList.add('gone');setTimeout(()=>{el.style.display='none'},500);localStorage.setItem('pb7_seen','1')}
+function dismissOB(){const el=document.getElementById('onboard');el.classList.add('gone');setTimeout(()=>{el.style.display='none'},500);localStorage.setItem('pb5_seen','1')}
 function toggleDrawer(){drawerOpen=!drawerOpen;document.getElementById('drawer').classList.toggle('collapsed',!drawerOpen);const a=document.getElementById('drawerArrow');a.classList.toggle('up',drawerOpen)}
 
-function init(){const V='10';if(localStorage.getItem('pb7_ver')!==V){localStorage.removeItem('pb7');localStorage.setItem('pb7_ver',V)}
+function init(){const V='11';if(localStorage.getItem('pb5_ver')!==V){localStorage.removeItem('pb5');localStorage.setItem('pb5_ver',V)}
 if(location.hash.length>1){try{plays=JSON.parse(atob(location.hash.slice(1)));if(!Array.isArray(plays))plays=[plays]}catch(e){plays=[]}}
-if(!plays.length){try{const s=localStorage.getItem('pb7');if(s)plays=JSON.parse(s)}catch(e){}}
+if(!plays.length){try{const s=localStorage.getItem('pb5');if(s)plays=JSON.parse(s)}catch(e){}}
 if(!plays.length)plays=[mkPlay()];
-if(localStorage.getItem('pb7_seen'))document.getElementById('onboard').style.display='none';
+if(localStorage.getItem('pb5_seen'))document.getElementById('onboard').style.display='none';
 // Start with drawer open
 drawerOpen=true;
 rTabs();swPlay(0);bLegend();draw();
@@ -255,7 +255,7 @@ cv.addEventListener('mousedown',onMD);cv.addEventListener('mousemove',onMM);cv.a
 cv.addEventListener('touchstart',onTS,{passive:false});cv.addEventListener('touchmove',onTM,{passive:false});cv.addEventListener('touchend',onTE,{passive:false});
 document.addEventListener('keydown',onKey);document.addEventListener('click',()=>{document.getElementById('ctxMenu').style.display='none'});
 document.addEventListener('keydown',function once(){if(document.getElementById('onboard').style.display!=='none')dismissOB();document.removeEventListener('keydown',once)});
-setInterval(()=>{try{localStorage.setItem('pb7',JSON.stringify(plays))}catch(e){}},3000)}
+setInterval(()=>{try{localStorage.setItem('pb5',JSON.stringify(plays))}catch(e){}},3000)}
 
 function rTabs(){const bar=document.getElementById('tabBar');bar.innerHTML='';plays.forEach((p,i)=>{const t=document.createElement('div');t.className='tab'+(i===cpIdx?' active':'');t.textContent=p.name||'Play '+(i+1);if(plays.length>1){const x=document.createElement('span');x.className='xt';x.textContent='×';x.onclick=e=>{e.stopPropagation();rmPlay(i)};t.appendChild(x)}t.onclick=()=>swPlay(i);bar.appendChild(t)})}
 function swPlay(i){cpIdx=i;const p=P();document.getElementById('playName').value=p.name||'';document.getElementById('formationName').value=p.formation||'';document.getElementById('playType').value=p.type||'Pass';document.getElementById('notesArea').value=p.notes||'';selP=null;drawing=false;drawPlayer=null;rawPts=[];rTabs();draw();upStat()}
@@ -334,9 +334,9 @@ const TMPLS={
   zone_blitz:{name:'Zone Blitz',side:'D',p:{DL:{x:-.5,y:0},LCB:{x:-3,y:-7},RCB:{x:-3,y:7},S:{x:-8,y:0},LB:{x:-1,y:-4}}}
 };
 function applyTmpl(){const v=document.getElementById('templateSelect').value;if(!v)return;const t=TMPLS[v];if(!t){applyCT(v);return}pushU();Object.entries(t.p).forEach(([id,pos])=>{const pl=P().players.find(p=>p.id===id);if(pl){pl.x=LOS_X+pos.x*YPX;pl.y=CY+pos.y*YPX}});document.getElementById('formationName').value=t.name;P().formation=t.name;rTabs();draw();toast(t.name);document.getElementById('templateSelect').value=''}
-function saveTmpl(){const n=prompt('Template name:');if(!n)return;const d={};P().players.forEach(pl=>{d[pl.id]={x:pl.x,y:pl.y}});let c=JSON.parse(localStorage.getItem('pb7t')||'{}');c[n]=d;localStorage.setItem('pb7t',JSON.stringify(c));loadCust();toast('Saved: '+n)}
-function loadCust(){const s=document.getElementById('templateSelect');s.querySelectorAll('.cu').forEach(o=>o.remove());let c=JSON.parse(localStorage.getItem('pb7t')||'{}');const ns=Object.keys(c);if(ns.length){const g=document.createElement('optgroup');g.label='Custom';g.className='cu';ns.forEach(n=>{const o=document.createElement('option');o.value='cu_'+n;o.textContent=n;o.className='cu';g.appendChild(o)});s.appendChild(g)}}
-function applyCT(k){const n=k.replace('cu_','');let c=JSON.parse(localStorage.getItem('pb7t')||'{}');if(!c[n])return;pushU();Object.entries(c[n]).forEach(([id,pos])=>{const pl=P().players.find(p=>p.id===id);if(pl){pl.x=pos.x;pl.y=pos.y}});document.getElementById('formationName').value=n;P().formation=n;draw();toast(n);document.getElementById('templateSelect').value=''}
+function saveTmpl(){const n=prompt('Template name:');if(!n)return;const d={};P().players.forEach(pl=>{d[pl.id]={x:pl.x,y:pl.y}});let c=JSON.parse(localStorage.getItem('pb5t')||'{}');c[n]=d;localStorage.setItem('pb5t',JSON.stringify(c));loadCust();toast('Saved: '+n)}
+function loadCust(){const s=document.getElementById('templateSelect');s.querySelectorAll('.cu').forEach(o=>o.remove());let c=JSON.parse(localStorage.getItem('pb5t')||'{}');const ns=Object.keys(c);if(ns.length){const g=document.createElement('optgroup');g.label='Custom';g.className='cu';ns.forEach(n=>{const o=document.createElement('option');o.value='cu_'+n;o.textContent=n;o.className='cu';g.appendChild(o)});s.appendChild(g)}}
+function applyCT(k){const n=k.replace('cu_','');let c=JSON.parse(localStorage.getItem('pb5t')||'{}');if(!c[n])return;pushU();Object.entries(c[n]).forEach(([id,pos])=>{const pl=P().players.find(p=>p.id===id);if(pl){pl.x=pos.x;pl.y=pos.y}});document.getElementById('formationName').value=n;P().formation=n;draw();toast(n);document.getElementById('templateSelect').value=''}
 function bLegend(){const g=document.getElementById('legendGrid');let h='<div class="legend-col"><div class="legend-col-title def">Defense</div>';defDef().forEach(d=>{h+='<div class="li"><div class="ld" style="background:'+d.color+';box-shadow:0 0 4px '+d.color+'"></div><span class="ll">'+d.label+'</span></div>'});h+='</div><div class="legend-col"><div class="legend-col-title off">Offense</div>';defOff().forEach(d=>{h+='<div class="li"><div class="ld" style="background:'+d.color+';box-shadow:0 0 4px '+d.color+'"></div><span class="ll">'+d.label+'</span></div>'});h+='</div>';g.innerHTML=h}
 function pushU(){undoS.push(JSON.stringify(plays));if(undoS.length>50)undoS.shift();redoS=[];upUB()}
 function undo(){if(!undoS.length)return;redoS.push(JSON.stringify(plays));plays=JSON.parse(undoS.pop());if(cpIdx>=plays.length)cpIdx=plays.length-1;swPlay(cpIdx);upUB()}
